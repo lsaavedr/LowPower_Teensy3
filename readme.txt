@@ -1,4 +1,4 @@
-Readme file for LowPower_Teensy3 Library beta2
+Readme file for LowPower_Teensy3 Library
 
 If you are not using Teensyduino 1.14 or greater then there is one edit you need to make to the mk20dx128.c core file: 
 Add -> "PMC_REGSC |= 0x08;" just under "SCB_VTOR = 0;" just under the ResetHandler function. 
@@ -16,7 +16,7 @@ ChangeLog Beta2:
 7.  New examples added
 8.  Defined GPIO wake pin names
 
-ChangeLog Stable:
+ChangeLog Stable v1.0:
 1.  Fixed where VLPR was not being retained becase of LPWUI bit not being set right
 2.  Added feature to enable LPWUI bit to exit VLPR with any interrupt
 3.  Fixed issue with VLPR locking up system if being called before exiting VLPR
