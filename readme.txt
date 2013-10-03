@@ -1,10 +1,8 @@
-LowPower_Teensy3 Library
+LowPower_Teensy3 Library v1.1
 
 If you are not using Teensyduino 1.14 or greater then there is one edit you need to make to the mk20dx128.c core file: 
 Add -> "PMC_REGSC |= 0x08;" just under "SCB_VTOR = 0;" just under the ResetHandler function. 
 This allows the mcu to release hold of the I/O when waking from sleep.
-
-
 
 ChangeLog Beta2:
 1.  Added struct to store sleep configurations
@@ -22,3 +20,9 @@ ChangeLog Stable v1.0:
 3.  Fixed issue with VLPR locking up system if being called before exiting VLPR
 4.  Disabled USB Regulator Standby mode during Low Power.
 5.  Cleaned up library code.
+
+ChangeLog Stable v1.1:
+1.  Added all digital wakeup capable pins for DeepSleep function
+2.  User can now use callback function for DeepSleep
+3.  Added Sleep function, now any interrupt can wake the processor
+4.  Improved code performance
