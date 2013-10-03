@@ -24,3 +24,4 @@ ChangeLog Stable v1.1:
 2.  User can now use callback function for DeepSleep
 3.  Added Sleep function, now any interrupt can wake the processor
 4.  Improved code performance
+5.  New example for Sleep function
