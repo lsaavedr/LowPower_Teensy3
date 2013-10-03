@@ -146,7 +146,6 @@ void TEENSY3_LP::Wait(uint8_t pin, void (*function)(void), int mode) {
 
 void TEENSY3_LP::Sleep(uint8_t pin, void (*function)(void), int mode) {
     attachInterrupt(0, function, mode);
-    dsfdsf
     Run(LP_RUN_ON);
     __disable_irq();
     SYST_CSR = 0;
