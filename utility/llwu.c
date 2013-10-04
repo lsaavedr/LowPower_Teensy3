@@ -44,6 +44,15 @@ void llwu_reset_enable(void) {
  *******************************************************************************/
 void llwu_configure(uint32_t pin_en, uint8_t rise_fall, uint32_t module_en ) {
     llwu_clear_flags();
+    //------------------------------------------------
+    LLWU_PE1 = 0;
+    if (pin_en & LLWU_PIN_26) {
+        LLWU_PE1 |= LLWU_PE1_WUPE0(rise_fall);
+    }
+    if (pin_en & LLWU_PIN_33) {
+        LLWU_PE1 |= LLWU_PE1_WUPE3(rise_fall);
+    }
+    //------------------------------------------------
     LLWU_PE2 = 0;
     if( pin_en & LLWU_PIN_4) {
         LLWU_PE2 |= LLWU_PE2_WUPE4(rise_fall);
@@ -62,10 +71,16 @@ void llwu_configure(uint32_t pin_en, uint8_t rise_fall, uint32_t module_en ) {
     if( pin_en & LLWU_PIN_10) {
         LLWU_PE3 |= LLWU_PE3_WUPE8(rise_fall);
     }
+    if( pin_en & LLWU_PIN_13) {
+        LLWU_PE3 |= LLWU_PE3_WUPE9(rise_fall);
+    }
     if( pin_en & LLWU_PIN_11) {
         LLWU_PE3 |= LLWU_PE3_WUPE10(rise_fall);
     }
-    
+    if( pin_en & LLWU_PIN_30) {
+        LLWU_PE3 |= LLWU_PE3_WUPE11(rise_fall);
+    }
+    //------------------------------------------------
     LLWU_PE4 = 0;
     if( pin_en & LLWU_PIN_2) {
         LLWU_PE4 |= LLWU_PE4_WUPE12(rise_fall);

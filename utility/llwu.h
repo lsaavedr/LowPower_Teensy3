@@ -29,10 +29,14 @@
 #define LLWU_PIN_7          0x2000
 #define LLWU_PIN_9          0x80
 #define LLWU_PIN_10         0x100
-#define LLWU_PIN_11         0x400
+#define LLWU_PIN_11         0x200
+#define LLWU_PIN_13         0x400
 #define LLWU_PIN_16         0x20
 #define LLWU_PIN_21         0x8000
 #define LLWU_PIN_22         0x40
+#define LLWU_PIN_26         0x01
+#define LLWU_PIN_30         0x800
+#define LLWU_PIN_33         0x02
 /********************************************************************/
 #ifdef __cplusplus
 extern "C" {
