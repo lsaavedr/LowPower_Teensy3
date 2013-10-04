@@ -7,7 +7,7 @@
  *  multiple wake sources with multiple configurations. 
  *  Debugging messages are printed through Serial 1.
  *
- *  Tested with Arduino 1.0.5 and Teensyduino 1.16rc1.    
+ *  Tested with Arduino 1.0.5 and Teensyduino 1.16.    
  *********************************************************/
 #include <LowPower_Teensy3.h>
 #include <Time.h> 
@@ -20,12 +20,16 @@ configSleep* LP_config;// sleep configuration
 
 uint8_t LEDPIN = 13;
 
+// User callback handler
+void callbackhandler() {
+  setSyncProvider(getTeensy3Time);
+}
+
 void setup() {
   Serial.begin(0);
   pinMode(LEDPIN, OUTPUT);
   Uart.begin(115200);
   setSyncProvider(getTeensy3Time);
-  //while(!Serial.dtr()) ;
   Uart.println("DeepSleep Advanced Example");
   if (timeStatus()!= timeSet) Uart.println("Unable to sync with the RTC"); 
   else Uart.println("RTC has set the system time");
@@ -46,16 +50,16 @@ void sleep_config_1() {
   // OR together different wake sources
   LP_config->modules = (RTCA_WAKE | TSI_WAKE);
   // RTC alarm wakeup in 20 seconds
-  LP_config->rtc_alarm = 20;
+  LP_config->rtc_alarm = 5;
   // enable pin 15 as TSI wakeup, only one pin can be used
   LP_config->tsi_pin = 15;
   // configure TSI wakeup threshold
   LP_config->tsi_threshold = touchRead(LP_config->tsi_pin) + 256;
+  // user callback function
+  LP_config->callbackfunc = callbackhandler;
   // sleep
   LP.DeepSleep(LP_config);
-  
-  setSyncProvider(getTeensy3Time);
-  
+ 
   blink();
   
   digitalClockDisplay();
@@ -84,15 +88,15 @@ void sleep_config_2() {
   // enable pin 6,7 as wake up source
   LP_config->gpio_pin = (PIN_6 | PIN_7);
   // Low-Power Timer wakeup in 20 secs
-  LP_config->lptmr_timeout =  20000;
+  LP_config->lptmr_timeout =  5000;
   // enable pin 16 as TSI wakeup, only one pin can be used
   LP_config->tsi_pin = 16;
   // configure TSI wakeup threshold
   LP_config->tsi_threshold = touchRead(LP_config->tsi_pin) + 256;
+  // user callback function
+  LP_config->callbackfunc = callbackhandler;
   // sleep
   LP.DeepSleep(LP_config);
-  
-  setSyncProvider(getTeensy3Time);
   
   blink();
   
