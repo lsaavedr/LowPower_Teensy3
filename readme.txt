@@ -16,7 +16,7 @@ ChangeLog Stable v1.0:
 1.  Fixed where VLPR was not being retained becase of LPWUI bit not being set right
 2.  Added feature to enable LPWUI bit to exit VLPR with any interrupt
 3.  Fixed issue with VLPR locking up system if being called before exiting VLPR
-4.  Disabled USB Regulator Standby mode during Low Power.
+4.  Disabled USB Regulator Standby mode during Low Power
 5.  Cleaned up library code.
 
 ChangeLog Stable v1.1:
