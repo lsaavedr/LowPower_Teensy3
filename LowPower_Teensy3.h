@@ -16,7 +16,7 @@
 #include "utility/rtc.h"
 #include "utility/tsi.h"
 
-/* Define Wakeup Pin */
+/* Define LLS & VLLS Wakeup Pin */
 #define PIN_2          0x1000
 #define PIN_4          0x10
 #define PIN_6          0x4000
