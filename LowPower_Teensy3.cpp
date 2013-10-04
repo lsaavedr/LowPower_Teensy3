@@ -41,31 +41,39 @@ TEENSY3_LP::TEENSY3_LP() {
 /****************************** Sleep *******************************
  * Routines to enable different sleep modes on the teensy3.
  *
- **wake_isr() - 
+ **void wake_isr() - 
  *      handles wake ups from LLS or VLLS. It clears LLWU flags
  *      sets MCG_C1 to PEE run mode clears flags and sets wakeup
  *      variable.
+ * Arguments: NONE
  *
- **RUN(uint8_t mode, uint8_t woi) - 
+ **void defaultCallback() -
+ *      gets called if no user callback function is defined.
+ * Arguments: NONE
+ *
+ **void RUN(uint8_t mode, uint8_t woi) - 
  *      transition into BLPI mode which configures the core(2 MHZ), 
  *      bus(2 MHZ), flash(1 MHZ) clocks and configures SysTick for 
  *      the reduced freq, then enter into vlpr mode. Exiting Low Power 
  *      Run mode will transition to PEE mode and reconfigures clocks
  *      and SysTick to a pre RUN state and exit vlpr to normal run.
- * Parameter:  mode -> LP_RUN_ON = enter Low Power Run(VLPR)
+ * Arguments:  mode -> LP_RUN_ON = enter Low Power Run(VLPR)
  *             mode -> LP_RUN_OFF = exit Low Power Run(VLPR)
  *             woi  -> NO_WAKE_ON_INTERRUPT = no exit LPR on interrupt 
  *             woi  -> WAKE_ON_INTERRUPT = exit LPR on interrupt
- *
- * WAIT() - todo... Configure wait mode.
  * 
- * Sleep() - todo... Configure stop mode.
+ **void Sleep() - 
+ *      Very versatile sleep option that the can be woken up by many more sources than 
+ *      other modes. This puts the processor into Wait Mode and disables the systick, 
+ *      any digital pin using attachInterrupt or any of the timers can wake it from 
+ *      Sleep Mode.
+ * Arguments: NONE
  * 
- **DeepSleep(uint8_t wakeType, uint32_t var, uint16_t var2, void (*callbackfunc)()) - 
+ **void DeepSleep(uint8_t wakeType, uint32_t var, uint16_t var2, void (*callbackfunc)()) - 
  *      set teensy3 to LLS sleep mode. Exited by Low-Power Timer, 
  *      Digital Pin, RTC and TSI; Code execution begins after call 
  *      to DeepSleep function. User callback function will proceed from wakeup_isr()
- * Parameters:  wakeType -> LPTMR_WAKE, GPIO_WAKE, RTCA_WAKE, TSI_WAKE defines
+ * Arguments:  wakeType -> LPTMR_WAKE, GPIO_WAKE, RTCA_WAKE, TSI_WAKE defines
  *              var -> LPTMR_WAKE = timeout in msec
  *              var -> GPIO = wake pin, which are defined in the header
  *              var -> RTCA = alarm in secs
@@ -73,18 +81,18 @@ TEENSY3_LP::TEENSY3_LP() {
  *              var2 -> TSI wakeup threshold
  *              void (*callbackfunc)() -> pointer to user callback function from wakeup_isr()
  *
- **DeepSleep(volatile struct configSleep* config) -
+ **void DeepSleep(volatile struct configSleep* config) -
  *      uses the struct to configure the teensy wake sources. This
  *      allows the teensy to have mulitple wakeup sources and  
  *      mulitple configurations.
- * Parameters:  configSleep* struct - defined in header
+ * Arguments:  configSleep* struct - defined in header
  *
  *
- **Hibernate(uint8_t wakeType, uint32_t var, uint16_t var2, void (*callbackfunc)()) - 
+ **void Hibernate(uint8_t wakeType, uint32_t var, uint16_t var2, void (*callbackfunc)()) - 
  *      set teensy3 to VLLS3 sleep mode. Exited by Low-Power Timer,
  *      Digital Pin, RTC and TSI; Code execution begins after call
  *      to DeepSleep function. Code execution begins through reset flow.
- * Parameters:  wakeType -> LPTMR_WAKE, GPIO_WAKE, RTCA_WAKE, TSI_WAKE defines
+ * Arguments:  wakeType -> LPTMR_WAKE, GPIO_WAKE, RTCA_WAKE, TSI_WAKE defines
  *              var -> LPTMR_WAKE = timeout in msec
  *              var -> GPIO = wake pin, which are defined in the header
  *              var -> RTCA = alarm in secs
@@ -92,25 +100,23 @@ TEENSY3_LP::TEENSY3_LP() {
  *              var2 -> TSI wakeup threshold
  *              void (*callbackfunc)() -> pointer to user callback function from wakeup_isr()
  *
- **Hibernate(volatile struct configSleep* config) -
+ **void Hibernate(volatile struct configSleep* config) -
  *      uses the struct to configure the teensy wake sources. This
  *      allows the teensy to have mulitple wakeup sources and
  *      mulitple configurations.
- * Parameters:  configSleep* struct - defined in header
+ * Arguments:  configSleep* struct - defined in header
  *
  *
- **PrintSRS() - 
+ **void PrintSRS() - 
  *      prints the reset type and current power mode.
- *
- *
- * Note:   This is work in progress, not sure of all the implications
- *         on teensy functionality when using sleep mode routines. 
  ********************************************************************/
 
 void wakeup_isr(void) {
     wakeSource = llwu_clear_flags();// clear llwu flags after wakeup a/ store wakeup source
     
     pbe_pee();// mcu is in PBE from LLS wakeup, transition back to PEE
+    
+    // clear wakeup module registers and stop them
     if (stopflag & LPTMR_WAKE && lowLeakageSource == LLS) {
         lptmr_stop();
     }
@@ -122,7 +128,7 @@ void wakeup_isr(void) {
     }
     NVIC_DISABLE_IRQ(IRQ_LLWU); // disable wakeup isr
     
-    (*callbackHandler)();
+    (*callbackHandler)();// callback
 }
 
 // if no callback function is used by the user this gets called
@@ -144,7 +150,6 @@ void TEENSY3_LP::Run(uint8_t mode, uint8_t woi) {
 }
 //----------------------------------------------------------------------------------------------------------
 void TEENSY3_LP::Sleep() {
-    //attachInterrupt(0, function, mode);
     Run(LP_RUN_ON);
     __disable_irq();
     SYST_CSR = 0;
@@ -163,29 +168,34 @@ void TEENSY3_LP::DeepSleep(uint32_t wakeType, uint32_t var1, uint16_t var2, void
         stopflag |= LPTMR_WAKE;
         lptmrHandle(var1);
         llwu_configure(0, 0, wakeType);
-        NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
-        enter_lls();// enter lls sleep mode
+        //NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
+        //enter_lls();// enter lls sleep mode
     }
     if (wakeType & GPIO_WAKE) {
         gpioHandle(var1, PIN_ANY);
         llwu_configure(var1, PIN_ANY, wakeType);
-        NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
-        enter_lls();// enter lls sleep mode
+        //NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
+        //enter_lls();// enter lls sleep mode
     }
     if (wakeType & RTCA_WAKE) {
         stopflag |= RTCA_WAKE;
         rtcHandle(var1);
         llwu_configure(0, 0, wakeType);
-        NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
-        enter_lls();// enter lls sleep mode
+        //NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
+        //enter_lls();// enter lls sleep mode
     }
     if (wakeType & TSI_WAKE) {
         stopflag |= TSI_WAKE;
         tsiHandle(var1, var2);
         llwu_configure(0, 0, wakeType);
-        NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
-        enter_lls();// enter lls sleep mode
+        //NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
+        //enter_lls();// enter lls sleep mode
     }
+    
+    NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
+    
+    enter_lls();// enter lls sleep mode
+    
     __enable_irq();
 }
 
@@ -250,6 +260,7 @@ void TEENSY3_LP::DeepSleep(volatile struct configSleep* config) {
 void TEENSY3_LP::Hibernate(uint32_t wakeType, uint32_t var1, uint16_t var2, void (*callbackfunc)()) {
     callbackHandler = callbackfunc;
     lowLeakageSource = VLLS;
+    __disable_irq();
     if (wakeType & LPTMR_WAKE) {
         lptmrHandle(var1);
         llwu_configure(0, 0, wakeType);
@@ -274,6 +285,7 @@ void TEENSY3_LP::Hibernate(uint32_t wakeType, uint32_t var1, uint16_t var2, void
         NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
         enter_vlls3();// enter lls sleep mode
     }
+    __enable_irq();
 }
 
 void TEENSY3_LP::Hibernate(uint32_t wakeType, uint32_t var1, uint16_t var2) {
@@ -296,6 +308,7 @@ void TEENSY3_LP::Hibernate(volatile struct configSleep* config) {
     }
     lowLeakageSource = VLLS;
     stopflag = 0;
+    __disable_irq();
     if (config->modules & GPIO_WAKE) {
         gpioHandle(config->gpio_pin, PIN_ANY);
     }
@@ -326,58 +339,54 @@ void TEENSY3_LP::Hibernate(volatile struct configSleep* config) {
     NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
     
     enter_vlls3();// enter vlls3 sleep mode
+    
+    __enable_irq();
 }
 //----------------------------------------------------------------------------------------------------------
 void TEENSY3_LP::PrintSRS(void) {
-    Serial1.println("------------------------------------------");
-    if (RCM_SRS1 & RCM_SRS1_SACKERR_MASK) Serial1.println("[RCM_SRS0] - Stop Mode Acknowledge Error Reset");
-    if (RCM_SRS1 & RCM_SRS1_MDM_AP_MASK) Serial1.println("[RCM_SRS0] - MDM-AP Reset");
-    if (RCM_SRS1 & RCM_SRS1_SW_MASK) Serial1.println("[RCM_SRS0] - Software Reset");
-    if (RCM_SRS1 & RCM_SRS1_LOCKUP_MASK) Serial1.println("[RCM_SRS0] - Core Lockup Event Reset");
-    if (RCM_SRS0 & RCM_SRS0_POR_MASK) Serial1.println("[RCM_SRS0] - Power-on Reset");
-    if (RCM_SRS0 & RCM_SRS0_PIN_MASK) Serial1.println("[RCM_SRS0] - External Pin Reset");
-    if (RCM_SRS0 & RCM_SRS0_WDOG_MASK) Serial1.println("[RCM_SRS0] - Watchdog(COP) Reset");
-    if (RCM_SRS0 & RCM_SRS0_LOC_MASK) Serial1.println("[RCM_SRS0] - Loss of External Clock Reset");
-    if (RCM_SRS0 & RCM_SRS0_LOL_MASK) Serial1.println("[RCM_SRS0] - Loss of Lock in PLL Reset");
-    if (RCM_SRS0 & RCM_SRS0_LVD_MASK) Serial1.println("[RCM_SRS0] - Low-voltage Detect Reset");
+    Serial.println("------------------------------------------");
+    if (RCM_SRS1 & RCM_SRS1_SACKERR_MASK) Serial.println("[RCM_SRS0] - Stop Mode Acknowledge Error Reset");
+    if (RCM_SRS1 & RCM_SRS1_MDM_AP_MASK) Serial.println("[RCM_SRS0] - MDM-AP Reset");
+    if (RCM_SRS1 & RCM_SRS1_SW_MASK) Serial.println("[RCM_SRS0] - Software Reset");
+    if (RCM_SRS1 & RCM_SRS1_LOCKUP_MASK) Serial.println("[RCM_SRS0] - Core Lockup Event Reset");
+    if (RCM_SRS0 & RCM_SRS0_POR_MASK) Serial.println("[RCM_SRS0] - Power-on Reset");
+    if (RCM_SRS0 & RCM_SRS0_PIN_MASK) Serial.println("[RCM_SRS0] - External Pin Reset");
+    if (RCM_SRS0 & RCM_SRS0_WDOG_MASK) Serial.println("[RCM_SRS0] - Watchdog(COP) Reset");
+    if (RCM_SRS0 & RCM_SRS0_LOC_MASK) Serial.println("[RCM_SRS0] - Loss of External Clock Reset");
+    if (RCM_SRS0 & RCM_SRS0_LOL_MASK) Serial.println("[RCM_SRS0] - Loss of Lock in PLL Reset");
+    if (RCM_SRS0 & RCM_SRS0_LVD_MASK) Serial.println("[RCM_SRS0] - Low-voltage Detect Reset");
     if (RCM_SRS0 & RCM_SRS0_WAKEUP_MASK) {
-        Serial1.println("[RCM_SRS0] Wakeup bit set from low power mode ");
-        if ((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 3) Serial1.println("[SMC_PMCTRL] - LLS exit ") ;
-        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 0)) Serial1.println("[SMC_PMCTRL] - VLLS0 exit ") ;
-        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 1)) Serial1.println("[SMC_PMCTRL] - VLLS1 exit ") ;
-        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 2)) Serial1.println("[SMC_PMCTRL] - VLLS2 exit") ;
-        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 3)) Serial1.println("[SMC_PMCTRL] - VLLS3 exit ") ;
+        Serial.println("[RCM_SRS0] Wakeup bit set from low power mode ");
+        if ((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 3) Serial.println("[SMC_PMCTRL] - LLS exit ") ;
+        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 0)) Serial.println("[SMC_PMCTRL] - VLLS0 exit ") ;
+        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 1)) Serial.println("[SMC_PMCTRL] - VLLS1 exit ") ;
+        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 2)) Serial.println("[SMC_PMCTRL] - VLLS2 exit") ;
+        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 3)) Serial.println("[SMC_PMCTRL] - VLLS3 exit ") ;
     }
-    if (SMC_PMSTAT == 0x01) Serial1.println("[SMC_PMSTAT] - Current Power Mode RUN") ;
-    if (SMC_PMSTAT == 0x02) Serial1.println("[SMC_PMSTAT] - Current Power Mode STOP") ;
-    if (SMC_PMSTAT == 0x04) Serial1.println("[SMC_PMSTAT] - Current Power Mode VLPR") ;
-    if (SMC_PMSTAT == 0x08) Serial1.println("[SMC_PMSTAT] - Current Power Mode VLPW") ;
-    if (SMC_PMSTAT == 0x10) Serial1.println("[SMC_PMSTAT] - Current Power Mode VLPS") ;
-    if (SMC_PMSTAT == 0x20) Serial1.println("[SMC_PMSTAT] - Current Power Mode LLS") ;
-    if (SMC_PMSTAT == 0x40) Serial1.println("[SMC_PMSTAT] - Current Power Mode VLLS") ;
-    Serial1.println("------------------------------------------");
+    if (SMC_PMSTAT == 0x01) Serial.println("[SMC_PMSTAT] - Current Power Mode RUN") ;
+    if (SMC_PMSTAT == 0x02) Serial.println("[SMC_PMSTAT] - Current Power Mode STOP") ;
+    if (SMC_PMSTAT == 0x04) Serial.println("[SMC_PMSTAT] - Current Power Mode VLPR") ;
+    if (SMC_PMSTAT == 0x08) Serial.println("[SMC_PMSTAT] - Current Power Mode VLPW") ;
+    if (SMC_PMSTAT == 0x10) Serial.println("[SMC_PMSTAT] - Current Power Mode VLPS") ;
+    if (SMC_PMSTAT == 0x20) Serial.println("[SMC_PMSTAT] - Current Power Mode LLS") ;
+    if (SMC_PMSTAT == 0x40) Serial.println("[SMC_PMSTAT] - Current Power Mode VLLS") ;
+    Serial.println("------------------------------------------");
 }
 /***************************** PRIVATE: ******************************/
 void TEENSY3_LP::gpioHandle(uint32_t pin, uint8_t pinType) {
-    Serial.send_now();// send any pending usb data
-    delay(5);
+    Serial.send_now();// send any pending usb packets
     Serial.flush();// flush USB
-    delay(5);
 }
 
 void TEENSY3_LP::lptmrHandle(float timeout) {
-    Serial.send_now();// send any pending usb data
-    delay(5);
+    Serial.send_now();// send any pending usb packets
     Serial.flush();// flush USB
-    delay(5);
     lptmr_start(timeout);// start timer in msec
 }
 
 void TEENSY3_LP::rtcHandle(unsigned long unixSec) {
-    Serial.send_now();// send any pending usb data
-    delay(5);
+    Serial.send_now();// send any pending usb packets
     Serial.flush();// flush USB
-    delay(5);
     rtc_alarm(unixSec);// alarm in secs
 }
 
@@ -386,10 +395,8 @@ void TEENSY3_LP::cmpHandle(void) {
 }
 
 void TEENSY3_LP::tsiHandle(uint8_t var, uint16_t threshold) {
-    Serial.send_now();// send any pending usb data
-    delay(5);
+    Serial.send_now();// send any pending usb packets
     Serial.flush();// flush USB
-    delay(5);
     tsi_sleep(var, threshold);// tsi pin and wake threshold
 }
 
