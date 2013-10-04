@@ -17,17 +17,20 @@
 #include "utility/tsi.h"
 
 /* Define Wakeup Pin */
-#define PIN_2           0x1000
-#define PIN_4           0x10
-#define PIN_6           0x4000
-#define PIN_7           0x2000
-#define PIN_9           0x80
-#define PIN_10          0x100
-#define PIN_11          0x400
-#define PIN_16          0x20
-#define PIN_21          0x8000
-#define PIN_22          0x40
-
+#define PIN_2          0x1000
+#define PIN_4          0x10
+#define PIN_6          0x4000
+#define PIN_7          0x2000
+#define PIN_9          0x80
+#define PIN_10         0x100
+#define PIN_11         0x200
+#define PIN_13         0x400
+#define PIN_16         0x20
+#define PIN_21         0x8000
+#define PIN_22         0x40
+#define PIN_26         0x01
+#define PIN_30         0x800
+#define PIN_33         0x02
 
 /* Define Pin Interrupt Type */
 #define PIN_DISABLED    0x00
@@ -70,6 +73,8 @@ struct configSleep {
     uint8_t tsi_pin;
     /* Structure wake source */
     uint32_t wake_source;
+    /* pointer to callback function */
+    void (*callbackfunc)();
 };    
     
 class TEENSY3_LP {
@@ -83,23 +88,26 @@ private:
     /* TSI Intialize  */
     void tsiIntialize(void);
 public:
-    
     TEENSY3_LP();// Constructor
     /* Sleep Functions */
-    void PrintSRS(void);
     void Run(uint8_t mode);
     void Run(uint8_t mode, uint8_t woi);
-    void Wait(uint8_t pin, void (*function)(void), int mode);
-    void Sleep(uint8_t pin, void (*function)(void), int mode);
-    void DeepSleep(uint32_t wakeType, uint32_t var, void (*callbackfunc)());
+    //---------------------------------------------------------------------------------------
+    void Sleep();
+    //---------------------------------------------------------------------------------------
     void DeepSleep(uint32_t wakeType, uint32_t var1, uint16_t var2, void (*callbackfunc)());
-    void DeepSleep(uint32_t wakeType, uint32_t var, uint16_t var2);
-    void DeepSleep(uint32_t wakeType, uint32_t var);
-    void DeepSleep(volatile struct configSleep* config, void (*callbackfunc)());
+    void DeepSleep(uint32_t wakeType, uint32_t var1, void (*callbackfunc)());
+    void DeepSleep(uint32_t wakeType, uint32_t var1, uint16_t var2);
+    void DeepSleep(uint32_t wakeType, uint32_t var1);
     void DeepSleep(volatile struct configSleep* config);
+    //---------------------------------------------------------------------------------------
+    void Hibernate(uint32_t wakeType, uint32_t var1, uint16_t var2, void (*callbackfunc)());
     void Hibernate(uint32_t wakeType, uint32_t var1, uint16_t var2);
-    void Hibernate(uint32_t wakeType, uint32_t var);
+    void Hibernate(uint32_t wakeType, uint32_t var1, void (*callbackfunc)());
+    void Hibernate(uint32_t wakeType, uint32_t var1);
     void Hibernate(volatile struct configSleep* config);
+    //---------------------------------------------------------------------------------------
+    void PrintSRS(void);
 };
 
 #endif
