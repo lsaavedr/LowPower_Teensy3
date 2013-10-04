@@ -50,7 +50,7 @@ void sleep_config_1() {
   // OR together different wake sources
   LP_config->modules = (RTCA_WAKE | TSI_WAKE);
   // RTC alarm wakeup in 20 seconds
-  LP_config->rtc_alarm = 5;
+  LP_config->rtc_alarm = 20;
   // enable pin 15 as TSI wakeup, only one pin can be used
   LP_config->tsi_pin = 15;
   // configure TSI wakeup threshold
@@ -88,7 +88,7 @@ void sleep_config_2() {
   // enable pin 6,7 as wake up source
   LP_config->gpio_pin = (PIN_6 | PIN_7);
   // Low-Power Timer wakeup in 20 secs
-  LP_config->lptmr_timeout =  5000;
+  LP_config->lptmr_timeout =  20000;
   // enable pin 16 as TSI wakeup, only one pin can be used
   LP_config->tsi_pin = 16;
   // configure TSI wakeup threshold
