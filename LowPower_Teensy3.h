@@ -1,20 +1,47 @@
 /*
- *  LowPower_Teensy3.h
- *  Teensy3
- *
- *  Created by colin duffy on 4/26/13.
+ ||
+ || @file 		LowPower_Teensy3.h
+ || @version 	3
+ || @author 	Colin Duffy
+ || @contact 	cmduffy@engr.psu.edu
+ ||
+ || @description
+ || | A simple DMA Hardware Serial class for transfering data in the background.
+ || | This allows you to send data and move on very quickly. The DMA engine will
+ || | complete the transfer without CPU intervention. Sending is buffered so once
+ || | the first transfer is complete any messages in the buffer are automatically
+ || | sent without user intervention. Recieving is buffered by user settings but
+ || | defaults to a single byte.
+ || |
+ || | This library really shines in transfering and recieving large amount od data
+ || | where polling type serial would just fail.
+ || #
+ ||
+ || @license
+ || | Copyright (c) 2014 Colin Duffy
+ || | This library is free software; you can redistribute it and/or
+ || | modify it under the terms of the GNU Lesser General Public
+ || | License as published by the Free Software Foundation; version
+ || | 2.1 of the License.
+ || |
+ || | This library is distributed in the hope that it will be useful,
+ || | but WITHOUT ANY WARRANTY; without even the implied warranty of
+ || | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ || | Lesser General Public License for more details.
+ || |
+ || | You should have received a copy of the GNU Lesser General Public
+ || | License along with this library; if not, write to the Free Software
+ || | Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ || #
+ ||
  */
 
 #ifndef LowPower_Teensy3
 #define LowPower_Teensy3
-
+#include "Arduino.h"
 #include "utility/mk20dx128_ext.h"
-#include "utility/lptmr.h"
-#include "utility/llwu.h"
-#include "utility/smc.h"
-#include "utility/mcg.h"
-#include "utility/rtc.h"
-#include "utility/tsi.h"
+#include "utility/t3core2lp.h"
+#include "utility/module.h"
 
 /* Define LLS & VLLS Wakeup Pin */
 #define PIN_2          0x1000
@@ -51,12 +78,35 @@
 #define LP_RUN_ON       0x01
 #define LP_RUN_OFF      0x02
 
-#define NO_WAKE_ON_INTERRUPT  0x00
-#define WAKE_ON_INTERRUPT     0x01
+#define NO_WAKE_ON_IRQ  0x00
+#define WAKE_ON_IRQ     0x01
 
 /* Define Low Leakage Source */
 #define LLS             0x01
 #define VLLS            0x02
+
+/* Hardware Serial Baud VLPR Mode */
+#define TWO_MHZ     2000000
+#define FOUR_MHZ    4000000
+#define EIGHT_MHZ   8000000
+#define SIXTEEN_MHZ 16000000
+
+#define BLPI_CPU    2000000
+#define BLPI_BUS    2000000
+#define BLPI_MEM    1000000
+
+#define BLPE_CPU    4000000
+#define BLPE_BUS    4000000
+#define BLPE_MEM    1000000
+//#define VLPR_CPU(x) x == BLPI_CPU ? BLPI_CPU : BLPE_CPU
+//#define VLPR_BUS(x) x == BLPI_CPU ? BLPI_CPU : BLPE_CPU
+//#define VLPR_CPU 2000000
+//#define VLPR_BUS 2000000
+//#define VLPR_MEM 1000000
+#define VLPR_BAUD2DIV(baud, cpu) (((cpu * 2) + ((baud) >> 1)) / (baud))
+#define VLPR_BAUD2DIV3(baud, bus) (((bus * 2) + ((baud) >> 1)) / (baud))
+
+class TEENSY3_LP;
 
 struct configSleep {
     /* Module Wake Type */
@@ -74,40 +124,118 @@ struct configSleep {
     /* Structure wake source */
     uint32_t wake_source;
     /* pointer to callback function */
-    void (*callbackfunc)();
-};    
-    
+    void (*callback)();
+};
+
 class TEENSY3_LP {
 private:
-    /* Sleep Functions */
+    /* Handler Functions */
     void gpioHandle(uint32_t pin, uint8_t pinType);
     void lptmrHandle(float timeout);
     void rtcHandle(unsigned long unixSec);
     void cmpHandle(void);
     void tsiHandle(uint8_t var, uint16_t threshold);
+    inline bool sleepHandle(const char* caller, uint32_t wakeType, uint32_t var1, uint16_t var2) __attribute__((always_inline)) ;
+    void sleepHandle(volatile struct configSleep* config);
     /* TSI Intialize  */
     void tsiIntialize(void);
+    /* private class access to wakeup ISR  */
+    friend void wakeup_isr(void);
+    /* handle call to user callback  */
+    typedef void (*ISR)();
+    static ISR CALLBACK;
+    /* default callback ISR  */
+    static void defaultCallback() { yield(); };
+    
+    static volatile uint32_t wakeSource;// hold llwu wake up source for wakeup isr
+    static volatile uint32_t stopflag;// hold module wake up sources for wakeup isr
+    static volatile uint8_t lowLeakageSource;// hold lowleakage mode for wakeup isr
+    
+    friend class IntervalTimer_LP;
+    friend class HardwareSerial_LP;
+    friend class HardwareSerial2_LP;
+    friend class HardwareSerial3_LP;
+    static volatile uint32_t _cpu;
+    static volatile uint32_t _bus;
+    static volatile uint32_t _mem;
 public:
-    TEENSY3_LP();// Constructor
+    // Constructor
+    TEENSY3_LP(void);
+    //---------------------------------------------------------------------------------------
     /* Sleep Functions */
-    void Run(uint8_t mode);
+    //----------------------------------------Run--------------------------------------------
     void Run(uint8_t mode, uint8_t woi);
-    //---------------------------------------------------------------------------------------
+    void Run(uint8_t mode) { Run(mode, 0); }
+    int CPU(uint32_t freq);
+    //---------------------------------------Sleep-------------------------------------------
     void Sleep();
-    //---------------------------------------------------------------------------------------
-    void DeepSleep(uint32_t wakeType, uint32_t var1, uint16_t var2, void (*callbackfunc)());
-    void DeepSleep(uint32_t wakeType, uint32_t var1, void (*callbackfunc)());
-    void DeepSleep(uint32_t wakeType, uint32_t var1, uint16_t var2);
-    void DeepSleep(uint32_t wakeType, uint32_t var1);
+    //--------------------------------------DeepSleep----------------------------------------
+    void DeepSleep(uint32_t wakeType, uint32_t var1, uint16_t var2, ISR myCallback);
+    void DeepSleep(uint32_t wakeType, uint32_t var1, ISR myCallback) { DeepSleep(wakeType, var1, 0, myCallback); }
+    void DeepSleep(uint32_t wakeType, uint32_t var1, uint16_t var2) { DeepSleep(wakeType, var1, var2, defaultCallback); }
+    void DeepSleep(uint32_t wakeType, uint32_t var1) { DeepSleep(wakeType, var1, 0, defaultCallback); }
     void DeepSleep(volatile struct configSleep* config);
-    //---------------------------------------------------------------------------------------
-    void Hibernate(uint32_t wakeType, uint32_t var1, uint16_t var2, void (*callbackfunc)());
-    void Hibernate(uint32_t wakeType, uint32_t var1, uint16_t var2);
-    void Hibernate(uint32_t wakeType, uint32_t var1, void (*callbackfunc)());
-    void Hibernate(uint32_t wakeType, uint32_t var1);
+    //--------------------------------------Hibernate----------------------------------------
+    void Hibernate(uint32_t wakeType, uint32_t var1, uint16_t var2, ISR myCallback);
+    void Hibernate(uint32_t wakeType, uint32_t var1, uint16_t var2) { Hibernate(wakeType, var1, var2, defaultCallback); }
+    void Hibernate(uint32_t wakeType, uint32_t var1, ISR myCallback) { Hibernate(wakeType, var1, 0, myCallback); }
+    void Hibernate(uint32_t wakeType, uint32_t var1) { Hibernate(wakeType, var1, 0, defaultCallback); }
     void Hibernate(volatile struct configSleep* config);
-    //---------------------------------------------------------------------------------------
+    //---------------------------------------PrintSRS----------------------------------------
     void PrintSRS(void);
+    //-----------------------------------------Core------------------------------------------
+    uint32_t cpuFreq(void) { return _cpu; }
+    static uint32_t micros() { micros_lp(_cpu); }
+    static void delay(uint32_t msec) { delay_lp(msec,_cpu); }
+    static void delayMicroseconds(uint32_t usec) { delayMicroseconds_lp(usec, _cpu); }
+    
+};
+
+// Must make interval timer private members protetced.
+class IntervalTimer_LP : public IntervalTimer {
+private:
+public:
+    bool begin(ISR newISR, unsigned int newPeriod) {
+        if (newPeriod == 0 || newPeriod > MAX_PERIOD) return false;
+        uint32_t newValue = (TEENSY3_LP::_cpu / 1000000) * newPeriod - 1;
+        return beginCycles(newISR, newValue);
+    }
+};
+
+class HardwareSerial_LP : public HardwareSerial {
+private:
+public:
+    void begin(uint32_t baud) {
+        serial_begin(VLPR_BAUD2DIV(baud, TEENSY3_LP::_cpu));
+    }
+    void begin(uint32_t baud, uint32_t format) {
+        serial_begin(VLPR_BAUD2DIV(baud, TEENSY3_LP::_cpu));
+        serial_format(format);
+    }
+    void end(void) {
+        uart1Disable();
+        serial_end();
+    }
+};
+
+class HardwareSerial2_LP : public HardwareSerial2 {
+private:
+public:
+    void begin(uint32_t baud) { serial2_begin(VLPR_BAUD2DIV(baud, TEENSY3_LP::_cpu)); }
+    void begin(uint32_t baud, uint32_t format) {
+        serial2_begin(VLPR_BAUD2DIV(baud, TEENSY3_LP::_cpu));
+        serial2_format(format);
+    }
+};
+
+class HardwareSerial3_LP : public HardwareSerial3 {
+private:
+public:
+    void begin(uint32_t baud) { serial3_begin(VLPR_BAUD2DIV3(baud, TEENSY3_LP::_bus)); }
+    void begin(uint32_t baud, uint32_t format) {
+        serial3_begin(VLPR_BAUD2DIV3(baud, TEENSY3_LP::_bus));
+        serial3_format(format);
+    }
 };
 
 #endif

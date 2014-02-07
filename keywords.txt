@@ -6,7 +6,10 @@
 # Datatypes (KEYWORD1)
 #######################################
 TEENSY3_LP	KEYWORD1
-
+IntervalTimer_LP	KEYWORD1
+HardwareSerial_LP	KEYWORD1
+HardwareSerial2_LP	KEYWORD1
+HardwareSerial3_LP	KEYWORD1
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
@@ -16,6 +19,7 @@ StartTimer	KEYWORD2
 StopTimer	KEYWORD2
 PrintSRS	KEYWORD2
 Run	KEYWORD2
+CPU	KEYWORD2
 Wait	KEYWORD2
 Sleep	KEYWORD2
 DeepSleep	KEYWORD2
@@ -78,3 +82,7 @@ LP_RUN_ON	LITERAL1
 LP_RUN_OFF	LITERAL1
 NO_WAKE_ON_INTERRUPT	LITERAL1
 WAKE_ON_INTERRUPT	LITERAL1
+TWO_MHZ	LITERAL1
+FOUR_MHZ	LITERAL1
+EIGHT_MHZ	LITERAL1
+SIXTEEN_MHZ	LITERAL1
