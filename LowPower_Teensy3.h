@@ -6,15 +6,6 @@
  || @contact 	cmduffy@engr.psu.edu
  ||
  || @description
- || | A simple DMA Hardware Serial class for transfering data in the background.
- || | This allows you to send data and move on very quickly. The DMA engine will
- || | complete the transfer without CPU intervention. Sending is buffered so once
- || | the first transfer is complete any messages in the buffer are automatically
- || | sent without user intervention. Recieving is buffered by user settings but
- || | defaults to a single byte.
- || |
- || | This library really shines in transfering and recieving large amount od data
- || | where polling type serial would just fail.
  || #
  ||
  || @license

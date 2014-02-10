@@ -7,6 +7,7 @@
 //
 
 #include <t3core2lp.h>
+#include "Arduino.h"
 
 uint32_t micros_lp(uint32_t f_cpu) {
 	uint32_t count, current, istatus;

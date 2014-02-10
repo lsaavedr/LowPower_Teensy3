@@ -10,10 +10,14 @@
  *              Not very accurate need to work on configuration
  *******************************************************************************/
 #include "lptmr.h"
+#include "bitband.h"
+
+#define SIM_SCGC5_LPTIMER_BIT 0x00
 
 void lptmr_start(float period) {
     /* SIM_SCGC5: LPTMR=1 */
-    SIM_SCGC5 |= SIM_SCGC5_LPTIMER;
+    //SIM_SCGC5 |= SIM_SCGC5_LPTIMER;
+    BITBAND_U32(SIM_SCGC5, SIM_SCGC5_LPTIMER_BIT) = 1;// Bit Banded ;>) Turn ON LPTIMER clk
     /* LPTMR0_PSR: PRESCALE=0,PBYP=0,PCS=1 */
     LPTMR0_PSR = LPTMR_PSR_PCS(0x01) | LPTMR_PSR_PBYP_MASK;
     /* LPTMR0_CSR: TCF=0,TIE=0,TPS=0,TPP=0,TFC=0,TMS=0,TEN=0 */
@@ -31,4 +35,5 @@ void lptmr_start(float period) {
 void lptmr_stop(void) {
     LPTMR0_CSR |= LPTMR_CSR_TCF_MASK;
     LPTMR0_CSR &= ~LPTMR_CSR_TEN_MASK;
+    BITBAND_U32(SIM_SCGC5, SIM_SCGC5_LPTIMER_BIT) = 0;// Bit Banded ;>) Turn OFF LPTIMER clk
 }

@@ -17,6 +17,7 @@
 #include "utility/cmp.h"
 #include "utility/module.h"
 #include "util/atomic.h"
+#include "utility/bitband.h"
 volatile uint32_t TEENSY3_LP::wakeSource;// hold llwu wake up source for wakeup isr
 volatile uint32_t TEENSY3_LP::stopflag;// hold module wake up sources for wakeup isr
 volatile uint8_t TEENSY3_LP::lowLeakageSource;// hold lowleakage mode for wakeup isr
@@ -45,6 +46,7 @@ TEENSY3_LP::TEENSY3_LP() {
     SIM_SOPT1 &= ~SIM_SOPT1_USBVSTBY_MASK;
     // clear llwu flags
     wakeSource = llwu_clear_flags();
+    
     _cpu = F_CPU;
     _bus = F_BUS;
     _mem = F_MEM;
@@ -121,7 +123,7 @@ TEENSY3_LP::TEENSY3_LP() {
  **void PrintSRS() - 
  *      prints the reset type and current power mode.
  ********************************************************************/
-
+/******************************** ISR: *********************************/
 TEENSY3_LP::ISR TEENSY3_LP::CALLBACK;
 
 void wakeup_isr(void) {
@@ -134,7 +136,7 @@ void wakeup_isr(void) {
     
     pbe_pee();// mcu is in PBE from LLS wakeup, transition back to PEE
 
-    // clear wakeup module registers and stop them
+    // clear wakeup module and stop them
     if ((TEENSY3_LP::stopflag & LPTMR_WAKE) && (TEENSY3_LP::lowLeakageSource == LLS)) lptmr_stop();
     if ((TEENSY3_LP::stopflag & RTCA_WAKE) && (TEENSY3_LP::lowLeakageSource == LLS)) rtc_stop();
     if ((TEENSY3_LP::stopflag & TSI_WAKE) && (TEENSY3_LP::lowLeakageSource == LLS)) tsi_stop();
@@ -260,15 +262,15 @@ void TEENSY3_LP::Run(uint8_t mode, uint8_t woi) {
 void TEENSY3_LP::Sleep() {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
         usbDisable();
-        //vrefDisable();
-        //adcDisable();
-        //rtcDisable();
+        vrefDisable();
+        adcDisable();
+        rtcDisable();
         CPU(TWO_MHZ);
         enter_wait();
         CPU(F_CPU);
-        //rtcEnable();
-        //adcEnable();
-        //vrefEnable();
+        rtcEnable();
+        adcEnable();
+        vrefEnable();
         usbEnable();
     }
 }
@@ -477,6 +479,8 @@ void TEENSY3_LP::rtcHandle(unsigned long unixSec) {
 }
 
 void TEENSY3_LP::cmpHandle(void) {
+    pinMode(11, INPUT);
+    pinMode(12, INPUT);
     cmp_init();
     // TODO: enable Comparator (CMP) wakeup
 }

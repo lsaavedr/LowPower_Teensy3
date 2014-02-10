@@ -1,14 +1,13 @@
-//
-//  T3core2LP.h
-//  teensy_18_RC1
-//
-//  Created by colin on 1/29/14.
-//  Copyright (c) 2014 iwater. All rights reserved.
-//
+/*
+ *  t3core2lp.h
+ *  Teensy3
+ *
+ */
+#ifndef __T3CORE2LP_H__
+#define __T3CORE2LP_H__
 
-#ifndef teensy_18_RC1_T3core2LP_h
-#define teensy_18_RC1_T3core2LP_h
 #include "Arduino.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,18 +21,21 @@ extern "C" {
     
     static inline void delayMicroseconds_lp(uint32_t, uint32_t) __attribute__((always_inline, unused));
     static inline void delayMicroseconds_lp(uint32_t usec, uint32_t f_cpu) {
-        uint32_t n;
-        if (usec == 0) return;
+        
+        long n;
+        float cpu = f_cpu;
+        n = (usec * (cpu/3000000));//-32856;
+        /*if (usec == 0) return;
         else if (f_cpu >= 24000000) {
-            n = usec * (f_cpu/3000000);
+            n = ((usec) * (f_cpu/3000000)) - 16;
         }
         else {
             float cpu = f_cpu;
-            n = usec * (cpu/3000000);
-        }
+            n = usec;//(usec * (cpu/3000000)) - 16;
+        }*/
         
         asm volatile(
-                     "L_%=_delayMicroseconds_lp:"          "\n\t"
+                     "L_%=_delayMicroseconds_lp:"       "\n\t"
                      "subs   %0, #1"                    "\n\t"
                      "bge    L_%=_delayMicroseconds_lp"	"\n"
                      : "+r" (n) :
