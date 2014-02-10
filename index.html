@@ -1,78 +1,98 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
   <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Low Power Teensy 3.0/3.1 : Library for putting the teensy 3.0/3.1 into low power modes" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Low Power Teensy 3.0/3.1 by duff2013</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>Low Power Teensy 3.0/3.1</title>
   </head>
-
   <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/duff2013/LowPower_Teensy3">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/duff2013/LowPower_Teensy3/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/duff2013/LowPower_Teensy3/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/duff2013/LowPower_Teensy3">View on GitHub</a>
+    <div class="wrapper">
 
-          <h1 id="project_title">Low Power Teensy 3.0/3.1</h1>
-          <h2 id="project_tagline">Library for putting the teensy 3.0/3.1 into low power modes</h2>
+      <section>
+        <div id="title">
+          <h1>Low Power Teensy 3.0/3.1</h1>
+          <p>Library for putting the teensy 3.0/3.1 into low power modes</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/duff2013">duff2013</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
 
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/duff2013/LowPower_Teensy3/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/duff2013/LowPower_Teensy3/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <p><strong>### LowPower_Teensy3 Library v1.1</strong></p>
+        <h1>
+<a name="lowpower_teensy3-library-v11" class="anchor" href="#lowpower_teensy3-library-v11"><span class="octicon octicon-link"></span></a>LowPower_Teensy3 Library v1.1</h1>
 
 <p>If you are not using Teensyduino 1.14 or greater then there is one edit you need to make
 to the mk20dx128.c core file: Add -&gt; "PMC_REGSC |= 0x08;" just under "SCB_VTOR = 0;" just
 under the ResetHandler function. This allows the mcu to release hold of the I/O when
 waking from sleep.</p>
 
-<p>ChangeLog Beta2:
-1.  Added struct to store sleep configurations
-2.  Added RTC Alarm wake
-3.  Added TSI wake
-4.  Put usb regulator in standby for VLPR
-5.  Got rid of stand alone LPTMR timer fucntions
-6.  Cleaned up the library and example codes
-7.  New examples added
-8.  Defined GPIO wake pin names</p>
+<hr><h3>
+<a name="changelog-beta2" class="anchor" href="#changelog-beta2"><span class="octicon octicon-link"></span></a>ChangeLog Beta2:</h3>
 
-<p>ChangeLog Stable v1.0:
-1.  Fixed where VLPR was not being retained becase of LPWUI bit not being set right
-2.  Added feature to enable LPWUI bit to exit VLPR with any interrupt
-3.  Fixed issue with VLPR locking up system if being called before exiting VLPR
-4.  Disabled USB Regulator Standby mode during Low Power
-5.  Cleaned up library code.</p>
+<blockquote>
+<ol>
+<li>   Added struct to store sleep configurations</li>
+<li>   Added RTC Alarm wake</li>
+<li>   Added TSI wake</li>
+<li>   Put usb regulator in standby for VLPR</li>
+<li>   Got rid of stand alone LPTMR timer fucntions</li>
+<li>   Cleaned up the library and example codes</li>
+<li>   New examples added</li>
+<li>   Defined GPIO wake pin names</li>
+</ol>
+</blockquote>
 
-<p>ChangeLog Stable v1.1:
-1.  Added all digital wakeup capable pins for DeepSleep and Hibernate function
-2.  User can now use callback function for DeepSleep and Hibernate
-3.  Added Sleep function, now any interrupt can wake the processor
-4.  Improved code performance
-5.  New example for Sleep function</p>
+<h3>
+<a name="changelog-stable-v10" class="anchor" href="#changelog-stable-v10"><span class="octicon octicon-link"></span></a>ChangeLog Stable v1.0:</h3>
+
+<blockquote>
+<ol>
+<li>   Fixed where VLPR was not being retained becase of LPWUI bit not being set right</li>
+<li>   Added feature to enable LPWUI bit to exit VLPR with any interrupt</li>
+<li>   Fixed issue with VLPR locking up system if being called before exiting VLPR</li>
+<li>   Disabled USB Regulator Standby mode during Low Power</li>
+<li>   Cleaned up library code.</li>
+</ol>
+</blockquote>
+
+<h3>
+<a name="changelog-stable-v11" class="anchor" href="#changelog-stable-v11"><span class="octicon octicon-link"></span></a>ChangeLog Stable v1.1:</h3>
+
+<blockquote>
+<ol>
+<li>   Added all digital wakeup capable pins for DeepSleep and Hibernate function</li>
+<li>   User can now use callback function for DeepSleep and Hibernate</li>
+<li>   Added Sleep function, now any interrupt can wake the processor</li>
+<li>   Improved code performance</li>
+<li>   New example for Sleep function</li>
+<li>   Using Bitband to set peripheral clocks</li>
+<li>   Added support for <code>IntervalTimer, delay, delayMicroseconds</code> for dynamic CPU scaling</li>
+</ol>
+</blockquote>
       </section>
-    </div>
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Low Power Teensy 3.0/3.1 maintained by <a href="https://github.com/duff2013">duff2013</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-      </footer>
     </div>
-
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
     
-
   </body>
 </html>
