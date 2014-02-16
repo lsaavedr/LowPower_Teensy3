@@ -1,12 +1,12 @@
 /*
  ||
  || @file 		LowPower_Teensy3.h
- || @version 	3
+ || @version 	4
  || @author 	Colin Duffy
  || @contact 	cmduffy@engr.psu.edu
  ||
  || @description
- || #
+ || # Low Power Library for Teensy 3.0/3.1.
  ||
  || @license
  || | Copyright (c) 2014 Colin Duffy
@@ -65,35 +65,12 @@
 #define CMP1_WAKE       0x40000
 #define TSI_WAKE        0x100000
 
-/* Define Low Power Run ON/OFF */
-#define LP_RUN_ON       0x01
-#define LP_RUN_OFF      0x02
-
-#define NO_WAKE_ON_IRQ  0x00
-#define WAKE_ON_IRQ     0x01
-
-/* Define Low Leakage Source */
-#define LLS             0x01
-#define VLLS            0x02
-
 /* Hardware Serial Baud VLPR Mode */
 #define TWO_MHZ     2000000
 #define FOUR_MHZ    4000000
 #define EIGHT_MHZ   8000000
 #define SIXTEEN_MHZ 16000000
 
-#define BLPI_CPU    2000000
-#define BLPI_BUS    2000000
-#define BLPI_MEM    1000000
-
-#define BLPE_CPU    4000000
-#define BLPE_BUS    4000000
-#define BLPE_MEM    1000000
-//#define VLPR_CPU(x) x == BLPI_CPU ? BLPI_CPU : BLPE_CPU
-//#define VLPR_BUS(x) x == BLPI_CPU ? BLPI_CPU : BLPE_CPU
-//#define VLPR_CPU 2000000
-//#define VLPR_BUS 2000000
-//#define VLPR_MEM 1000000
 #define VLPR_BAUD2DIV(baud, cpu) (((cpu * 2) + ((baud) >> 1)) / (baud))
 #define VLPR_BAUD2DIV3(baud, bus) (((bus * 2) + ((baud) >> 1)) / (baud))
 
