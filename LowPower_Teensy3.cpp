@@ -18,6 +18,20 @@
 #include "utility/module.h"
 #include "util/atomic.h"
 #include "utility/bitband.h"
+
+/* Define Low Leakage Source */
+#define LLS             0x01
+#define VLLS            0x02
+
+/* CPU Freq in VLPR mode */
+#define BLPI_CPU    2000000
+#define BLPI_BUS    2000000
+#define BLPI_MEM    1000000
+
+#define BLPE_CPU    4000000
+#define BLPE_BUS    4000000
+#define BLPE_MEM    1000000
+
 volatile uint32_t TEENSY3_LP::wakeSource;// hold llwu wake up source for wakeup isr
 volatile uint32_t TEENSY3_LP::stopflag;// hold module wake up sources for wakeup isr
 volatile uint8_t TEENSY3_LP::lowLeakageSource;// hold lowleakage mode for wakeup isr
@@ -163,16 +177,20 @@ int TEENSY3_LP::CPU(uint32_t cpu) {
             usbEnable();
         }
     } else if (mcg_mode() == BLPE) {
-        // exit low power Run
-        if (SMC_PMSTAT == 0x04) exit_vlpr();
-        blpe_pee();
-        usbEnable();
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+            // exit low power Run
+            if (SMC_PMSTAT == 0x04) exit_vlpr();
+            blpe_pee();
+            usbEnable();
+        }
     }
     if (cpu >= 24000000) {
         // config divisors: F_CPU core, F_BUS bus, F_MEM flash
-        _cpu = F_CPU;
-        _bus = F_BUS;
-        _mem = F_MEM;
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+            _cpu = F_CPU;
+            _bus = F_BUS;
+            _mem = F_MEM;
+        }
         return F_CPU;
     } else if (cpu <= FOUR_MHZ) {
         if (cpu == TWO_MHZ) {
@@ -192,10 +210,10 @@ int TEENSY3_LP::CPU(uint32_t cpu) {
             }
             return TWO_MHZ;
         } else if (cpu == FOUR_MHZ) {
-            _cpu = BLPE_CPU;
-            _bus = BLPE_BUS;
-            _mem = BLPE_MEM;
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                _cpu = BLPE_CPU;
+                _bus = BLPE_BUS;
+                _mem = BLPE_MEM;
                 usbDisable();
                 // transition from PEE to BLPE
                 pee_blpe();
@@ -209,10 +227,10 @@ int TEENSY3_LP::CPU(uint32_t cpu) {
             return FOUR_MHZ;
         } else return -1;
     } else if (cpu == EIGHT_MHZ) {
-        _cpu = EIGHT_MHZ;
-        _bus = EIGHT_MHZ;
-        _mem = EIGHT_MHZ;
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+            _cpu = EIGHT_MHZ;
+            _bus = EIGHT_MHZ;
+            _mem = EIGHT_MHZ;
             usbDisable();
             // transition from PEE to BLPE
             pee_blpe();
@@ -221,10 +239,10 @@ int TEENSY3_LP::CPU(uint32_t cpu) {
         }
         return EIGHT_MHZ;
     } else if (cpu == SIXTEEN_MHZ) {
-        _cpu = SIXTEEN_MHZ;
-        _bus = SIXTEEN_MHZ;
-        _mem = SIXTEEN_MHZ;
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+            _cpu = SIXTEEN_MHZ;
+            _bus = SIXTEEN_MHZ;
+            _mem = SIXTEEN_MHZ;
             usbDisable();
             // transition from PEE to BLPE
             pee_blpe();
@@ -239,23 +257,6 @@ int TEENSY3_LP::CPU(uint32_t cpu) {
         _bus = F_BUS;
         _mem = F_MEM;
         return -1;
-    }
-}
-
-void TEENSY3_LP::Run(uint8_t mode, uint8_t woi) {
-    
-    if (mode == LP_RUN_ON) {
-        pee_blpi();// transition from PEE to BLPI
-        mcg_cpu(0x00, 0x00, 0x01, 1999);
-        enter_vlpr(0);
-        return;
-    }
-    
-    if (mode == LP_RUN_OFF) {
-        exit_vlpr();// exit low power Run
-        blpi_pee();// transition from BLPI to PEE
-        
-        return;
     }
 }
 //----------------------------------------------------------------------------------------------------------
