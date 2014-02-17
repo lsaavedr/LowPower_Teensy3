@@ -159,8 +159,9 @@ public:
     
 };
 
-// Must make interval timer private members protetced.
-class IntervalTimer_LP : public IntervalTimer {
+/**** !!!!!Must make interval timer private members protetced for this to work!!!! *****/
+
+/*class IntervalTimer_LP : public IntervalTimer {
 private:
 public:
     bool begin(ISR newISR, unsigned int newPeriod) {
@@ -168,7 +169,7 @@ public:
         uint32_t newValue = (TEENSY3_LP::_cpu / 1000000) * newPeriod - 1;
         return beginCycles(newISR, newValue);
     }
-};
+};*/
 
 class HardwareSerial_LP : public HardwareSerial {
 private:
