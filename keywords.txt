@@ -18,7 +18,6 @@ DisableModules	KEYWORD2
 StartTimer	KEYWORD2
 StopTimer	KEYWORD2
 PrintSRS	KEYWORD2
-Run	KEYWORD2
 CPU	KEYWORD2
 Wait	KEYWORD2
 Sleep	KEYWORD2
@@ -28,8 +27,6 @@ Hibernate	KEYWORD2
 # Instances (KEYWORD2)
 #######################################
 configSleep	KEYWORD2
-
-
 #######################################
 # Constants (LITERAL1)
 #######################################
@@ -78,8 +75,6 @@ RTCS_WAKE 	LITERAL1
 CMP0_WAKE	LITERAL1
 CMP1_WAKE	LITERAL1
 TSI_WAKE 	LITERAL1
-LP_RUN_ON	LITERAL1
-LP_RUN_OFF	LITERAL1
 NO_WAKE_ON_INTERRUPT	LITERAL1
 WAKE_ON_INTERRUPT	LITERAL1
 TWO_MHZ	LITERAL1
