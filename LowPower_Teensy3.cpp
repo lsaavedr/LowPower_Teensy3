@@ -194,10 +194,10 @@ int TEENSY3_LP::CPU(uint32_t cpu) {
         return F_CPU;
     } else if (cpu <= FOUR_MHZ) {
         if (cpu == TWO_MHZ) {
-            _cpu = BLPI_CPU;
-            _bus = BLPI_BUS;
-            _mem = BLPI_MEM;
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                _cpu = BLPI_CPU;
+                _bus = BLPI_BUS;
+                _mem = BLPI_MEM;
                 usbDisable();
                 // transition from PEE to BLPI
                 pee_blpi();
