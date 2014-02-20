@@ -28,3 +28,8 @@ ChangeLog Stable v1.1:
 3.  Added Sleep function, now any interrupt can wake the processor
 4.  Improved code performance
 5.  New example for Sleep function
+
+ChangeLog Stable v1.2:
+1.  Using Bitband to set peripheral clocks
+2.  Added support for IntervalTimer, delay, delayMicroseconds for dynamic CPU scaling
+3.  Added support for HardwareSerial at 16,8,4,2 MHz
