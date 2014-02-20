@@ -363,7 +363,6 @@ void disable_lpwui(void) {
  *          to optionally set the sleep on exit bit.
  *******************************************************************************/
 void stop(void) {
-    //__disable_irq();
     // disable systick timer
     SYST_CSR &= ~SYST_CSR_ENABLE;
 	// Set the SLEEPDEEP bit to enable deep sleep mode (STOP)
@@ -372,7 +371,6 @@ void stop(void) {
 	asm("WFI");
     // renable systick timer
     SYST_CSR |= SYST_CSR_ENABLE;
-   // __enable_irq();
 }
 
 /*******************************************************************************
