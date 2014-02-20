@@ -1,4 +1,4 @@
-LowPower_Teensy3 Library v1.1
+LowPower_Teensy3 Library
 
 If you are not using Teensyduino 1.14 or greater then there is one edit you need to make
 to the mk20dx128.c core file: Add -> "PMC_REGSC |= 0x08;" just under "SCB_VTOR = 0;" in 
