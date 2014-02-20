@@ -7,6 +7,7 @@
 #define __T3CORE2LP_H__
 
 #include "Arduino.h"
+#include <arm_math.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,23 +24,33 @@ extern "C" {
     
     static inline void delayMicroseconds_lp(uint32_t, uint32_t) __attribute__((always_inline, unused));
     static inline void delayMicroseconds_lp(uint32_t usec, uint32_t f_cpu) {
-        //long n;
-        //float cpu = f_cpu;
-        //n = (usec * (cpu/3000000));//-32856;
-        /*if (usec == 0) return;
-        else if (f_cpu >= 24000000) {
-            n = ((usec) * (f_cpu/3000000)) - 16;
-        }
-        else {
-            float cpu = f_cpu;
-            n = usec;//(usec * (cpu/3000000)) - 16;
-        }*/
         
+        if (usec == 0) return;
+        uint32_t n;
+        if (f_cpu == 96000000) {
+            n = usec << 5;
+        } else if (f_cpu == 48000000) {
+            n = usec << 4;
+        } else if (f_cpu == 24000000) {
+            n = usec << 3;
+        } else if (f_cpu == 16000000) {
+            float x = 5.33333333333333;
+            arm_mult_f32((float*)&usec, &x, (float*)&n, 1);
+        } else if (f_cpu == 8000000) {
+            float x = 2.66666666666667;
+            arm_mult_f32((float*)&usec, &x, (float*)&n, 1);
+        } else if (f_cpu == 4000000) {
+            float x = 1.33333333333333;
+            arm_mult_f32((float*)&usec, &x, (float*)&n, 1);
+        } else if (f_cpu == 2000000) {
+            float x = 0.66666666666667;
+            arm_mult_f32((float*)&usec, &x, (float*)&n, 1);
+        }
         asm volatile(
                      "L_%=_delayMicroseconds_lp:"       "\n\t"
                      "subs   %0, #1"                    "\n\t"
-                     "bge    L_%=_delayMicroseconds_lp"	"\n"
-                     : "+r" (usec) :
+                     "bne    L_%=_delayMicroseconds_lp"	"\n"
+                     : "+r" (n) :
                      );
         
     }
