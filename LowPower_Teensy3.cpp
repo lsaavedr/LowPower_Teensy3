@@ -65,7 +65,7 @@ TEENSY3_LP::TEENSY3_LP() {
     _bus = F_BUS;
     _mem = F_MEM;
 }
-/****************************** Sleep *******************************
+/****************************** Func *******************************
  * Routines to enable different sleep modes on the teensy3.
  *
  **void wake_isr() - 
@@ -78,16 +78,11 @@ TEENSY3_LP::TEENSY3_LP() {
  *      gets called if no user callback function is defined.
  * Arguments: NONE
  *
- **void RUN(uint8_t mode, uint8_t woi) - 
- *      transition into BLPI mode which configures the core(2 MHZ), 
- *      bus(2 MHZ), flash(1 MHZ) clocks and configures SysTick for 
- *      the reduced freq, then enter into vlpr mode. Exiting Low Power 
- *      Run mode will transition to PEE mode and reconfigures clocks
- *      and SysTick to a pre RUN state and exit vlpr to normal run.
- * Arguments:  mode -> LP_RUN_ON = enter Low Power Run(VLPR)
- *             mode -> LP_RUN_OFF = exit Low Power Run(VLPR)
- *             woi  -> NO_WAKE_ON_INTERRUPT = no exit LPR on interrupt 
- *             woi  -> WAKE_ON_INTERRUPT = exit LPR on interrupt
+ **void CPU(uint32_t cpu) -
+ *      dynamically configures the core cpu(2, 4, 8, 16, 24, 48, 96 MHZ),
+ *      bus and flash clocks and also configures the SysTick for the
+ *      selected freq.
+ * Arguments:  cpu -> TWO_MHZ, FOUR_MHZ, EIGHT_MHZ, SIXTEEN_MHZ, F_CPU
  * 
  **void Sleep() - 
  *      Very versatile sleep option that the can be woken up by many more sources than 
@@ -136,7 +131,8 @@ TEENSY3_LP::TEENSY3_LP() {
  *
  **void PrintSRS() - 
  *      prints the reset type and current power mode.
- ********************************************************************/
+ ***********************************************************************/
+
 /******************************** ISR: *********************************/
 TEENSY3_LP::ISR TEENSY3_LP::CALLBACK;
 
@@ -148,7 +144,7 @@ void wakeup_isr(void) {
     
     llwuFlag = llwu_clear_flags();// clear llwu flags after wakeup a/ store wakeup source
     
-    pbe_pee();// mcu is in PBE from LLS wakeup, transition back to PEE
+    pbe_pee();// mcu is in PBE from LLS wakeup, transition back to PEE (if exiting from normal RUN mode)
 
     // clear wakeup module and stop them
     if ((TEENSY3_LP::stopflag & LPTMR_WAKE) && (TEENSY3_LP::lowLeakageSource == LLS)) lptmr_stop();
@@ -166,8 +162,8 @@ void wakeup_isr(void) {
 int TEENSY3_LP::CPU(uint32_t cpu) {
     if (_cpu == cpu) return 0;
     /********************************************/
-    /* First check if we are in blpi or blpe
-    /* 
+    /* First check if we are in blpi or blpe, if
+    /* so transition to pee at F_CPU, F_BUS, F_MEM.
     /********************************************/
     if (mcg_mode() == BLPI) {
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
@@ -236,6 +232,8 @@ int TEENSY3_LP::CPU(uint32_t cpu) {
             pee_blpe();
             // config divisors: 8 MHz core, 8 MHz bus, 8 MHz flash
             mcg_cpu(0x01, 0x01, 0x01, 7999);
+            systick_millis_count = 0;
+            SYST_CVR = 0;
         }
         return EIGHT_MHZ;
     } else if (cpu == SIXTEEN_MHZ) {
@@ -433,7 +431,7 @@ bool TEENSY3_LP::sleepHandle(const char* caller, uint32_t wakeType, uint32_t var
         lptmrHandle(var1);
     }
     if (wakeType & GPIO_WAKE) {
-        gpioHandle(var1, PIN_ANY);
+        //gpioHandle(var1, PIN_ANY);
     }
     if (wakeType & RTCA_WAKE) {
         stopflag |= RTCA_WAKE;
@@ -447,6 +445,7 @@ bool TEENSY3_LP::sleepHandle(const char* caller, uint32_t wakeType, uint32_t var
         stopflag |= CMP0_WAKE;
         cmpHandle();
     }
+    
     llwu_configure(var1,PIN_ANY, wakeType);
     
     NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
@@ -487,6 +486,6 @@ void TEENSY3_LP::cmpHandle(void) {
 }
 
 void TEENSY3_LP::tsiHandle(uint8_t var, uint16_t threshold) {
-    tsi_sleep(var, threshold);// tsi pin and wake threshold
+    tsi_init(var, threshold);// tsi pin and wake threshold
 }
 
