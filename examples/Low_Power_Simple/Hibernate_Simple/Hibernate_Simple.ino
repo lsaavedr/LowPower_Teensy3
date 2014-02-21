@@ -10,7 +10,7 @@
  *  source for the Teensy3.
  *
  *  Tested and compiled under Arduino 1.0.5 and 
- *  Teensyduino 1.18.    
+ *  Teensyduino 1.18 
  *********************************************************/
 #include <LowPower_Teensy3.h>
 

@@ -10,7 +10,7 @@
  *  next and uses Serial1 to print debug messages.
  *
  *  Tested and compiled under Arduino 1.0.5 and 
- *  Teensyduino 1.16  
+ *  Teensyduino 1.18
  *********************************************************/
 #include <LowPower_Teensy3.h>
 #include <Time.h> 

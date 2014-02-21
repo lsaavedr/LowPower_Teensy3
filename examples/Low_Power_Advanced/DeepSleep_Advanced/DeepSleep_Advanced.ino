@@ -7,7 +7,7 @@
  *  multiple wake sources with multiple configurations. 
  *  Debugging messages are printed through Serial 1.
  *
- *  Tested with Arduino 1.0.5 and Teensyduino 1.16.    
+ *  Tested with Arduino 1.0.5 and Teensyduino 1.18
  *********************************************************/
 #include <LowPower_Teensy3.h>
 #include <Time.h> 

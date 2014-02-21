@@ -119,7 +119,7 @@ private:
     static volatile uint32_t stopflag;// hold module wake up sources for wakeup isr
     static volatile uint8_t lowLeakageSource;// hold lowleakage mode for wakeup isr
     
-    friend class IntervalTimer_LP;
+    //friend class IntervalTimer_LP;
     friend class HardwareSerial_LP;
     friend class HardwareSerial2_LP;
     friend class HardwareSerial3_LP;
@@ -131,7 +131,7 @@ public:
     TEENSY3_LP(void);
     //---------------------------------------------------------------------------------------
     /* Sleep Functions */
-    //----------------------------------------Run--------------------------------------------
+    //----------------------------------------CPU--------------------------------------------
     int CPU(uint32_t freq);
     //---------------------------------------Sleep-------------------------------------------
     void Sleep();
@@ -158,7 +158,6 @@ public:
 };
 
 /**** !!!!!Must make interval timer private members protetced for this to work!!!! *****/
-
 /*class IntervalTimer_LP : public IntervalTimer {
 private:
 public:
@@ -180,8 +179,8 @@ public:
         serial_format(format);
     }
     void end(void) {
-        uart1Disable();
         serial_end();
+        uart1Disable();
     }
 };
 
@@ -193,6 +192,10 @@ public:
         serial2_begin(VLPR_BAUD2DIV(baud, TEENSY3_LP::_cpu));
         serial2_format(format);
     }
+    void end(void) {
+        serial2_end();
+        uart2Disable();
+    }
 };
 
 class HardwareSerial3_LP : public HardwareSerial3 {
@@ -202,6 +205,10 @@ public:
     void begin(uint32_t baud, uint32_t format) {
         serial3_begin(VLPR_BAUD2DIV3(baud, TEENSY3_LP::_bus));
         serial3_format(format);
+    }
+    void end(void) {
+        serial3_end();
+        uart3Disable();
     }
 };
 
