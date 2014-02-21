@@ -31,7 +31,7 @@ void setup() {
   pinMode(LEDPIN, OUTPUT);
   
   /*****************************************************
-   * Intialize TSI wakeup threshold by reading the value
+   * Initialize TSI wakeup threshold by reading the value
    * of touchRead + 256. While sleeping the TSI value 
    * will have to be greater than this value to wake the
    * mcu. Make sure you are not touching the electrode

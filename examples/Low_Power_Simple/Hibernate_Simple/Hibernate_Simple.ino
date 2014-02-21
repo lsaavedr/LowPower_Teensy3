@@ -36,7 +36,7 @@ void setup() {
   /*****************************************************
    * Set digital pin 22 as wakeup source and then enter 
    * Hibernate sleep mode. Exiting Hibernate is through 
-   * a reset so code will not excute after Hibernate.
+   * a reset so code will not execute after Hibernate.
    * Reopen the serial monitor after waking Teensy. 
    *****************************************************/
   pinMode(22, INPUT_PULLUP);
@@ -44,7 +44,7 @@ void setup() {
 }
 
 void loop() {
-  blink();// Notice, this never gets excuted.
+  blink();// Notice, this never gets executed.
 }
 
 void blink() {

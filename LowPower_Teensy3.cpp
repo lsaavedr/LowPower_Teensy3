@@ -40,7 +40,7 @@ volatile uint32_t TEENSY3_LP::_bus;
 volatile uint32_t TEENSY3_LP::_mem;
 
 TEENSY3_LP::TEENSY3_LP() {
-    //assign callback to defualt callback
+    //assign callback to default callback
     //CALLBACK = defaultCallback;
     // Enable all wakeup types - SMC_PMPROT: AVLP=1,ALLS=1,AVLLS=1
     SMC_PMPROT = SMC_PMPROT_ALLS_MASK | SMC_PMPROT_AVLLS_MASK | SMC_PMPROT_AVLP_MASK;
@@ -60,7 +60,7 @@ TEENSY3_LP::TEENSY3_LP() {
     SIM_SOPT1 &= ~SIM_SOPT1_USBVSTBY_MASK;
     // clear llwu flags
     wakeSource = llwu_clear_flags();
-    
+    // initialize
     _cpu = F_CPU;
     _bus = F_BUS;
     _mem = F_MEM;
@@ -88,8 +88,8 @@ TEENSY3_LP::TEENSY3_LP() {
  *      Very versatile sleep option that the can be woken up by many more sources than 
  *      other modes. This puts the processor into Wait Mode and disables the systick, 
  *      any digital pin using attachInterrupt or any of the timers can wake it from 
- *      Sleep Mode.
- * Arguments: NONE
+ *      this Sleep Mode.
+ * Arguments: NONE //TODO: add option to disable modules
  * 
  **void DeepSleep(uint8_t wakeType, uint32_t var, uint16_t var2, void (*callbackfunc)()) - 
  *      set teensy3 to LLS sleep mode. Exited by Low-Power Timer, 
@@ -97,16 +97,16 @@ TEENSY3_LP::TEENSY3_LP() {
  *      to DeepSleep function. User callback function will proceed from wakeup_isr()
  * Arguments:  wakeType -> LPTMR_WAKE, GPIO_WAKE, RTCA_WAKE, TSI_WAKE defines
  *              var -> LPTMR_WAKE = timeout in msec
- *              var -> GPIO = wake pin, which are defined in the header
- *              var -> RTCA = alarm in secs
+ *              var -> GPIO_WAKE = wake pin, which are defined in the header
+ *              var -> RTCA_WAKE = alarm in secs
  *              var -> TSI_WAKE = wake pin, only one pin can selected
  *              var2 -> TSI wakeup threshold
  *              void (*callbackfunc)() -> pointer to user callback function from wakeup_isr()
  *
  **void DeepSleep(volatile struct configSleep* config) -
  *      uses the struct to configure the teensy wake sources. This
- *      allows the teensy to have mulitple wakeup sources and  
- *      mulitple configurations.
+ *      allows the teensy to have multiple wakeup sources and
+ *      multiple configurations.
  * Arguments:  configSleep* struct - defined in header
  *
  *
@@ -116,16 +116,16 @@ TEENSY3_LP::TEENSY3_LP() {
  *      to DeepSleep function. Code execution begins through reset flow.
  * Arguments:  wakeType -> LPTMR_WAKE, GPIO_WAKE, RTCA_WAKE, TSI_WAKE defines
  *              var -> LPTMR_WAKE = timeout in msec
- *              var -> GPIO = wake pin, which are defined in the header
- *              var -> RTCA = alarm in secs
+ *              var -> GPIO_WAKE = wake pin, which are defined in the header
+ *              var -> RTCA_WAKE = alarm in secs
  *              var -> TSI_WAKE = wake pin, only one pin can selected
- *              var2 -> TSI wakeup threshold
+ *              var2 -> TSI threshold value
  *              void (*callbackfunc)() -> pointer to user callback function from wakeup_isr()
  *
  **void Hibernate(volatile struct configSleep* config) -
  *      uses the struct to configure the teensy wake sources. This
- *      allows the teensy to have mulitple wakeup sources and
- *      mulitple configurations.
+ *      allows the teensy to have multiple wakeup sources and
+ *      multiple configurations.
  * Arguments:  configSleep* struct - defined in header
  *
  *

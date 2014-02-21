@@ -71,8 +71,8 @@
 #define EIGHT_MHZ   8000000
 #define SIXTEEN_MHZ 16000000
 
-#define VLPR_BAUD2DIV(baud, cpu) (((cpu * 2) + ((baud) >> 1)) / (baud))
-#define VLPR_BAUD2DIV3(baud, bus) (((bus * 2) + ((baud) >> 1)) / (baud))
+#define LP_BAUD2DIV(baud, cpu) (((cpu * 2) + ((baud) >> 1)) / (baud))
+#define LP_BAUD2DIV3(baud, bus) (((bus * 2) + ((baud) >> 1)) / (baud))
 
 class TEENSY3_LP;
 
@@ -105,7 +105,7 @@ private:
     void tsiHandle(uint8_t var, uint16_t threshold);
     inline bool sleepHandle(const char* caller, uint32_t wakeType, uint32_t var1, uint16_t var2) __attribute__((always_inline)) ;
     void sleepHandle(volatile struct configSleep* config);
-    /* TSI Intialize  */
+    /* TSI Initialize  */
     void tsiIntialize(void);
     /* private class access to wakeup ISR  */
     friend void wakeup_isr(void);
@@ -157,7 +157,7 @@ public:
     
 };
 
-/**** !!!!!Must make interval timer private members protetced for this to work!!!! *****/
+/**** !!!!!Must make interval timer private members protected for this to work!!!! *****/
 /*class IntervalTimer_LP : public IntervalTimer {
 private:
 public:
@@ -172,10 +172,10 @@ class HardwareSerial_LP : public HardwareSerial {
 private:
 public:
     void begin(uint32_t baud) {
-        serial_begin(VLPR_BAUD2DIV(baud, TEENSY3_LP::_cpu));
+        serial_begin(LP_BAUD2DIV(baud, TEENSY3_LP::_cpu));
     }
     void begin(uint32_t baud, uint32_t format) {
-        serial_begin(VLPR_BAUD2DIV(baud, TEENSY3_LP::_cpu));
+        serial_begin(LP_BAUD2DIV(baud, TEENSY3_LP::_cpu));
         serial_format(format);
     }
     void end(void) {
@@ -187,9 +187,9 @@ public:
 class HardwareSerial2_LP : public HardwareSerial2 {
 private:
 public:
-    void begin(uint32_t baud) { serial2_begin(VLPR_BAUD2DIV(baud, TEENSY3_LP::_cpu)); }
+    void begin(uint32_t baud) { serial2_begin(LP_BAUD2DIV(baud, TEENSY3_LP::_cpu)); }
     void begin(uint32_t baud, uint32_t format) {
-        serial2_begin(VLPR_BAUD2DIV(baud, TEENSY3_LP::_cpu));
+        serial2_begin(LP_BAUD2DIV(baud, TEENSY3_LP::_cpu));
         serial2_format(format);
     }
     void end(void) {
@@ -201,9 +201,9 @@ public:
 class HardwareSerial3_LP : public HardwareSerial3 {
 private:
 public:
-    void begin(uint32_t baud) { serial3_begin(VLPR_BAUD2DIV3(baud, TEENSY3_LP::_bus)); }
+    void begin(uint32_t baud) { serial3_begin(LP_BAUD2DIV3(baud, TEENSY3_LP::_bus)); }
     void begin(uint32_t baud, uint32_t format) {
-        serial3_begin(VLPR_BAUD2DIV3(baud, TEENSY3_LP::_bus));
+        serial3_begin(LP_BAUD2DIV3(baud, TEENSY3_LP::_bus));
         serial3_format(format);
     }
     void end(void) {
