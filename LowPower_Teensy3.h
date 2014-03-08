@@ -99,7 +99,7 @@ class TEENSY3_LP {
 private:
     /* Handler Functions */
     void gpioHandle(uint32_t pin, uint8_t pinType);
-    void lptmrHandle(float timeout);
+    void lptmrHandle(uint32_t timeout);
     void rtcHandle(unsigned long unixSec);
     void cmpHandle(void);
     void tsiHandle(uint8_t var, uint16_t threshold);
@@ -123,6 +123,7 @@ private:
     friend class HardwareSerial_LP;
     friend class HardwareSerial2_LP;
     friend class HardwareSerial3_LP;
+    friend class IntervalTimer_LP;
     static volatile uint32_t _cpu;
     static volatile uint32_t _bus;
     static volatile uint32_t _mem;
@@ -148,7 +149,7 @@ public:
     void Hibernate(uint32_t wakeType, uint32_t var1) { Hibernate(wakeType, var1, 0, defaultCallback); }
     void Hibernate(volatile struct configSleep* config);
     //---------------------------------------PrintSRS----------------------------------------
-    void PrintSRS(void);
+    void PrintSRS(Stream *port);
     //-----------------------------------------Core------------------------------------------
     uint32_t cpuFreq(void) { return _cpu; }
     static uint32_t micros() { micros_lp(_cpu); }
@@ -158,7 +159,7 @@ public:
 };
 
 /**** !!!!!Must make interval timer private members protected for this to work!!!! *****/
-/*class IntervalTimer_LP : public IntervalTimer {
+class IntervalTimer_LP : public IntervalTimer {
 private:
 public:
     bool begin(ISR newISR, unsigned int newPeriod) {
@@ -166,7 +167,7 @@ public:
         uint32_t newValue = (TEENSY3_LP::_cpu / 1000000) * newPeriod - 1;
         return beginCycles(newISR, newValue);
     }
-};*/
+};
 
 class HardwareSerial_LP : public HardwareSerial {
 private:
