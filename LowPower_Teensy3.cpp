@@ -170,8 +170,8 @@ int TEENSY3_LP::CPU(uint32_t cpu) {
             // exit low power Run
             exit_vlpr();
             blpi_pee();
-            usbEnable();
         }
+        usbEnable();
     } else if (mcg_mode() == BLPE) {
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
             // exit low power Run
@@ -182,19 +182,19 @@ int TEENSY3_LP::CPU(uint32_t cpu) {
     }
     if (cpu >= 24000000) {
         // config divisors: F_CPU core, F_BUS bus, F_MEM flash
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        //ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
             _cpu = F_CPU;
             _bus = F_BUS;
             _mem = F_MEM;
-        }
+        //}
         return F_CPU;
     } else if (cpu <= FOUR_MHZ) {
         if (cpu == TWO_MHZ) {
+            _cpu = BLPI_CPU;
+            _bus = BLPI_BUS;
+            _mem = BLPI_MEM;
+            usbDisable();
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-                _cpu = BLPI_CPU;
-                _bus = BLPI_BUS;
-                _mem = BLPI_MEM;
-                usbDisable();
                 // transition from PEE to BLPI
                 pee_blpi();
                 // config divisors: 2 MHz core, 2 MHz bus, 1 MHz flash
@@ -261,15 +261,15 @@ int TEENSY3_LP::CPU(uint32_t cpu) {
 void TEENSY3_LP::Sleep() {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
         usbDisable();
-        vrefDisable();
-        adcDisable();
-        rtcDisable();
+        //vrefDisable();
+        //adcDisable();
+        //rtcDisable();
         CPU(TWO_MHZ);
         enter_wait();
         CPU(F_CPU);
-        rtcEnable();
-        adcEnable();
-        vrefEnable();
+        //rtcEnable();
+        //adcEnable();
+        //vrefEnable();
         usbEnable();
     }
 }
@@ -383,34 +383,34 @@ void TEENSY3_LP::Hibernate(volatile struct configSleep* config) {
     enter_vlls3();// enter vlls3 sleep mode*/
 }
 //----------------------------------------------------------------------------------------------------------
-void TEENSY3_LP::PrintSRS(void) {
-    Serial.println("------------------------------------------");
-    if (RCM_SRS1 & RCM_SRS1_SACKERR_MASK) Serial.println("[RCM_SRS0] - Stop Mode Acknowledge Error Reset");
-    if (RCM_SRS1 & RCM_SRS1_MDM_AP_MASK) Serial.println("[RCM_SRS0] - MDM-AP Reset");
-    if (RCM_SRS1 & RCM_SRS1_SW_MASK) Serial.println("[RCM_SRS0] - Software Reset");
-    if (RCM_SRS1 & RCM_SRS1_LOCKUP_MASK) Serial.println("[RCM_SRS0] - Core Lockup Event Reset");
-    if (RCM_SRS0 & RCM_SRS0_POR_MASK) Serial.println("[RCM_SRS0] - Power-on Reset");
-    if (RCM_SRS0 & RCM_SRS0_PIN_MASK) Serial.println("[RCM_SRS0] - External Pin Reset");
-    if (RCM_SRS0 & RCM_SRS0_WDOG_MASK) Serial.println("[RCM_SRS0] - Watchdog(COP) Reset");
-    if (RCM_SRS0 & RCM_SRS0_LOC_MASK) Serial.println("[RCM_SRS0] - Loss of External Clock Reset");
-    if (RCM_SRS0 & RCM_SRS0_LOL_MASK) Serial.println("[RCM_SRS0] - Loss of Lock in PLL Reset");
-    if (RCM_SRS0 & RCM_SRS0_LVD_MASK) Serial.println("[RCM_SRS0] - Low-voltage Detect Reset");
+void TEENSY3_LP::PrintSRS(Stream *port) {
+    port->println("------------------------------------------");
+    if (RCM_SRS1 & RCM_SRS1_SACKERR_MASK) port->println("[RCM_SRS0] - Stop Mode Acknowledge Error Reset");
+    if (RCM_SRS1 & RCM_SRS1_MDM_AP_MASK) port->println("[RCM_SRS0] - MDM-AP Reset");
+    if (RCM_SRS1 & RCM_SRS1_SW_MASK) port->println("[RCM_SRS0] - Software Reset");
+    if (RCM_SRS1 & RCM_SRS1_LOCKUP_MASK) port->println("[RCM_SRS0] - Core Lockup Event Reset");
+    if (RCM_SRS0 & RCM_SRS0_POR_MASK) port->println("[RCM_SRS0] - Power-on Reset");
+    if (RCM_SRS0 & RCM_SRS0_PIN_MASK) port->println("[RCM_SRS0] - External Pin Reset");
+    if (RCM_SRS0 & RCM_SRS0_WDOG_MASK) port->println("[RCM_SRS0] - Watchdog(COP) Reset");
+    if (RCM_SRS0 & RCM_SRS0_LOC_MASK) port->println("[RCM_SRS0] - Loss of External Clock Reset");
+    if (RCM_SRS0 & RCM_SRS0_LOL_MASK) port->println("[RCM_SRS0] - Loss of Lock in PLL Reset");
+    if (RCM_SRS0 & RCM_SRS0_LVD_MASK) port->println("[RCM_SRS0] - Low-voltage Detect Reset");
     if (RCM_SRS0 & RCM_SRS0_WAKEUP_MASK) {
-        Serial.println("[RCM_SRS0] Wakeup bit set from low power mode ");
-        if ((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 3) Serial.println("[SMC_PMCTRL] - LLS exit ") ;
-        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 0)) Serial.println("[SMC_PMCTRL] - VLLS0 exit ") ;
-        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 1)) Serial.println("[SMC_PMCTRL] - VLLS1 exit ") ;
-        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 2)) Serial.println("[SMC_PMCTRL] - VLLS2 exit") ;
-        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 3)) Serial.println("[SMC_PMCTRL] - VLLS3 exit ") ;
+        port->println("[RCM_SRS0] Wakeup bit set from low power mode ");
+        if ((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 3) port->println("[SMC_PMCTRL] - LLS exit ") ;
+        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 0)) port->println("[SMC_PMCTRL] - VLLS0 exit ") ;
+        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 1)) port->println("[SMC_PMCTRL] - VLLS1 exit ") ;
+        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 2)) port->println("[SMC_PMCTRL] - VLLS2 exit") ;
+        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 3)) port->println("[SMC_PMCTRL] - VLLS3 exit ") ;
     }
-    if (SMC_PMSTAT == 0x01) Serial.println("[SMC_PMSTAT] - Current Power Mode RUN") ;
-    if (SMC_PMSTAT == 0x02) Serial.println("[SMC_PMSTAT] - Current Power Mode STOP") ;
-    if (SMC_PMSTAT == 0x04) Serial.println("[SMC_PMSTAT] - Current Power Mode VLPR") ;
-    if (SMC_PMSTAT == 0x08) Serial.println("[SMC_PMSTAT] - Current Power Mode VLPW") ;
-    if (SMC_PMSTAT == 0x10) Serial.println("[SMC_PMSTAT] - Current Power Mode VLPS") ;
-    if (SMC_PMSTAT == 0x20) Serial.println("[SMC_PMSTAT] - Current Power Mode LLS") ;
-    if (SMC_PMSTAT == 0x40) Serial.println("[SMC_PMSTAT] - Current Power Mode VLLS") ;
-    Serial.println("------------------------------------------");
+    if (SMC_PMSTAT == 0x01) port->println("[SMC_PMSTAT] - Current Power Mode RUN") ;
+    if (SMC_PMSTAT == 0x02) port->println("[SMC_PMSTAT] - Current Power Mode STOP") ;
+    if (SMC_PMSTAT == 0x04) port->println("[SMC_PMSTAT] - Current Power Mode VLPR") ;
+    if (SMC_PMSTAT == 0x08) port->println("[SMC_PMSTAT] - Current Power Mode VLPW") ;
+    if (SMC_PMSTAT == 0x10) port->println("[SMC_PMSTAT] - Current Power Mode VLPS") ;
+    if (SMC_PMSTAT == 0x20) port->println("[SMC_PMSTAT] - Current Power Mode LLS") ;
+    if (SMC_PMSTAT == 0x40) port->println("[SMC_PMSTAT] - Current Power Mode VLLS") ;
+    port->println("------------------------------------------");
 }
 /***************************** PRIVATE: ******************************/
 bool TEENSY3_LP::sleepHandle(const char* caller, uint32_t wakeType, uint32_t var1, uint16_t var2) {
@@ -470,7 +470,8 @@ void TEENSY3_LP::gpioHandle(uint32_t pin, uint8_t pinType) {
 
 }
 
-void TEENSY3_LP::lptmrHandle(float timeout) {
+void TEENSY3_LP::lptmrHandle(uint32_t timeout) {
+    lptmr_init();
     lptmr_start(timeout);// start timer in msec
 }
 
