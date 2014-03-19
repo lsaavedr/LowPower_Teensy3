@@ -33,3 +33,4 @@ from sleep.
 1.  Using Bitband to set peripheral clocks<br>
 2.  Added support for IntervalTimer, delay, delayMicroseconds for dynamic CPU scaling<br>
 3.  Added support for HardwareSerial at 16,8,4,2 MHz<br>
+4.  Changed "Run" function to "CPU", now you can choose the frequency to run the CPU<br>
