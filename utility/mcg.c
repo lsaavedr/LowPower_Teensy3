@@ -14,6 +14,9 @@
  *******************************************************************************/
 
 #include "mcg.h"
+#include "bitband.h"
+
+#define MCG_C1_FRDIV4_BIT   0x05
 
 void pee_blpe(void) {
     if (mcg_mode() != PEE) return;
@@ -22,9 +25,6 @@ void pee_blpe(void) {
     // Wait for clock status bits to update indicating clock has switched
     while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(2)) ;
     MCG_C2 |= MCG_C2_LP; // set the LP bit to enter BLPI
-    //mcg_cpu(0x0F, 0x0F, 0x0F, 5999);
-    //SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0x01)|SIM_CLKDIV1_OUTDIV2(0x01)|SIM_CLKDIV1_OUTDIV4(0x01);
-    //SYST_RVR = 7999;
 }
 
 void blpe_pee(void) {
@@ -83,12 +83,6 @@ void pee_blpi(void) {
     while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(1)) ;
     // now move to BLPI
     MCG_C2 |= MCG_C2_LP; // set the LP bit to enter BLPI
-    // set up the SIM clock dividers BEFORE switching to VLPR to ensure the
-    // system clock speeds are in spec. MCGCLKOUT = 2 MHz in BLPI mode
-    // core = 2 MHz, bus = 2 MHz, flash = 1 MHz
-    //SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(0) | SIM_CLKDIV1_OUTDIV4(1);
-    
-    //SYST_RVR = 1999;
 }
 
 void blpi_pee(void) {
@@ -135,18 +129,12 @@ void blpi_pee(void) {
 
 void pbe_pee(void) {
     // Check MCG is in PBE mode
-    if (!((((MCG_S & MCG_S_CLKST_MASK) >> MCG_S_CLKST_SHIFT) == 0x2) && // check CLKS mux has selected external reference
-          (!(MCG_S & MCG_S_IREFST_MASK))// check FLL ref is external ref clk
-          && 
-          (MCG_S & MCG_S_PLLST_MASK)// check PLLS mux has selected PLL
-          &&
-          (!(MCG_C2 & MCG_C2_LP_MASK))))// check MCG_C2[LP] bit is not set
-    {
-        return;
-    }
+    if (mcg_mode() != PBE) return;
     // we're in PBE mode
     // switch to PLL as clock source, FLL input = 16 MHz / 512
-    MCG_C1 = MCG_C1_CLKS(0) | MCG_C1_FRDIV(4);
+    MCG_C1 = 0;
+    BITBAND_U8(MCG_C1, MCG_C1_FRDIV4_BIT) = 0x01;
+    //MCG_C1 = MCG_C1_CLKS(0) | MCG_C1_FRDIV(4);
     // wait for PLL clock to be used
     while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(3)) ;
 }
@@ -218,7 +206,7 @@ unsigned char mcg_mode(void) {
     }
 }
 
-unsigned char mcg_cpu(uint8_t cpu_div, uint8_t bus_div, uint8_t mem_div, uint32_t syst) {
+unsigned char mcg_div(uint8_t cpu_div, uint8_t bus_div, uint8_t mem_div, uint32_t syst) {
     // config divisors: cpu_div, bus_div, mem_div
     SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(cpu_div) | SIM_CLKDIV1_OUTDIV2(bus_div) |	 SIM_CLKDIV1_OUTDIV4(mem_div);
     SYST_RVR = syst;
