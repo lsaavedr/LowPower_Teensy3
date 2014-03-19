@@ -206,7 +206,7 @@ unsigned char mcg_mode(void) {
     }
 }
 
-unsigned char mcg_div(uint8_t cpu_div, uint8_t bus_div, uint8_t mem_div, uint32_t syst) {
+void mcg_div(uint8_t cpu_div, uint8_t bus_div, uint8_t mem_div, uint32_t syst) {
     // config divisors: cpu_div, bus_div, mem_div
     SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(cpu_div) | SIM_CLKDIV1_OUTDIV2(bus_div) |	 SIM_CLKDIV1_OUTDIV4(mem_div);
     SYST_RVR = syst;

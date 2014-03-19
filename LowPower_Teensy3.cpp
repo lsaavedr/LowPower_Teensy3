@@ -162,8 +162,8 @@ void wakeup_isr(void) {
 int TEENSY3_LP::CPU(uint32_t cpu) {
     if (_cpu == cpu) return 0;
     /********************************************/
-    /* First check if we are in blpi or blpe, if
-    /* so transition to pee at F_CPU, F_BUS, F_MEM.
+    /* First check if we are in blpi or blpe, if */
+    /* so transition to pee at F_CPU, F_BUS, F_MEM. */
     /********************************************/
     if (mcg_mode() == BLPI) {
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {

@@ -38,7 +38,7 @@ boolean tsi_init(uint8_t pin, uint16_t threshold) {
     
     TSI0_GENCS |= TSI_GENCS_TSIEN;  //Enables TSI
     
-    while(!TSI0_GENCS&TSI_GENCS_EOSF){}; //Wait for last scan to happen
+    while(!(TSI0_GENCS&TSI_GENCS_EOSF)){}; //Wait for last scan to happen
     
     TSI0_GENCS |= TSI_GENCS_OUTRGF;   //Clear all pending flags
     TSI0_GENCS |= TSI_GENCS_EOSF;

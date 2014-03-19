@@ -55,11 +55,10 @@ void enter_wait(void) {
  * exit_stop routine is needed.
  *******************************************************************************/
 void enter_stop(void) {
-    volatile unsigned int dummyread;
     // Set the STOPM field to 0b000 for normal STOP mode - Need to
     // retain state of LPWUI bit 8
     SMC_PMCTRL =  SMC_PMCTRL_STOPM(0x00);// set STOPM = 0b000
-    dummyread = SMC_PMCTRL;
+    (void) SMC_PMCTRL;
     stop();
 }
 
@@ -78,7 +77,6 @@ void enter_stop(void) {
  * calling enter_vlpr().
  *******************************************************************************/
 void enter_vlpr(char lpwui_value) {
-    volatile unsigned int dummyread;
     if ((SMC_PMSTAT & SMC_PMSTAT_PMSTAT_MASK) == 4) return;
     
     if(lpwui_value){
@@ -86,7 +84,7 @@ void enter_vlpr(char lpwui_value) {
     } else {
         SMC_PMCTRL = (~SMC_PMCTRL_LPWUI_MASK) & SMC_PMCTRL_RUNM(2);
     }
-    dummyread = SMC_PMCTRL;
+    (void) SMC_PMCTRL;
     
     // Wait for VLPS regulator mode to be confirmed
     while((PMC_REGSC & PMC_REGSC_REGONS_MASK) ==0x04){}// 0 Regulator in stop Reg mode
@@ -137,7 +135,6 @@ void exit_vlpr(void) {
  * Parameters:  value of LPWUI
  *******************************************************************************/
 void enter_vlps(char lpwui_value) {
-    volatile unsigned int dummyread;
     //very low power modes: VLPR, VLPW, and VLPS.
     
     // Set the LPLLSM field to 0b010 for VLPS mode - Need to set
@@ -146,11 +143,11 @@ void enter_vlps(char lpwui_value) {
         SMC_PMCTRL = (SMC_PMCTRL & (SMC_PMCTRL_RUNM_MASK | SMC_PMCTRL_LPWUI_MASK)) |
         SMC_PMCTRL_STOPM(0x2) |
         SMC_PMCTRL_LPWUI_MASK ;
-        dummyread = SMC_PMCTRL;
+        (void) SMC_PMCTRL;
     } else {
         SMC_PMCTRL = (SMC_PMCTRL & (SMC_PMCTRL_RUNM_MASK | ~SMC_PMCTRL_LPWUI_MASK)) |
         SMC_PMCTRL_STOPM(0x2) ;
-        dummyread = SMC_PMCTRL;
+        (void) SMC_PMCTRL;
     }
     // Now execute the stop instruction to go into VLPS
     stop();
@@ -173,11 +170,10 @@ void enter_vlps(char lpwui_value) {
  *          in VLPR mode before entering LLS.
  *******************************************************************************/
 void enter_lls (void) {
-    volatile unsigned int dummyread;
     //LLS low power mode
     // Set the LPLLSM field to 0b011 for LLS mode
     SMC_PMCTRL = SMC_PMCTRL_STOPM(0x3) ;
-    dummyread = SMC_PMCTRL;
+    (void) SMC_PMCTRL;
 
     // Now execute the stop instruction to go into LLS
     stop();
@@ -200,14 +196,13 @@ void enter_lls (void) {
  *          in VLPR mode before entering VLLSx.
  *******************************************************************************/
 void enter_vlls3(void) {
-    volatile unsigned int dummyread;
     // Set the VLLSM field to 0b100 for VLLS3 mode - Need to retain
     // state of LPWUI bit 8
     SMC_PMCTRL = (SMC_PMCTRL & (SMC_PMCTRL_RUNM_MASK | SMC_PMCTRL_LPWUI_MASK)) |
     SMC_PMCTRL_STOPM(0x4) ; // retain LPWUI
     
     SMC_VLLSCTRL =  SMC_VLLSCTRL_VLLSM(3);// set VLLSM = 0b11
-    dummyread = SMC_VLLSCTRL;
+    (void) SMC_VLLSCTRL;
     // Now execute the stop instruction to go into VLLS3
     stop();
 }
@@ -229,14 +224,13 @@ void enter_vlls3(void) {
  *          in VLPR mode before entering VLLSx.
  *******************************************************************************/
 void enter_vlls2(void) {
-    volatile unsigned int dummyread;
     // Set the VLLSM field to 0b100 for VLLS2 mode - Need to retain
     // state of LPWUI bit 8
     SMC_PMCTRL = (SMC_PMCTRL & (SMC_PMCTRL_RUNM_MASK | SMC_PMCTRL_LPWUI_MASK)) |
     SMC_PMCTRL_STOPM(0x4) ; // retain LPWUI
     
     SMC_VLLSCTRL =  SMC_VLLSCTRL_VLLSM(2);// set VLLSM = 0b10
-    dummyread = SMC_VLLSCTRL;
+    (void) SMC_VLLSCTRL;
     // Now execute the stop instruction to go into VLLS2
     stop();
 }
@@ -258,7 +252,6 @@ void enter_vlls2(void) {
  *          in VLPR mode before entering VLLSx.
  *******************************************************************************/
 void enter_vlls1(void) {
-    volatile unsigned int dummyread;
     // Write to PMPROT to allow all possible power modes.
     // Set the VLLSM field to 0b100 for VLLS1 mode - Need to retain
     // state of LPWUI bit 8
@@ -266,7 +259,7 @@ void enter_vlls1(void) {
     SMC_PMCTRL_STOPM(0x4) ; // retain LPWUI
     
     SMC_VLLSCTRL =  SMC_VLLSCTRL_VLLSM(1);// set VLLSM = 0b01
-    dummyread = SMC_VLLSCTRL;
+    (void) SMC_VLLSCTRL;
     // Now execute the stop instruction to go into VLLS1
     stop();
 }
@@ -288,7 +281,6 @@ void enter_vlls1(void) {
  *          in VLPR mode before entering VLLSx.
  *******************************************************************************/
 void enter_vlls0(void) {
-    volatile unsigned int dummyread;
     // Write to PMPROT to allow all possible power modes.
     // Set the VLLSM field to 0b100 for VLLS1 mode - Need to retain
     // state of LPWUI bit 8
@@ -296,7 +288,7 @@ void enter_vlls0(void) {
     SMC_PMCTRL_STOPM(0x4) ; // retain LPWUI
     
     SMC_VLLSCTRL =  SMC_VLLSCTRL_VLLSM(0);// set PORPO = 0b00
-    dummyread = SMC_VLLSCTRL;
+    (void) SMC_VLLSCTRL;
     // Now execute the stop instruction to go into VLLS1
     stop();
 }
@@ -318,14 +310,13 @@ void enter_vlls0(void) {
  *          in VLPR mode before entering VLLSx.
  *******************************************************************************/
 void enter_vlls0_nopor(void) {
-    volatile unsigned int dummyread;
     // Write to PMPROT to allow all possible power modes
     // Set the VLLSM field to 0b100 for VLLS1 mode - Need to retain state of LPWUI bit 8
     SMC_PMCTRL = (SMC_PMCTRL & (SMC_PMCTRL_RUNM_MASK | SMC_PMCTRL_LPWUI_MASK)) |
     SMC_PMCTRL_STOPM(0x4);// retain LPWUI
     
     SMC_VLLSCTRL =  SMC_VLLSCTRL_VLLSM(0) | SMC_VLLSCTRL_PORPO_MASK;// set PORPO = 0b01
-    dummyread = SMC_VLLSCTRL;
+    (void) SMC_VLLSCTRL;
     // Now execute the stop instruction to go into VLLS1
     stop();
 }

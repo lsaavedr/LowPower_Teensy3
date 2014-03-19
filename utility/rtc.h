@@ -16,6 +16,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    unsigned long rtc_get(void);
+
     // function prototypes
     static inline void rtc_alarm(unsigned long) __attribute__((always_inline, unused));
     static inline void rtc_alarm(unsigned long sec) {
