@@ -5,6 +5,9 @@ to the mk20dx128.c core file: Add -> "PMC_REGSC |= 0x08;" just under "SCB_VTOR =
 the ResetHandler function. This allows the mcu to release hold of the I/O when waking 
 from sleep.
 
+This last stable beta release so all the arduino examples should compile with Teensydunio
+1.18. For the latest and greatest checkout the "Bleeding Edge" branch.
+
 <h3>ChangeLog Beta2:</h3>
 1.  Added struct to store sleep configurations<br>
 2.  Added RTC Alarm wake<br>
