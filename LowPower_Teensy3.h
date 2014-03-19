@@ -149,7 +149,7 @@ public:
     //-----------------------------------------Core------------------------------------------
     uint32_t cpuFreq(void) { return _cpu; }
     
-    static uint32_t micros() { micros_lp(_cpu); }
+    static uint32_t micros() { return micros_lp(_cpu); }
     
     static void delay(uint32_t msec) { delay_lp(msec, _cpu); }
     
