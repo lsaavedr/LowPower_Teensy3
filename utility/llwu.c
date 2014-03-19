@@ -10,8 +10,14 @@
 
 #include "llwu.h"
 #include "WProgram.h"
+#include "bitband.h"
 
-uint32_t* volatile flags;
+#define WUME0_BIT   0
+#define WUME1_BIT   1
+#define WUME2_BIT   2
+#define WUME4_BIT   4
+#define WUME5_BIT   5
+#define WUME7_BIT   7
 
 /*******************************************************************************
  *
@@ -40,75 +46,87 @@ void llwu_reset_enable(void) {
  *******************************************************************************/
 void llwu_configure(uint32_t pin_en, uint8_t rise_fall, uint32_t module_en ) {
     llwu_clear_flags();
-    //------------------------------------------------
-    LLWU_PE1 = 0;
-    if (pin_en & LLWU_PIN_26) {
-        LLWU_PE1 |= LLWU_PE1_WUPE0(rise_fall);
+    if (pin_en != 0) {
+        //------------------------------------------------
+        LLWU_PE1 = 0;
+        if (pin_en & LLWU_PIN_26) {
+            LLWU_PE1 |= LLWU_PE1_WUPE0(rise_fall);
+        }
+        if (pin_en & LLWU_PIN_33) {
+            LLWU_PE1 |= LLWU_PE1_WUPE3(rise_fall);
+        }
+        //------------------------------------------------
+        LLWU_PE2 = 0;
+        if( pin_en & LLWU_PIN_4) {
+            LLWU_PE2 |= LLWU_PE2_WUPE4(rise_fall);
+        }
+        if( pin_en & LLWU_PIN_16) {  //TSI enabled
+            LLWU_PE2 |= LLWU_PE2_WUPE5(rise_fall);
+        }
+        if( pin_en & LLWU_PIN_22) {// TSI ensbled
+            LLWU_PE2 |= LLWU_PE2_WUPE6(rise_fall);
+        }
+        if( pin_en & LLWU_PIN_9) {
+            LLWU_PE2 |= LLWU_PE2_WUPE7(rise_fall);
+        }
+        //------------------------------------------------
+        LLWU_PE3 = 0;
+        if( pin_en & LLWU_PIN_10) {
+            LLWU_PE3 |= LLWU_PE3_WUPE8(rise_fall);
+        }
+        if( pin_en & LLWU_PIN_13) {
+            LLWU_PE3 |= LLWU_PE3_WUPE9(rise_fall);
+        }
+        if( pin_en & LLWU_PIN_11) {
+            LLWU_PE3 |= LLWU_PE3_WUPE10(rise_fall);
+        }
+        if( pin_en & LLWU_PIN_30) {
+            LLWU_PE3 |= LLWU_PE3_WUPE11(rise_fall);
+        }
+        //------------------------------------------------
+        LLWU_PE4 = 0;
+        if( pin_en & LLWU_PIN_2) {
+            LLWU_PE4 |= LLWU_PE4_WUPE12(rise_fall);
+        }
+        if( pin_en & LLWU_PIN_7) {
+            LLWU_PE4 |= LLWU_PE4_WUPE13(rise_fall);
+        }
+        if( pin_en & LLWU_PIN_6) {
+            LLWU_PE4 |= LLWU_PE4_WUPE14(rise_fall);
+        }
+        if( pin_en & LLWU_PIN_21) {
+            LLWU_PE4 |= LLWU_PE4_WUPE15(rise_fall);
+        }
     }
-    if (pin_en & LLWU_PIN_33) {
-        LLWU_PE1 |= LLWU_PE1_WUPE3(rise_fall);
-    }
-    //------------------------------------------------
-    LLWU_PE2 = 0;
-    if( pin_en & LLWU_PIN_4) {
-        LLWU_PE2 |= LLWU_PE2_WUPE4(rise_fall);
-    }
-    if( pin_en & LLWU_PIN_16) {  //TSI enabled
-        LLWU_PE2 |= LLWU_PE2_WUPE5(rise_fall);
-    }
-    if( pin_en & LLWU_PIN_22) {// TSI ensbled
-        LLWU_PE2 |= LLWU_PE2_WUPE6(rise_fall);
-    }
-    if( pin_en & LLWU_PIN_9) {
-        LLWU_PE2 |= LLWU_PE2_WUPE7(rise_fall);
-    }
-    //------------------------------------------------
-    LLWU_PE3 = 0;
-    if( pin_en & LLWU_PIN_10) {
-        LLWU_PE3 |= LLWU_PE3_WUPE8(rise_fall);
-    }
-    if( pin_en & LLWU_PIN_13) {
-        LLWU_PE3 |= LLWU_PE3_WUPE9(rise_fall);
-    }
-    if( pin_en & LLWU_PIN_11) {
-        LLWU_PE3 |= LLWU_PE3_WUPE10(rise_fall);
-    }
-    if( pin_en & LLWU_PIN_30) {
-        LLWU_PE3 |= LLWU_PE3_WUPE11(rise_fall);
-    }
-    //------------------------------------------------
-    LLWU_PE4 = 0;
-    if( pin_en & LLWU_PIN_2) {
-        LLWU_PE4 |= LLWU_PE4_WUPE12(rise_fall);
-    }
-    if( pin_en & LLWU_PIN_7) {
-        LLWU_PE4 |= LLWU_PE4_WUPE13(rise_fall);
-    }
-    if( pin_en & LLWU_PIN_6) {
-        LLWU_PE4 |= LLWU_PE4_WUPE14(rise_fall);
-    }
-    if( pin_en & LLWU_PIN_21) {
-        LLWU_PE4 |= LLWU_PE4_WUPE15(rise_fall);
-    }
-    //------------------------------------------------
-    LLWU_ME = 0;
-    if( module_en & LLWU_LPTMR_MOD) {
-        LLWU_ME |= LLWU_ME_WUME0_MASK;
-    }
-    if( module_en & LLWU_CMP0_MOD) {
-        LLWU_ME |= LLWU_ME_WUME1_MASK;
-    }
-    if( module_en & LLWU_CMP1_MOD) {
-        LLWU_ME |= LLWU_ME_WUME2_MASK;
-    }
-    if( module_en & LLWU_TSI_MOD) {
-        LLWU_ME |= LLWU_ME_WUME4_MASK;
-    }
-    if( module_en & LLWU_RTCA_MOD) {
-        LLWU_ME |= LLWU_ME_WUME5_MASK;
-    }
-    if( module_en & LLWU_RTCS_MOD) {
-        LLWU_ME |= LLWU_ME_WUME7_MASK;
+    
+    if (module_en != 0) {
+        //------------------------------------------------
+        LLWU_ME = 0;
+        if( module_en & LLWU_LPTMR_MOD) {
+            BITBAND_U8(LLWU_ME, WUME0_BIT) = 1;
+            //LLWU_ME |= LLWU_ME_WUME0_MASK;
+        }
+        if( module_en & LLWU_CMP0_MOD) {
+            BITBAND_U8(LLWU_ME, WUME1_BIT) = 1;
+            //LLWU_ME |= LLWU_ME_WUME1_MASK;
+        }
+        if( module_en & LLWU_CMP1_MOD) {
+            BITBAND_U8(LLWU_ME, WUME2_BIT) = 1;
+            //LLWU_ME |= LLWU_ME_WUME2_MASK;
+        }
+        if( module_en & LLWU_TSI_MOD) {
+            BITBAND_U8(LLWU_ME, WUME4_BIT) = 1;
+            //LLWU_ME |= LLWU_ME_WUME4_MASK;
+        }
+        if( module_en & LLWU_RTCA_MOD) {
+            BITBAND_U8(LLWU_ME, WUME5_BIT) = 1;
+            //LLWU_ME |= LLWU_ME_WUME5_MASK;
+        }
+        if( module_en & LLWU_RTCS_MOD) {
+            BITBAND_U8(LLWU_ME, WUME7_BIT) = 1;
+            //LLWU_ME |= LLWU_ME_WUME7_MASK;
+        }
+        return;
     }
 }
 
@@ -147,14 +165,15 @@ void llwu_configure_filter(unsigned int wu_pin_num, unsigned char filter_en, uns
  * description: Clear wakeup flags.
  *
  *******************************************************************************/
-volatile uint32_t llwu_clear_flags(void) {
+uint32_t llwu_clear_flags(void) {
     uint32_t flag = (LLWU_F1 | LLWU_F2<<8 | LLWU_F3<<16);
-    //flags = (LLWU_F1 | LLWU_F2<<8 | LLWU_F3<<16);
     LLWU_F1 = 0xFF;
     LLWU_F2 = 0xFF;
     LLWU_F3 = 0xFF;
-    LLWU_FILT1 |= 0x80;
-    LLWU_FILT2 |= 0x80;
+    BITBAND_U8(LLWU_FILT1, 7) = 1;
+    BITBAND_U8(LLWU_FILT2, 7) = 1;
+    //LLWU_FILT1 = 0x80;
+    //LLWU_FILT2 = 0x80;
     return flag;
 }
 
