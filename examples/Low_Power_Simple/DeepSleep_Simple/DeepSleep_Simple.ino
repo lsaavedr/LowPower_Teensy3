@@ -16,7 +16,6 @@
  *********************************************************/
 #include <LowPower_Teensy3.h>
 
-volatile uint8_t LEDPIN = 13;
 uint16_t threshold;
 long blinkRate = 50000;
 
@@ -24,11 +23,11 @@ TEENSY3_LP LP = TEENSY3_LP();
 IntervalTimer timer0;
 
 void intervalTimerCallback() {
-  digitalWrite(LEDPIN, !digitalRead(LEDPIN));
+  digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
 }
 
 void setup() {
-  pinMode(LEDPIN, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
   
   /*****************************************************
    * Initialize TSI wakeup threshold by reading the value

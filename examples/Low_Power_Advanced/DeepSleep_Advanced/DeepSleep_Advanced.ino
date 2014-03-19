@@ -5,7 +5,7 @@
  *
  *  This example shows the use of the struct to setup 
  *  multiple wake sources with multiple configurations. 
- *  Debugging messages are printed through Serial 1.
+ *  Debugging messages are printed through Hardware Serial1.
  *
  *  Tested with Arduino 1.0.5 and Teensyduino 1.18
  *********************************************************/
@@ -16,9 +16,8 @@ HardwareSerial Uart = HardwareSerial();
 
 TEENSY3_LP LP = TEENSY3_LP();
 
-configSleep* LP_config;// sleep configuration
+sleep_block_t* LP_config;// sleep configuration
 
-uint8_t LEDPIN = 13;
 
 // User callback handler
 void callbackhandler() {
@@ -27,12 +26,13 @@ void callbackhandler() {
 
 void setup() {
   Serial.begin(0);
-  pinMode(LEDPIN, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
   Uart.begin(115200);
   setSyncProvider(getTeensy3Time);
   Uart.println("DeepSleep Advanced Example");
   if (timeStatus()!= timeSet) Uart.println("Unable to sync with the RTC"); 
   else Uart.println("RTC has set the system time");
+  Uart.flush();
 }
 
 void loop() {
@@ -46,7 +46,7 @@ void loop() {
  *****************************************************/
 void sleep_config_1() {
   // config1 struct in memory
-  LP_config = (configSleep*) calloc(1,sizeof(configSleep));
+  LP_config = (sleep_block_t*) calloc(1,sizeof(sleep_block_t));
   // OR together different wake sources
   LP_config->modules = (RTCA_WAKE | TSI_WAKE);
   // RTC alarm wakeup in 20 seconds
@@ -56,7 +56,7 @@ void sleep_config_1() {
   // configure TSI wakeup threshold
   LP_config->tsi_threshold = touchRead(LP_config->tsi_pin) + 256;
   // user callback function
-  LP_config->callbackfunc = callbackhandler;
+  LP_config->callback = callbackhandler;
   // sleep
   LP.DeepSleep(LP_config);
  
@@ -82,7 +82,7 @@ void sleep_config_2() {
   // configure pin 7
   pinMode(7, INPUT_PULLUP);
   // config2 struct in memory
-  LP_config = (configSleep*) calloc(1,sizeof(configSleep));
+  LP_config = (sleep_block_t*) calloc(1,sizeof(sleep_block_t));
   // OR together different wake sources
   LP_config->modules = (GPIO_WAKE | LPTMR_WAKE | TSI_WAKE);
   // enable pin 6,7 as wake up source
@@ -94,7 +94,7 @@ void sleep_config_2() {
   // configure TSI wakeup threshold
   LP_config->tsi_threshold = touchRead(LP_config->tsi_pin) + 256;
   // user callback function
-  LP_config->callbackfunc = callbackhandler;
+  LP_config->callback = callbackhandler;
   // sleep
   LP.DeepSleep(LP_config);
   
@@ -111,9 +111,9 @@ void sleep_config_2() {
 }
 
 void blink() {
-  digitalWrite(LEDPIN, HIGH);
+  digitalWrite(LED_BUILTIN, HIGH);
   delay(50);
-  digitalWrite(LEDPIN, LOW);
+  digitalWrite(LED_BUILTIN, LOW);
 }
 
 void digitalClockDisplay() {
@@ -126,6 +126,7 @@ void digitalClockDisplay() {
   Uart.print(hourFormat12());
   printDigits(minute());
   printDigits(second());
+  Uart.flush();
 }
 
 time_t getTeensy3Time() {
@@ -161,6 +162,9 @@ void printWakeSource() {
   if (LP_config->wake_source == PIN_11) {
     Uart.println("GPIO WAKE pin 11");
   }
+  if (LP_config->wake_source == PIN_13) {
+    Uart.println("GPIO WAKE pin 13");
+  }
   if (LP_config->wake_source == PIN_16) {
     Uart.println("GPIO WAKE pin 16");
   }
@@ -169,6 +173,15 @@ void printWakeSource() {
   }
   if (LP_config->wake_source == PIN_22) {
     Uart.println("GPIO WAKE pin 22");
+  }
+  if (LP_config->wake_source == PIN_26) {
+    Uart.println("GPIO WAKE pin 26");
+  }
+  if (LP_config->wake_source == PIN_30) {
+    Uart.println("GPIO WAKE pin 30");
+  }
+  if (LP_config->wake_source == PIN_33) {
+    Uart.println("GPIO WAKE pin 33");
   }
   if (LP_config->wake_source == LPTMR_WAKE) {
     Uart.println("LPTMR WAKE");
@@ -180,6 +193,7 @@ void printWakeSource() {
   if (LP_config->wake_source == RTCA_WAKE) {
     Uart.println("RTCA WAKE");
   }
+  Uart.flush();
 }
 
 

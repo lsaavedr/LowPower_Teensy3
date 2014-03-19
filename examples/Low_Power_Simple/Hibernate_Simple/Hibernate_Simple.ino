@@ -14,13 +14,10 @@
  *********************************************************/
 #include <LowPower_Teensy3.h>
 
-uint8_t LEDPIN = 13;
-
 TEENSY3_LP LP = TEENSY3_LP();
 
 void setup() {
-  pinMode(22, INPUT_PULLUP);
-  pinMode(LEDPIN, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(0);
   blink();
   while(!Serial.dtr());
@@ -30,7 +27,7 @@ void setup() {
   /*****************************************************
    * Print the reset source and current power mode
    *****************************************************/
-  LP.PrintSRS();
+  LP.PrintSRS(&Serial1);
   delay(20);
   
   /*****************************************************
@@ -48,9 +45,9 @@ void loop() {
 }
 
 void blink() {
-  digitalWrite(LEDPIN, !digitalRead(LEDPIN));
+  digitalWrite(LED_BUILTIN, HIGH);
   delay(100);
-  digitalWrite(LEDPIN, !digitalRead(LEDPIN));
+  digitalWrite(LED_BUILTIN, LOW);
   delay(100);
 }
 

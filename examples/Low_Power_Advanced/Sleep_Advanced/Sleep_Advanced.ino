@@ -1,14 +1,15 @@
 /**********************************************************
- *  Puts the processor into Wait (VLPW) mode aka... Sleep. 
- *  All system interrupts will exit this sleep mode. Users
- *  must call attachInterrupt for the configured pin or have
- *  whatever interrupt handling routine.
+ *  ** NOTICE!!! You must make IntervalTimer class "Private"
+ *  ** members "Protected" members. Then uncomment 
+ *  ** IntervalTimer_LP class in LowPower_Teensy3.h file.
  *
- *  This example shows using Interval Timer to wake the
- *  processor from Sleep mode. Notice the you will have
- *  to resync the clock when waking up from any Sleep modes
- *  which is done through the callback function is this
- *  example.
+ *  Puts the processor into Wait (VLPW) mode aka... Sleep.
+ *  All system interrupts will exit this sleep mode. 
+ *
+ *  This example puts the CPU at 2MHz then uses LowPower_Teensy3 
+ *  IntervalTimer_LP port to wake the processor from Sleep mode.
+ *  Serial1 is also reconfigured to work at 2MHz using the
+ *  HardwareSerial_LP class.
  *
  *  Tested and compiled under Arduino 1.0.5 and 
  *  Teensyduino 1.18
@@ -16,56 +17,36 @@
 #include <LowPower_Teensy3.h>
 #include <Time.h> 
 
-volatile uint8_t LEDPIN = 13;
 uint16_t threshold;
 long blinkRate = 500000;
 
 TEENSY3_LP LP = TEENSY3_LP();
-IntervalTimer timer0;
+HardwareSerial_LP Uart_lp = HardwareSerial_LP();
+IntervalTimer_LP timer_lp;
 
 void intervalTimerCallback() {
-  digitalWrite(LEDPIN, !digitalRead(LEDPIN));
-  setSyncProvider(getTeensy3Time);
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(100);
+  digitalWrite(LED_BUILTIN, LOW);
 }
 
 void setup() {
-  Serial1.begin(9600);
-  setSyncProvider(getTeensy3Time);
-  pinMode(LEDPIN, OUTPUT);
+  LP.CPU(TWO_MHZ);
+  Uart_lp.begin(115200);
+  pinMode(LED_BUILTIN, OUTPUT);
+  Uart_lp.print("Sleep Advanced \n");
+  Uart_lp.flush();
   /*****************************************************
    * Setup IntervalTimer to wake from Sleep mode.
    *****************************************************/
-  timer0.begin(intervalTimerCallback, blinkRate);
+  timer_lp.begin(intervalTimerCallback, blinkRate);
 }
 
 void loop() {
   /*****************************************************
-   * Sleep for 5 secs then print the current time.
+   * Sleep for 5 secs
    *****************************************************/
   LP.Sleep();
-  digitalClockDisplay();
-  Serial1.println(" - Wake Time");
-  Serial1.flush();
-}
-
-void digitalClockDisplay() {
-  Serial1.print(month());
-  Serial1.print("/");
-  Serial1.print(day());
-  Serial1.print("/");
-  Serial1.print(year());
-  Serial1.print(" ");
-  Serial1.print(hourFormat12());
-  printDigits(minute());
-  printDigits(second());
-}
-
-time_t getTeensy3Time() {
-  return Teensy3Clock.get();
-}
-
-void printDigits(int digits) {
-  Serial1.print(":");
-  if(digits < 10) Serial1.print('0');
-  Serial1.print(digits);
+  Uart_lp.println("Wakey Wakey");
+  Uart_lp.flush();
 }

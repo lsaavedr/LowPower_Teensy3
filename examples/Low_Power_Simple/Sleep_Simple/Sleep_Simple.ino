@@ -12,17 +12,17 @@
  *********************************************************/
 #include <LowPower_Teensy3.h>
 
-volatile uint8_t LEDPIN = 13;
-
 TEENSY3_LP LP = TEENSY3_LP();
 
 void callbackhandler() {
-  digitalWrite(LEDPIN, !digitalRead(LEDPIN));
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(100);
+  digitalWrite(LED_BUILTIN, LOW);
 }
 
 void setup() {
   Serial.begin(9600);
-  pinMode(LEDPIN, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
   pinMode(0, INPUT_PULLUP);
   attachInterrupt(0, callbackhandler, RISING);
 }
