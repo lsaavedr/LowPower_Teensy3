@@ -40,8 +40,6 @@ volatile uint32_t TEENSY3_LP::_bus;
 volatile uint32_t TEENSY3_LP::_mem;
 
 TEENSY3_LP::TEENSY3_LP() {
-    //assign callback to default callback
-    //CALLBACK = defaultCallback;
     // Enable all wakeup types - SMC_PMPROT: AVLP=1,ALLS=1,AVLLS=1
     SMC_PMPROT = SMC_PMPROT_ALLS_MASK | SMC_PMPROT_AVLLS_MASK | SMC_PMPROT_AVLP_MASK;
     /*
@@ -64,6 +62,8 @@ TEENSY3_LP::TEENSY3_LP() {
     _cpu = F_CPU;
     _bus = F_BUS;
     _mem = F_MEM;
+    // initialize Low Power Timer
+    lptmr_init();
 }
 /****************************** Func *******************************
  * Routines to enable different sleep modes on the teensy3.
@@ -152,11 +152,11 @@ void wakeup_isr(void) {
     if ((TEENSY3_LP::stopflag & TSI_WAKE) && (TEENSY3_LP::lowLeakageSource == LLS)) tsi_stop();
     if ((TEENSY3_LP::stopflag & CMP0_WAKE) && (TEENSY3_LP::lowLeakageSource == LLS)) cmp_stop();
     
-    TEENSY3_LP::CALLBACK();
-    
     TEENSY3_LP *p;
     
     p->wakeSource = llwuFlag;
+    
+    TEENSY3_LP::CALLBACK();
 }
 /***************************** PUBLIC: ******************************/
 int TEENSY3_LP::CPU(uint32_t cpu) {
@@ -198,7 +198,7 @@ int TEENSY3_LP::CPU(uint32_t cpu) {
                 // transition from PEE to BLPI
                 pee_blpi();
                 // config divisors: 2 MHz core, 2 MHz bus, 1 MHz flash
-                mcg_cpu(0x00, 0x00, 0x01, 1999);
+                mcg_div(0x00, 0x00, 0x01, 1999);
                 // now safe to enter vlpr
                 enter_vlpr(0);
                 systick_millis_count = 0;
@@ -206,15 +206,15 @@ int TEENSY3_LP::CPU(uint32_t cpu) {
             }
             return TWO_MHZ;
         } else if (cpu == FOUR_MHZ) {
+            _cpu = BLPE_CPU;
+            _bus = BLPE_BUS;
+            _mem = BLPE_MEM;
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-                _cpu = BLPE_CPU;
-                _bus = BLPE_BUS;
-                _mem = BLPE_MEM;
                 usbDisable();
                 // transition from PEE to BLPE
                 pee_blpe();
                 // config divisors: 4 MHz core, 4 MHz bus, 1 MHz flash
-                mcg_cpu(0x03, 0x03, 0x0F, 3999);
+                mcg_div(0x03, 0x03, 0x0F, 3999);
                 // now safe to enter vlpr
                 enter_vlpr(0);
                 systick_millis_count = 0;
@@ -223,29 +223,29 @@ int TEENSY3_LP::CPU(uint32_t cpu) {
             return FOUR_MHZ;
         } else return -1;
     } else if (cpu == EIGHT_MHZ) {
+        _cpu = EIGHT_MHZ;
+        _bus = EIGHT_MHZ;
+        _mem = EIGHT_MHZ;
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-            _cpu = EIGHT_MHZ;
-            _bus = EIGHT_MHZ;
-            _mem = EIGHT_MHZ;
             usbDisable();
             // transition from PEE to BLPE
             pee_blpe();
             // config divisors: 8 MHz core, 8 MHz bus, 8 MHz flash
-            mcg_cpu(0x01, 0x01, 0x01, 7999);
+            mcg_div(0x01, 0x01, 0x01, 7999);
             systick_millis_count = 0;
             SYST_CVR = 0;
         }
         return EIGHT_MHZ;
     } else if (cpu == SIXTEEN_MHZ) {
+        _cpu = SIXTEEN_MHZ;
+        _bus = SIXTEEN_MHZ;
+        _mem = SIXTEEN_MHZ;
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-            _cpu = SIXTEEN_MHZ;
-            _bus = SIXTEEN_MHZ;
-            _mem = SIXTEEN_MHZ;
             usbDisable();
             // transition from PEE to BLPE
             pee_blpe();
             // config divisors: 16 MHz core, 16 MHz bus, 16 MHz flash
-            mcg_cpu(0x00, 0x00, 0x00, 15999);
+            mcg_div(0x00, 0x00, 0x00, 15999);
             systick_millis_count = 0;
             SYST_CVR = 0;
         }
@@ -260,13 +260,22 @@ int TEENSY3_LP::CPU(uint32_t cpu) {
 //----------------------------------------------------------------------------------------------------------
 void TEENSY3_LP::Sleep() {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        uint32_t tmp = _cpu;
         usbDisable();
         //vrefDisable();
         //adcDisable();
         //rtcDisable();
         CPU(TWO_MHZ);
         enter_wait();
-        CPU(F_CPU);
+        if (tmp == FOUR_MHZ) {
+            CPU(FOUR_MHZ);
+        } else if (tmp == EIGHT_MHZ) {
+            CPU(EIGHT_MHZ);
+        } else if (tmp == SIXTEEN_MHZ) {
+            CPU(SIXTEEN_MHZ);
+        } else if (tmp == F_CPU) {
+            CPU(F_CPU);
+        }
         //rtcEnable();
         //adcEnable();
         //vrefEnable();
@@ -274,109 +283,108 @@ void TEENSY3_LP::Sleep() {
     }
 }
 //----------------------------------------------------------------------------------------------------------
-void TEENSY3_LP::DeepSleep(uint32_t wakeType, uint32_t var1, uint16_t var2, ISR callback) {
-    if (callback == NULL) {
-        CALLBACK = defaultCallback;
-    } else CALLBACK = callback;
+uint32_t TEENSY3_LP::DeepSleep(uint32_t wakeType, uint32_t time_pin, uint16_t threshold, ISR callback) {
     
-    stopflag = 0;
+    CALLBACK = callback;
 
-    sleepHandle(__FUNCTION__, wakeType, var1, var2);
+    sleepHandle(__FUNCTION__, wakeType, time_pin, threshold);
+    
+    return wakeSource;
 }
 
-void TEENSY3_LP::DeepSleep(volatile struct configSleep* config) {
-    if (config->callback == NULL) {
+void TEENSY3_LP::DeepSleep(sleep_block_t* configuration) {
+    if (configuration->callback == NULL) {
     	CALLBACK = defaultCallback;
     } else {
-       	CALLBACK = config->callback;
+       	CALLBACK = configuration->callback;
     }
    
     lowLeakageSource = LLS;
     
-    stopflag = 0;
+    stopflag = configuration->modules;
+    //stopflag = 0;
     
-    if (config->modules & GPIO_WAKE) {
-        gpioHandle(config->gpio_pin, PIN_ANY);
+    if (configuration->modules & GPIO_WAKE) {
+        gpioHandle(configuration->gpio_pin, PIN_ANY);
     }
-    if (config->modules & LPTMR_WAKE) {
-        stopflag |= LPTMR_WAKE;
-        lptmrHandle(config->lptmr_timeout);
+    if (configuration->modules & LPTMR_WAKE) {
+        //stopflag |= LPTMR_WAKE;
+        lptmrHandle(configuration->lptmr_timeout);
     }
-    if (config->modules & RTCA_WAKE) {
-        stopflag |= RTCA_WAKE;//0x02;
-        rtcHandle(config->rtc_alarm);
+    if (configuration->modules & RTCA_WAKE) {
+        //stopflag |= RTCA_WAKE;//0x02;
+        rtcHandle(configuration->rtc_alarm);
     }
-    if (config->modules & RTCS_WAKE) {
-        stopflag |= RTCS_WAKE;
+    if (configuration->modules & RTCS_WAKE) {
+        //stopflag |= RTCS_WAKE;
     }
-    if (config->modules & CMP0_WAKE) {
-        stopflag |= CMP0_WAKE;
+    if (configuration->modules & CMP0_WAKE) {
+        //stopflag |= CMP0_WAKE;
     }
-    if (config->modules & CMP1_WAKE) {
-        stopflag |= CMP1_WAKE;
+    if (configuration->modules & CMP1_WAKE) {
+        //stopflag |= CMP1_WAKE;
     }
-    if (config->modules & TSI_WAKE) {
-        stopflag |= TSI_WAKE;
-        tsiHandle(config->tsi_pin, config->tsi_threshold);
+    if (configuration->modules & TSI_WAKE) {
+        //stopflag |= TSI_WAKE;
+        tsiHandle(configuration->tsi_pin, configuration->tsi_threshold);
     }
     
-    llwu_configure(config->gpio_pin, PIN_ANY, config->modules);// configure llwu
+    llwu_configure(configuration->gpio_pin, PIN_ANY, configuration->modules);// configure llwu
     
     NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
     
     enter_lls();// enter lls sleep mode
     
-    config->wake_source = wakeSource;// who woke me up?
+    configuration->wake_source = wakeSource;// who woke me up?
     
 }
 //----------------------------------------------------------------------------------------------------------
-void TEENSY3_LP::Hibernate(uint32_t wakeType, uint32_t var1, uint16_t var2, ISR callback) {
-    if (callback == NULL) {
-        CALLBACK = defaultCallback;
-    } else CALLBACK = callback;
+void TEENSY3_LP::Hibernate(uint32_t wakeType, uint32_t time_pin, uint16_t threshold, ISR callback) {
     
     CALLBACK = callback;
     
-    sleepHandle(__FUNCTION__, wakeType, var1, var2);
+    sleepHandle(__FUNCTION__, wakeType, time_pin, threshold);
 }
 
-void TEENSY3_LP::Hibernate(volatile struct configSleep* config) {
-    if (config->callback == NULL) {
+void TEENSY3_LP::Hibernate(sleep_block_t* configuration) {
+    if (configuration->callback == NULL) {
         CALLBACK = defaultCallback;
     } else {
-        CALLBACK = config->callback;
+        CALLBACK = configuration->callback;
     }
+    
+    stopflag = configuration->modules;
     
     lowLeakageSource = VLLS;
     
     stopflag = 0;
     
-    if (config->modules & GPIO_WAKE) {
-        gpioHandle(config->gpio_pin, PIN_ANY);
+    if (configuration->modules & GPIO_WAKE) {
+        gpioHandle(configuration->gpio_pin, PIN_ANY);
     }
-    if (config->modules & LPTMR_WAKE) {
-        stopflag |= LPTMR_WAKE;
-        lptmrHandle(config->lptmr_timeout);
+    if (configuration->modules & LPTMR_WAKE) {
+        //stopflag |= LPTMR_WAKE;
+        lptmrHandle(configuration->lptmr_timeout);
     }
-    if (config->modules & RTCA_WAKE) {
-        stopflag |= RTCA_WAKE;
-        rtcHandle(config->rtc_alarm);
+    if (configuration->modules & RTCA_WAKE) {
+        //stopflag |= RTCA_WAKE;
+        rtcHandle(configuration->rtc_alarm);
     }
-    if (config->modules & RTCS_WAKE) {
-        stopflag |= RTCS_WAKE;
+    if (configuration->modules & RTCS_WAKE) {
+        //stopflag |= RTCS_WAKE;
     }
-    if (config->modules & CMP0_WAKE) {
-        stopflag |= CMP0_WAKE;
+    if (configuration->modules & CMP0_WAKE) {
+        //stopflag |= CMP0_WAKE;
     }
-    if (config->modules & CMP1_WAKE) {
-        stopflag |= CMP1_WAKE;
+    if (configuration->modules & CMP1_WAKE) {
+        //stopflag |= CMP1_WAKE;
     }
-    if (config->modules & TSI_WAKE) {
-        stopflag |= TSI_WAKE;
-        tsiHandle(config->tsi_pin, config->tsi_threshold);
+    if (configuration->modules & TSI_WAKE) {
+        //stopflag |= TSI_WAKE;
+        tsiHandle(configuration->tsi_pin, configuration->tsi_threshold);
     }
 
-    llwu_configure(config->gpio_pin, PIN_ANY, config->modules);
+    llwu_configure(configuration->gpio_pin, PIN_ANY, configuration->modules);
     
     NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
     
@@ -412,8 +420,11 @@ void TEENSY3_LP::PrintSRS(Stream *port) {
     if (SMC_PMSTAT == 0x40) port->println("[SMC_PMSTAT] - Current Power Mode VLLS") ;
     port->println("------------------------------------------");
 }
+
 /***************************** PRIVATE: ******************************/
-bool TEENSY3_LP::sleepHandle(const char* caller, uint32_t wakeType, uint32_t var1, uint16_t var2) {
+bool TEENSY3_LP::sleepHandle(const char* caller, uint32_t wakeType, uint32_t time_pin, uint16_t threshold) {
+    
+    stopflag = wakeType;
     
     boolean error = false;
     
@@ -427,43 +438,48 @@ bool TEENSY3_LP::sleepHandle(const char* caller, uint32_t wakeType, uint32_t var
     bool hibernateCall = strncmp(caller, "Hibernate", 9);
  
     if (wakeType & LPTMR_WAKE) {
-        stopflag |= LPTMR_WAKE;
-        lptmrHandle(var1);
+        //stopflag |= LPTMR_WAKE;
+        lptmrHandle(time_pin);
+        time_pin = 0;
     }
     if (wakeType & GPIO_WAKE) {
-        //gpioHandle(var1, PIN_ANY);
+        gpioHandle(time_pin, PIN_ANY);
+        wakeType = 0;
     }
     if (wakeType & RTCA_WAKE) {
-        stopflag |= RTCA_WAKE;
-        rtcHandle(var1);
+        //stopflag |= RTCA_WAKE;
+        rtcHandle(time_pin);
+        time_pin = 0;
     }
     if (wakeType & TSI_WAKE) {
-        stopflag |= TSI_WAKE;
-        tsiHandle(var1, var2);
+        //stopflag |= TSI_WAKE;
+        tsiHandle(time_pin, threshold);
     }
     if (wakeType & CMP0_WAKE) {
-        stopflag |= CMP0_WAKE;
+        //stopflag |= CMP0_WAKE;
         cmpHandle();
     }
     
-    llwu_configure(var1,PIN_ANY, wakeType);
-    
-    NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
-    
     if (!deepSlpCall) {
+        llwu_configure(time_pin, PIN_ANY, wakeType);
+        NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
+        lowLeakageSource = LLS;
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-            lowLeakageSource = LLS;
             enter_lls();// enter lls sleep mode
         }
+        return false;
     }
     if (!hibernateCall) {
+        llwu_configure(time_pin, PIN_ANY, wakeType);
+        NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
+        lowLeakageSource = VLLS;
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-            lowLeakageSource = VLLS;
             enter_vlls3();// enter vlls3 sleep mode
         }
+        return false;
     }
+    return true;
     
-    return false;
 }
 
 void TEENSY3_LP::gpioHandle(uint32_t pin, uint8_t pinType) {
@@ -471,19 +487,18 @@ void TEENSY3_LP::gpioHandle(uint32_t pin, uint8_t pinType) {
 }
 
 void TEENSY3_LP::lptmrHandle(uint32_t timeout) {
-    lptmr_init();
+    //lptmr_init();
     lptmr_start(timeout);// start timer in msec
 }
 
-void TEENSY3_LP::rtcHandle(unsigned long unixSec) {
-    rtc_alarm(unixSec);// alarm in secs
+void TEENSY3_LP::rtcHandle(unsigned long sec) {
+    rtc_alarm(sec);// alarm in secs
 }
 
 void TEENSY3_LP::cmpHandle(void) {
     pinMode(11, INPUT);
     pinMode(12, INPUT);
     cmp_init();
-    // TODO: enable Comparator (CMP) wakeup
 }
 
 void TEENSY3_LP::tsiHandle(uint8_t var, uint16_t threshold) {
