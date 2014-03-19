@@ -15,7 +15,7 @@
 
 #define SIM_SCGC5_LPTIMER_BIT 0x00
 
-void lptmr_init(void) {
+/*void lptmr_init(void) {
     // check clocks
     if (!BITBAND_U32(SIM_SCGC5, SIM_SCGC5_LPTIMER_BIT)) { BITBAND_U32(SIM_SCGC5, SIM_SCGC5_LPTIMER_BIT) = 1; }
     LPTMR0_CSR=0x00;
@@ -49,3 +49,4 @@ void lptmr_stop(void) {
     LPTMR0_CSR &= ~LPTMR_CSR_TEN_MASK;
     if (BITBAND_U32(SIM_SCGC5, SIM_SCGC5_LPTIMER_BIT)) { BITBAND_U32(SIM_SCGC5, SIM_SCGC5_LPTIMER_BIT) = 0; }
 }
+*/
