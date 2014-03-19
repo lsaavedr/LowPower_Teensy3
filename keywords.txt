@@ -26,7 +26,7 @@ Hibernate	KEYWORD2
 #######################################
 # Instances (KEYWORD2)
 #######################################
-configSleep	KEYWORD2
+sleep_block_t	KEYWORD2
 #######################################
 # Constants (LITERAL1)
 #######################################
