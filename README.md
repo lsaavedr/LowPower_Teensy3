@@ -1,5 +1,5 @@
-LowPower_Teensy3 Library
-========================
+LowPower_Teensy3 Bleeding Edge Library
+======================================
 If you are not using Teensyduino 1.14 or greater then there is one edit you need to make
 to the mk20dx128.c core file: Add -> "PMC_REGSC |= 0x08;" just under "SCB_VTOR = 0;" in 
 the ResetHandler function. This allows the mcu to release hold of the I/O when waking 
