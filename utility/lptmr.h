@@ -122,7 +122,7 @@ extern "C" {
         //LPTMR0_CSR |= LPTMR_CSR_TEN_MASK;
     }
     
-    static inline void llptmr_stop(void) __attribute__((always_inline, unused));
+    static inline void lptmr_stop(void) __attribute__((always_inline, unused));
     static inline void lptmr_stop(void) {
         BITBAND_U32(LPTMR0_CSR, LPTMR_TCF) = 1;
         //LPTMR0_CSR |= LPTMR_CSR_TCF_MASK;
