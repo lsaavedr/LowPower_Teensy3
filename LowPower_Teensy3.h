@@ -57,7 +57,7 @@
 #define PIN_ANY         0x03
 
 /* Define Module Wakeup Source */
-#define GPIO_WAKE       0x01
+#define GPIO_WAKE       0x00
 #define LPTMR_WAKE      0x10000
 #define RTCA_WAKE       0x200000
 #define RTCS_WAKE       0x400000
@@ -76,7 +76,7 @@
 
 class TEENSY3_LP;
 
-struct configSleep {
+typedef struct sleep_block_struct {
     /* Module Wake Type */
     uint32_t modules;
     /* Structure GPIO Config */
@@ -90,21 +90,22 @@ struct configSleep {
     uint16_t tsi_threshold;
     uint8_t tsi_pin;
     /* Structure wake source */
-    uint32_t wake_source;
+    volatile uint32_t wake_source;
     /* pointer to callback function */
     void (*callback)();
-};
+    sleep_block_struct() : modules(NULL), gpio_pin(0), gpio_mode(0), lptmr_timeout(0), rtc_alarm(0), tsi_threshold(0), tsi_pin(0), wake_source(NULL), callback(NULL) {};
+} sleep_block_t;
 
 class TEENSY3_LP {
 private:
     /* Handler Functions */
-    void gpioHandle(uint32_t pin, uint8_t pinType);
-    void lptmrHandle(uint32_t timeout);
-    void rtcHandle(unsigned long unixSec);
-    void cmpHandle(void);
-    void tsiHandle(uint8_t var, uint16_t threshold);
-    inline bool sleepHandle(const char* caller, uint32_t wakeType, uint32_t var1, uint16_t var2) __attribute__((always_inline)) ;
-    void sleepHandle(volatile struct configSleep* config);
+    inline void gpioHandle(uint32_t pin, uint8_t pinType) __attribute__((always_inline, unused)) ;
+    inline void lptmrHandle(uint32_t timeout) __attribute__((always_inline, unused)) ;
+    inline void rtcHandle(unsigned long sec) __attribute__((always_inline, unused)) ;
+    inline void cmpHandle(void) __attribute__((always_inline, unused)) ;
+    inline void tsiHandle(uint8_t var, uint16_t threshold) __attribute__((always_inline, unused)) ;
+    inline bool sleepHandle(const char* caller, uint32_t wakeType, uint32_t time_pin, uint16_t threshold) __attribute__((always_inline, unused)) ;
+    //void sleepHandle(volatile struct configSleep* config);
     /* TSI Initialize  */
     void tsiIntialize(void);
     /* private class access to wakeup ISR  */
@@ -115,11 +116,9 @@ private:
     /* default callback ISR  */
     static void defaultCallback() { yield(); };
     
-    static volatile uint32_t wakeSource;// hold llwu wake up source for wakeup isr
     static volatile uint32_t stopflag;// hold module wake up sources for wakeup isr
     static volatile uint8_t lowLeakageSource;// hold lowleakage mode for wakeup isr
     
-    //friend class IntervalTimer_LP;
     friend class HardwareSerial_LP;
     friend class HardwareSerial2_LP;
     friend class HardwareSerial3_LP;
@@ -132,34 +131,34 @@ public:
     TEENSY3_LP(void);
     //---------------------------------------------------------------------------------------
     /* Sleep Functions */
+    static volatile uint32_t wakeSource;// hold llwu wake up source
     //----------------------------------------CPU--------------------------------------------
     int CPU(uint32_t freq);
     //---------------------------------------Sleep-------------------------------------------
     void Sleep();
     //--------------------------------------DeepSleep----------------------------------------
-    void DeepSleep(uint32_t wakeType, uint32_t var1, uint16_t var2, ISR myCallback);
-    void DeepSleep(uint32_t wakeType, uint32_t var1, ISR myCallback) { DeepSleep(wakeType, var1, 0, myCallback); }
-    void DeepSleep(uint32_t wakeType, uint32_t var1, uint16_t var2) { DeepSleep(wakeType, var1, var2, defaultCallback); }
-    void DeepSleep(uint32_t wakeType, uint32_t var1) { DeepSleep(wakeType, var1, 0, defaultCallback); }
-    void DeepSleep(volatile struct configSleep* config);
+    uint32_t DeepSleep(uint32_t wakeType, uint32_t time_pin, uint16_t threshold = 0, ISR myCallback = defaultCallback);
+    uint32_t DeepSleep(uint32_t wakeType, uint32_t time_pin, ISR myCallback) { DeepSleep(wakeType, time_pin, 0, myCallback);  return wakeSource; }
+    void DeepSleep(sleep_block_t* configuration);
     //--------------------------------------Hibernate----------------------------------------
-    void Hibernate(uint32_t wakeType, uint32_t var1, uint16_t var2, ISR myCallback);
-    void Hibernate(uint32_t wakeType, uint32_t var1, uint16_t var2) { Hibernate(wakeType, var1, var2, defaultCallback); }
-    void Hibernate(uint32_t wakeType, uint32_t var1, ISR myCallback) { Hibernate(wakeType, var1, 0, myCallback); }
-    void Hibernate(uint32_t wakeType, uint32_t var1) { Hibernate(wakeType, var1, 0, defaultCallback); }
-    void Hibernate(volatile struct configSleep* config);
+    void Hibernate(uint32_t wakeType, uint32_t time_pin, uint16_t threshold = 0, ISR myCallback = defaultCallback);
+    void Hibernate(uint32_t wakeType, uint32_t time_pin, ISR myCallback) { Hibernate(wakeType, time_pin, 0, myCallback); }
+    void Hibernate(sleep_block_t* configuration);
     //---------------------------------------PrintSRS----------------------------------------
     void PrintSRS(Stream *port);
     //-----------------------------------------Core------------------------------------------
     uint32_t cpuFreq(void) { return _cpu; }
+    
     static uint32_t micros() { micros_lp(_cpu); }
-    static void delay(uint32_t msec) { delay_lp(msec,_cpu); }
+    
+    static void delay(uint32_t msec) { delay_lp(msec, _cpu); }
+    
     static void delayMicroseconds(uint32_t usec) { delayMicroseconds_lp(usec, _cpu); }
     
 };
 
 /**** !!!!!Must make interval timer private members protected for this to work!!!! *****/
-class IntervalTimer_LP : public IntervalTimer {
+/*class IntervalTimer_LP : public IntervalTimer {
 private:
 public:
     bool begin(ISR newISR, unsigned int newPeriod) {
@@ -167,7 +166,8 @@ public:
         uint32_t newValue = (TEENSY3_LP::_cpu / 1000000) * newPeriod - 1;
         return beginCycles(newISR, newValue);
     }
-};
+};*/
+
 
 class HardwareSerial_LP : public HardwareSerial {
 private:
