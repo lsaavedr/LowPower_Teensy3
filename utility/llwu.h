@@ -22,6 +22,7 @@
 #define LLWU_PIN_RISING     0x01
 #define LLWU_PIN_FALLING    0x02
 #define LLWU_PIN_ANY        0x03
+#define LLWU_PIN_DIS        0x00
 // wakeup pin
 #define LLWU_PIN_2          0x1000
 #define LLWU_PIN_4          0x10
@@ -37,6 +38,7 @@
 #define LLWU_PIN_26         0x01
 #define LLWU_PIN_30         0x800
 #define LLWU_PIN_33         0x02
+
 /********************************************************************/
 #ifdef __cplusplus
 extern "C" {
@@ -44,9 +46,13 @@ extern "C" {
     // function prototypes
     /* Low-Leakage Wakeup Unit LLWU Functions */
     void llwu_reset_enable(void);
+    
+    //static inline void llwu_configure(uint32_t, uint8_t, uint32_t) __attribute__((always_inline, unused));
     void llwu_configure(uint32_t pin_en, uint8_t rise_fall, uint32_t module_en);
+    
     void llwu_configure_filter(unsigned int wu_pin_num, unsigned char filter_en, unsigned char rise_fall );
-    volatile  uint32_t llwu_clear_flags(void);
+    
+    uint32_t volatile llwu_clear_flags(void);
 #ifdef __cplusplus
 }
 #endif
