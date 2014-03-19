@@ -9,7 +9,6 @@
 /********************************************************************/
 #include "mk20dx128.h"
 #include "mk20dx128_ext.h"
-#include "util/atomic.h"
 //#include "Arduino.h"
 /********************************************************************/
 #ifdef __cplusplus
@@ -17,7 +16,10 @@ extern "C" {
 #endif
     // function prototypes
     void enter_wait(void);
+    
+    //static inline void enter_stop(void) __attribute__((always_inline, unused));
     void enter_stop(void);
+    
     void enter_vlpr(char lpwui_value);
     void exit_vlpr(void);
     void enter_vlps(char lpwui_value);
@@ -31,7 +33,10 @@ extern "C" {
     void disable_ports_partial(void);
     void enable_lpwui(void);
     void disable_lpwui(void);
-    void stop(void);
+    
+    static inline void stop(void) __attribute__((always_inline, unused));
+    static inline void stop(void);
+    
     void wait(void);
 #ifdef __cplusplus
 }

@@ -7,7 +7,6 @@
  *******************************************************************************/
 
 #include "smc.h"
-
 /*******************************************************************************
  * WAIT mode entry routine. Puts the processor into wait mode.
  * In this mode the core clock is disabled (no code executing), but
@@ -173,7 +172,7 @@ void enter_vlps(char lpwui_value) {
  * NOTE:    LLS mode will always exit to RUN mode even if you were
  *          in VLPR mode before entering LLS.
  *******************************************************************************/
-void enter_lls(void) {
+void enter_lls (void) {
     volatile unsigned int dummyread;
     //LLS low power mode
     // Set the LPLLSM field to 0b011 for LLS mode
@@ -364,27 +363,28 @@ void disable_lpwui(void) {
  *******************************************************************************/
 void stop(void) {
     // disable systick timer
-    SYST_CSR &= ~SYST_CSR_ENABLE;
+    SYST_CSR &= ~SYST_CSR_TICKINT;
 	// Set the SLEEPDEEP bit to enable deep sleep mode (STOP)
 	SCB_SCR |= SCB_SCR_SLEEPDEEP_MASK;
 	// WFI instruction will start entry into STOP mode
-	asm("WFI");
+	asm volatile("WFI");
     // renable systick timer
-    SYST_CSR |= SYST_CSR_ENABLE;
+    SYST_CSR |= SYST_CSR_TICKINT;
 }
 
 /*******************************************************************************
  * Configures the ARM system control register for WAIT (sleep) mode
  * and then executes the WFI instruction to enter the mode.
  *******************************************************************************/
+
 void wait(void) {
     // disable systick timer
-    SYST_CSR &= ~SYST_CSR_ENABLE;
+    SYST_CSR &= ~SYST_CSR_TICKINT;
 	// Clear the SLEEPDEEP bit to make sure we go into WAIT (sleep)
     // mode instead of deep sleep.
 	SCB_SCR &= ~SCB_SCR_SLEEPDEEP_MASK;
 	// WFI instruction will start entry into WAIT mode
-	asm("WFI");
+	asm volatile("WFI");
     // renable systick timer
-    SYST_CSR |= SYST_CSR_ENABLE;
+    SYST_CSR |= SYST_CSR_TICKINT;
 }
