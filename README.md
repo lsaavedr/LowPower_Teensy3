@@ -4,7 +4,7 @@ LowPower_Teensy3 Library - Edge
  use this branch. Only the latest Teensydunio release will be used. Older versions may or
  may not compile and work. 
  
-<h4>Teensyduino Version: 1.18</h4> 
+<h4>Currently used Teensyduino Version: 1.18</h4> 
 
 <h3>ChangeLog beta v1.2:</h3>
 1.  Using Bitband to set peripheral clocks<br>
