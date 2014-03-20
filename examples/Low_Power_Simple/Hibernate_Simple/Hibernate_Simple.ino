@@ -20,15 +20,15 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(0);
   blink();
-  while(!Serial.dtr());
+  while(!Serial);
   delay(1000);
   Serial.print("\nHibernate Simple\n\n");
   
   /*****************************************************
    * Print the reset source and current power mode
    *****************************************************/
-  LP.PrintSRS(&Serial1);
-  delay(20);
+  LP.PrintSRS(&Serial);
+  delay(50);
   
   /*****************************************************
    * Set digital pin 22 as wakeup source and then enter 
