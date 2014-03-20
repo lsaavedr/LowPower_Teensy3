@@ -38,6 +38,7 @@ volatile uint8_t TEENSY3_LP::lowLeakageSource;// hold lowleakage mode for wakeup
 volatile uint32_t TEENSY3_LP::_cpu;
 volatile uint32_t TEENSY3_LP::_bus;
 volatile uint32_t TEENSY3_LP::_mem;
+//volatile uint32_t TEENSY3_LP::f_cpu = (uint32_t)&_cpu;
 
 TEENSY3_LP::TEENSY3_LP() {
     // Enable all wakeup types - SMC_PMPROT: AVLP=1,ALLS=1,AVLLS=1
@@ -62,6 +63,7 @@ TEENSY3_LP::TEENSY3_LP() {
     _cpu = F_CPU;
     _bus = F_BUS;
     _mem = F_MEM;
+    //f_cpu = &_cpu;
     // initialize Low Power Timer
     lptmr_init();
 }
@@ -147,7 +149,7 @@ void wakeup_isr(void) {
     pbe_pee();// mcu is in PBE from LLS wakeup, transition back to PEE (if exiting from normal RUN mode)
 
     // clear wakeup module and stop them
-    if ((TEENSY3_LP::stopflag & LPTMR_WAKE) && (TEENSY3_LP::lowLeakageSource == LLS)) lptmr_stop();
+    if ((TEENSY3_LP::stopflag & LPTMR_WAKE) && (TEENSY3_LP::lowLeakageSource == LLS))lptmr_stop();
     if ((TEENSY3_LP::stopflag & RTCA_WAKE) && (TEENSY3_LP::lowLeakageSource == LLS)) rtc_stop();
     if ((TEENSY3_LP::stopflag & TSI_WAKE) && (TEENSY3_LP::lowLeakageSource == LLS)) tsi_stop();
     if ((TEENSY3_LP::stopflag & CMP0_WAKE) && (TEENSY3_LP::lowLeakageSource == LLS)) cmp_stop();
@@ -156,14 +158,16 @@ void wakeup_isr(void) {
     
     p->wakeSource = llwuFlag;
     
+    
     TEENSY3_LP::CALLBACK();
+    
 }
 /***************************** PUBLIC: ******************************/
 int TEENSY3_LP::CPU(uint32_t cpu) {
     if (_cpu == cpu) return 0;
     /********************************************/
-    /* First check if we are in blpi or blpe, if
-    /* so transition to pee at F_CPU, F_BUS, F_MEM.
+    /* First check if we are in blpi or blpe, if */
+    /* so transition to pee at F_CPU, F_BUS, F_MEM. */
     /********************************************/
     if (mcg_mode() == BLPI) {
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
@@ -177,80 +181,81 @@ int TEENSY3_LP::CPU(uint32_t cpu) {
             // exit low power Run
             if (SMC_PMSTAT == 0x04) exit_vlpr();
             blpe_pee();
-            usbEnable();
         }
+        usbEnable();
     }
     if (cpu >= 24000000) {
         // config divisors: F_CPU core, F_BUS bus, F_MEM flash
-        //ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-            _cpu = F_CPU;
-            _bus = F_BUS;
-            _mem = F_MEM;
-        //}
+        _cpu = F_CPU;
+        _bus = F_BUS;
+        _mem = F_MEM;
         return F_CPU;
-    } else if (cpu <= FOUR_MHZ) {
-        if (cpu == TWO_MHZ) {
-            _cpu = BLPI_CPU;
-            _bus = BLPI_BUS;
-            _mem = BLPI_MEM;
-            usbDisable();
-            ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-                // transition from PEE to BLPI
-                pee_blpi();
-                // config divisors: 2 MHz core, 2 MHz bus, 1 MHz flash
-                mcg_div(0x00, 0x00, 0x01, 1999);
-                // now safe to enter vlpr
-                enter_vlpr(0);
-                systick_millis_count = 0;
-                SYST_CVR = 0;
-            }
-            return TWO_MHZ;
-        } else if (cpu == FOUR_MHZ) {
-            _cpu = BLPE_CPU;
-            _bus = BLPE_BUS;
-            _mem = BLPE_MEM;
-            ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-                usbDisable();
-                // transition from PEE to BLPE
-                pee_blpe();
-                // config divisors: 4 MHz core, 4 MHz bus, 1 MHz flash
-                mcg_div(0x03, 0x03, 0x0F, 3999);
-                // now safe to enter vlpr
-                enter_vlpr(0);
-                systick_millis_count = 0;
-                SYST_CVR = 0;
-            }
-            return FOUR_MHZ;
-        } else return -1;
-    } else if (cpu == EIGHT_MHZ) {
+    }
+    else if (cpu == TWO_MHZ) {
+        _cpu = BLPI_CPU;
+        _bus = BLPI_BUS;
+        _mem = BLPI_MEM;
+        usbDisable();
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+            // transition from PEE to BLPI
+            pee_blpi();
+            // config divisors: 2 MHz core, 2 MHz bus, 1 MHz flash
+            mcg_div(0x00, 0x00, 0x01, 1999);
+            // now safe to enter vlpr
+            enter_vlpr(0);
+            //systick_millis_count = 0;
+            //SYST_CVR = 0;
+        }
+        return TWO_MHZ;
+    }
+    else if (cpu == FOUR_MHZ) {
+        _cpu = BLPE_CPU;
+        _bus = BLPE_BUS;
+        _mem = BLPE_MEM;
+        usbDisable();
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+            // transition from PEE to BLPE
+            pee_blpe();
+            // config divisors: 4 MHz core, 4 MHz bus, 1 MHz flash
+            mcg_div(0x03, 0x03, 0x0F, 3999);
+            // now safe to enter vlpr
+            enter_vlpr(0);
+            //systick_millis_count = 0;
+            //SYST_CVR = 0;
+        }
+        return FOUR_MHZ;
+    }
+    else if (cpu == EIGHT_MHZ) {
         _cpu = EIGHT_MHZ;
         _bus = EIGHT_MHZ;
         _mem = EIGHT_MHZ;
+        usbDisable();
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-            usbDisable();
             // transition from PEE to BLPE
             pee_blpe();
             // config divisors: 8 MHz core, 8 MHz bus, 8 MHz flash
             mcg_div(0x01, 0x01, 0x01, 7999);
-            systick_millis_count = 0;
-            SYST_CVR = 0;
+            //systick_millis_count = 0;
+            //SYST_CVR = 0;
         }
         return EIGHT_MHZ;
-    } else if (cpu == SIXTEEN_MHZ) {
+    }
+    else if (cpu == SIXTEEN_MHZ) {
         _cpu = SIXTEEN_MHZ;
         _bus = SIXTEEN_MHZ;
         _mem = SIXTEEN_MHZ;
+        usbDisable();
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-            usbDisable();
             // transition from PEE to BLPE
             pee_blpe();
             // config divisors: 16 MHz core, 16 MHz bus, 16 MHz flash
             mcg_div(0x00, 0x00, 0x00, 15999);
-            systick_millis_count = 0;
-            SYST_CVR = 0;
+            //systick_millis_count = 0;
+            //SYST_CVR = 0;
         }
         return SIXTEEN_MHZ;
-    } else {
+    }
+    else {
         _cpu = F_CPU;
         _bus = F_BUS;
         _mem = F_MEM;
@@ -269,11 +274,14 @@ void TEENSY3_LP::Sleep() {
         enter_wait();
         if (tmp == FOUR_MHZ) {
             CPU(FOUR_MHZ);
-        } else if (tmp == EIGHT_MHZ) {
+        }
+        else if (tmp == EIGHT_MHZ) {
             CPU(EIGHT_MHZ);
-        } else if (tmp == SIXTEEN_MHZ) {
+        }
+        else if (tmp == SIXTEEN_MHZ) {
             CPU(SIXTEEN_MHZ);
-        } else if (tmp == F_CPU) {
+        }
+        else if (tmp == F_CPU) {
             CPU(F_CPU);
         }
         //rtcEnable();
@@ -295,17 +303,17 @@ uint32_t TEENSY3_LP::DeepSleep(uint32_t wakeType, uint32_t time_pin, uint16_t th
 void TEENSY3_LP::DeepSleep(sleep_block_t* configuration) {
     if (configuration->callback == NULL) {
     	CALLBACK = defaultCallback;
-    } else {
+    }
+    else {
        	CALLBACK = configuration->callback;
     }
    
     lowLeakageSource = LLS;
     
     stopflag = configuration->modules;
-    //stopflag = 0;
     
     if (configuration->modules & GPIO_WAKE) {
-        gpioHandle(configuration->gpio_pin, PIN_ANY);
+        //gpioHandle(configuration->gpio_pin, PIN_ANY);
     }
     if (configuration->modules & LPTMR_WAKE) {
         //stopflag |= LPTMR_WAKE;
@@ -349,18 +357,17 @@ void TEENSY3_LP::Hibernate(uint32_t wakeType, uint32_t time_pin, uint16_t thresh
 void TEENSY3_LP::Hibernate(sleep_block_t* configuration) {
     if (configuration->callback == NULL) {
         CALLBACK = defaultCallback;
-    } else {
+    }
+    else {
         CALLBACK = configuration->callback;
     }
     
-    stopflag = configuration->modules;
-    
     lowLeakageSource = VLLS;
     
-    stopflag = 0;
+    stopflag = configuration->modules;
     
     if (configuration->modules & GPIO_WAKE) {
-        gpioHandle(configuration->gpio_pin, PIN_ANY);
+        //gpioHandle(configuration->gpio_pin, PIN_ANY);
     }
     if (configuration->modules & LPTMR_WAKE) {
         //stopflag |= LPTMR_WAKE;
@@ -443,7 +450,7 @@ bool TEENSY3_LP::sleepHandle(const char* caller, uint32_t wakeType, uint32_t tim
         time_pin = 0;
     }
     if (wakeType & GPIO_WAKE) {
-        gpioHandle(time_pin, PIN_ANY);
+        //gpioHandle(time_pin, PIN_ANY);
         wakeType = 0;
     }
     if (wakeType & RTCA_WAKE) {
@@ -487,7 +494,6 @@ void TEENSY3_LP::gpioHandle(uint32_t pin, uint8_t pinType) {
 }
 
 void TEENSY3_LP::lptmrHandle(uint32_t timeout) {
-    //lptmr_init();
     lptmr_start(timeout);// start timer in msec
 }
 
@@ -498,7 +504,7 @@ void TEENSY3_LP::rtcHandle(unsigned long sec) {
 void TEENSY3_LP::cmpHandle(void) {
     pinMode(11, INPUT);
     pinMode(12, INPUT);
-    cmp_init();
+    cmp_init();// still not working right!!!
 }
 
 void TEENSY3_LP::tsiHandle(uint8_t var, uint16_t threshold) {

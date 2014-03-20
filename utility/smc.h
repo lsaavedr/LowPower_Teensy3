@@ -34,8 +34,8 @@ extern "C" {
     void enable_lpwui(void);
     void disable_lpwui(void);
     
-    static inline void stop(void) __attribute__((always_inline, unused));
-    static inline void stop(void);
+    //static inline void stop(void) __attribute__((always_inline, unused));
+    void stop(void);
     
     void wait(void);
 #ifdef __cplusplus

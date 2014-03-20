@@ -93,7 +93,7 @@ typedef struct sleep_block_struct {
     volatile uint32_t wake_source;
     /* pointer to callback function */
     void (*callback)();
-    sleep_block_struct() : modules(NULL), gpio_pin(0), gpio_mode(0), lptmr_timeout(0), rtc_alarm(0), tsi_threshold(0), tsi_pin(0), wake_source(NULL), callback(NULL) {};
+    sleep_block_struct() : modules(0), gpio_pin(0), gpio_mode(0), lptmr_timeout(0), rtc_alarm(0), tsi_threshold(0), tsi_pin(0), wake_source(0), callback(NULL) {};
 } sleep_block_t;
 
 class TEENSY3_LP {
@@ -147,9 +147,8 @@ public:
     //---------------------------------------PrintSRS----------------------------------------
     void PrintSRS(Stream *port);
     //-----------------------------------------Core------------------------------------------
-    uint32_t cpuFreq(void) { return _cpu; }
     
-    static uint32_t micros() { micros_lp(_cpu); }
+    static uint32_t micros() { return micros_lp(_cpu); }
     
     static void delay(uint32_t msec) { delay_lp(msec, _cpu); }
     

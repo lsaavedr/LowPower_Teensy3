@@ -16,18 +16,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    unsigned long rtc_get(void);
+
     // function prototypes
     static inline void rtc_alarm(unsigned long) __attribute__((always_inline, unused));
     static inline void rtc_alarm(unsigned long sec) {
+        // check if clock irq is enabled
         if (!BITBAND_U32(RTC_IER, RTC_IER_TAIE_BIT)) BITBAND_U32(RTC_IER, RTC_IER_TAIE_BIT) = 1;
-        //if (!(RTC_IER & RTC_IER_TAIE_MASK)) BITBAND_U32(RTC_IER, RTC_IER_TAIE_BIT) = 1;
-        RTC_TAR = rtc_get() + (sec - 1);
+        RTC_TAR = rtc_get() + (sec - 1);            // set secs till irq
     }
     
     static inline void rtc_stop(void) __attribute__((always_inline, unused));
     static inline void rtc_stop(void) {
-        BITBAND_U32(RTC_IER, RTC_IER_TAIE_BIT) = 0;
-        //RTC_IER &= ~RTC_IER_TAIE_MASK;
+        BITBAND_U32(RTC_IER, RTC_IER_TAIE_BIT) = 0; // disable rtc irq
     }
 #ifdef __cplusplus
 }
