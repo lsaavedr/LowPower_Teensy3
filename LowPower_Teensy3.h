@@ -100,6 +100,13 @@ typedef struct sleep_block_struct {
 } sleep_block_t;
 
 class TEENSY3_LP {
+public:
+    typedef void (*ISR)();
+    typedef enum {
+            sleep_DeepSleep,
+            sleep_Hibernate
+    } sleep_type_t;
+
 private:
     /* Handler Functions */
     inline void gpioHandle(uint32_t pin, uint8_t pinType) __attribute__((always_inline, unused)) ;
@@ -107,14 +114,15 @@ private:
     inline void rtcHandle(unsigned long sec) __attribute__((always_inline, unused)) ;
     inline void cmpHandle(void) __attribute__((always_inline, unused)) ;
     inline void tsiHandle(uint8_t var, uint16_t threshold) __attribute__((always_inline, unused)) ;
-    inline bool sleepHandle(const char* caller, uint32_t wakeType, uint32_t time_pin, uint16_t threshold) __attribute__((always_inline, unused)) ;
-    //void sleepHandle(volatile struct configSleep* config);
+
+    /* Handle a specific sleep command */
+    bool sleepHandle(sleep_type_t type, sleep_block_t *configuration);
+
     /* TSI Initialize  */
     void tsiIntialize(void);
     /* private class access to wakeup ISR  */
     friend void wakeup_isr(void);
     /* handle call to user callback  */
-    typedef void (*ISR)();
     static ISR CALLBACK;
     /* default callback ISR  */
     static void defaultCallback() { yield(); };
@@ -129,6 +137,7 @@ private:
     static volatile uint32_t _cpu;
     static volatile uint32_t _bus;
     static volatile uint32_t _mem;
+
 public:
     // Constructor
     TEENSY3_LP(void);
