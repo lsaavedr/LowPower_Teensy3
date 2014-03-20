@@ -301,6 +301,8 @@ uint32_t TEENSY3_LP::DeepSleep(uint32_t wakeType, uint32_t time_pin, uint16_t th
 }
 
 void TEENSY3_LP::DeepSleep(sleep_block_t* configuration) {
+    int gpio_pin = 0;
+
     if (configuration->callback == NULL) {
     	CALLBACK = defaultCallback;
     }
@@ -313,7 +315,7 @@ void TEENSY3_LP::DeepSleep(sleep_block_t* configuration) {
     stopflag = configuration->modules;
     
     if (configuration->modules & GPIO_WAKE) {
-        //gpioHandle(configuration->gpio_pin, PIN_ANY);
+        gpio_pin = configuration->gpio_pin;
     }
     if (configuration->modules & LPTMR_WAKE) {
         //stopflag |= LPTMR_WAKE;
@@ -337,7 +339,7 @@ void TEENSY3_LP::DeepSleep(sleep_block_t* configuration) {
         tsiHandle(configuration->tsi_pin, configuration->tsi_threshold);
     }
     
-    llwu_configure(configuration->gpio_pin, PIN_ANY, configuration->modules);// configure llwu
+    llwu_configure(gpio_pin, PIN_ANY, configuration->modules);// configure llwu
     
     NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
     
@@ -357,6 +359,8 @@ void TEENSY3_LP::Hibernate(uint32_t wakeType, uint32_t time_pin, uint16_t thresh
 }
 
 void TEENSY3_LP::Hibernate(sleep_block_t* configuration) {
+    int gpio_pin = 0;
+
     if (configuration->callback == NULL) {
         CALLBACK = defaultCallback;
     }
@@ -369,7 +373,7 @@ void TEENSY3_LP::Hibernate(sleep_block_t* configuration) {
     stopflag = configuration->modules;
     
     if (configuration->modules & GPIO_WAKE) {
-        //gpioHandle(configuration->gpio_pin, PIN_ANY);
+        gpio_pin = configuration->gpio_pin;
     }
     if (configuration->modules & LPTMR_WAKE) {
         //stopflag |= LPTMR_WAKE;
@@ -393,7 +397,7 @@ void TEENSY3_LP::Hibernate(sleep_block_t* configuration) {
         tsiHandle(configuration->tsi_pin, configuration->tsi_threshold);
     }
 
-    llwu_configure(configuration->gpio_pin, PIN_ANY, configuration->modules);
+    llwu_configure(gpio_pin, PIN_ANY, configuration->modules);
     
     NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
     
