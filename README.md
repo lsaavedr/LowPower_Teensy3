@@ -1,8 +1,8 @@
 LowPower_Teensy3 Library - Edge
 ========================
- This is the latest code that should get pulled. If you decide to make any changes please 
- use this branch. Only the latest Teensydunio release will be used. Older versions may or
- may not compile and work. 
+ This is the latest code that should get branched if you want too contribute pull 
+ requests. If you decide to make any changes please use this branch. Only the latest 
+ Teensydunio release will be used. Older versions may or may not compile and work.
  
 <h4>Currently used Teensyduino Version: 1.18</h4> 
 
