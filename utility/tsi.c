@@ -40,7 +40,7 @@ boolean tsi_init(uint8_t pin, uint16_t threshold) {
     
     // Wait for any in-progress scans to complete
     while (TSI0_GENCS & TSI_GENCS_SCNIP)
-            continue;
+            yield();
     
     TSI0_GENCS |= TSI_GENCS_OUTRGF;   //Clear all pending flags
     TSI0_GENCS |= TSI_GENCS_EOSF;
