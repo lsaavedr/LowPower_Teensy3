@@ -147,7 +147,6 @@ public:
     //---------------------------------------PrintSRS----------------------------------------
     void PrintSRS(Stream *port);
     //-----------------------------------------Core------------------------------------------
-    uint32_t cpuFreq(void) { return _cpu; }
     
     static uint32_t micros() { return micros_lp(_cpu); }
     
