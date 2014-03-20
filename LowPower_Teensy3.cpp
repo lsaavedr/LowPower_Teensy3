@@ -356,7 +356,7 @@ bool TEENSY3_LP::sleepHandle(sleep_type_t type, sleep_block_t *configuration)
     else {
        	CALLBACK = configuration->callback;
     }
-   
+
     if (type == sleep_DeepSleep)
         lowLeakageSource = LLS;
     else if (type == sleep_Hibernate)
@@ -365,39 +365,35 @@ bool TEENSY3_LP::sleepHandle(sleep_type_t type, sleep_block_t *configuration)
         return false;
 
     stopflag = configuration->modules;
-    
+
     if (configuration->modules & GPIO_WAKE) {
         gpio_pin = configuration->gpio_pin;
     }
     if (configuration->modules & LPTMR_WAKE) {
-        //stopflag |= LPTMR_WAKE;
         lptmr_start(configuration->lptmr_timeout);// start timer in msec
     }
     if (configuration->modules & RTCA_WAKE) {
-        //stopflag |= RTCA_WAKE;//0x02;
         rtc_alarm(configuration->rtc_alarm);// alarm in secs
     }
     if (configuration->modules & RTCS_WAKE) {
-        //stopflag |= RTCS_WAKE;
+
     }
     if (configuration->modules & CMP0_WAKE) {
-        //stopflag |= CMP0_WAKE;
         //pinMode(11, INPUT);
         //pinMode(12, INPUT);
         //cmp_init();// still not working right!!!
     }
     if (configuration->modules & CMP1_WAKE) {
-        //stopflag |= CMP1_WAKE;
+
     }
     if (configuration->modules & TSI_WAKE) {
-        //stopflag |= TSI_WAKE;
         tsi_init(configuration->tsi_pin, configuration->tsi_threshold);
     }
-    
+
     llwu_configure(gpio_pin, PIN_ANY, configuration->modules);// configure llwu
-    
+
     NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
-    
+
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
         if (type == sleep_DeepSleep)
             enter_lls();// enter lls sleep mode
