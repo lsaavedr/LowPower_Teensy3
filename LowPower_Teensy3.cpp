@@ -341,7 +341,9 @@ void TEENSY3_LP::DeepSleep(sleep_block_t* configuration) {
     
     NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
     
-    enter_lls();// enter lls sleep mode
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+            enter_lls();// enter lls sleep mode
+    };
     
     configuration->wake_source = wakeSource;// who woke me up?
     
@@ -395,7 +397,9 @@ void TEENSY3_LP::Hibernate(sleep_block_t* configuration) {
     
     NVIC_ENABLE_IRQ(IRQ_LLWU);// enable llwu isr
     
-    enter_vlls3();// enter vlls3 sleep mode*/
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+            enter_vlls3();// enter vlls3 sleep mode*/
+    };
 }
 //----------------------------------------------------------------------------------------------------------
 void TEENSY3_LP::PrintSRS(Stream *port) {
