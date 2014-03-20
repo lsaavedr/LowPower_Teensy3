@@ -108,13 +108,6 @@ public:
     } sleep_type_t;
 
 private:
-    /* Handler Functions */
-    inline void gpioHandle(uint32_t pin, uint8_t pinType) __attribute__((always_inline, unused)) ;
-    inline void lptmrHandle(uint32_t timeout) __attribute__((always_inline, unused)) ;
-    inline void rtcHandle(unsigned long sec) __attribute__((always_inline, unused)) ;
-    inline void cmpHandle(void) __attribute__((always_inline, unused)) ;
-    inline void tsiHandle(uint8_t var, uint16_t threshold) __attribute__((always_inline, unused)) ;
-
     /* Handle a specific sleep command */
     bool sleepHandle(sleep_type_t type, sleep_block_t *configuration);
 

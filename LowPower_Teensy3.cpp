@@ -371,24 +371,27 @@ bool TEENSY3_LP::sleepHandle(sleep_type_t type, sleep_block_t *configuration)
     }
     if (configuration->modules & LPTMR_WAKE) {
         //stopflag |= LPTMR_WAKE;
-        lptmrHandle(configuration->lptmr_timeout);
+        lptmr_start(configuration->lptmr_timeout);// start timer in msec
     }
     if (configuration->modules & RTCA_WAKE) {
         //stopflag |= RTCA_WAKE;//0x02;
-        rtcHandle(configuration->rtc_alarm);
+        rtc_alarm(configuration->rtc_alarm);// alarm in secs
     }
     if (configuration->modules & RTCS_WAKE) {
         //stopflag |= RTCS_WAKE;
     }
     if (configuration->modules & CMP0_WAKE) {
         //stopflag |= CMP0_WAKE;
+        //pinMode(11, INPUT);
+        //pinMode(12, INPUT);
+        //cmp_init();// still not working right!!!
     }
     if (configuration->modules & CMP1_WAKE) {
         //stopflag |= CMP1_WAKE;
     }
     if (configuration->modules & TSI_WAKE) {
         //stopflag |= TSI_WAKE;
-        tsiHandle(configuration->tsi_pin, configuration->tsi_threshold);
+        tsi_init(configuration->tsi_pin, configuration->tsi_threshold);
     }
     
     llwu_configure(gpio_pin, PIN_ANY, configuration->modules);// configure llwu
@@ -438,25 +441,4 @@ void TEENSY3_LP::PrintSRS(Stream *port) {
     port->println("------------------------------------------");
 }
 
-void TEENSY3_LP::gpioHandle(uint32_t pin, uint8_t pinType) {
-
-}
-
-void TEENSY3_LP::lptmrHandle(uint32_t timeout) {
-    lptmr_start(timeout);// start timer in msec
-}
-
-void TEENSY3_LP::rtcHandle(unsigned long sec) {
-    rtc_alarm(sec);// alarm in secs
-}
-
-void TEENSY3_LP::cmpHandle(void) {
-    pinMode(11, INPUT);
-    pinMode(12, INPUT);
-    cmp_init();// still not working right!!!
-}
-
-void TEENSY3_LP::tsiHandle(uint8_t var, uint16_t threshold) {
-    tsi_init(var, threshold);// tsi pin and wake threshold
-}
 
