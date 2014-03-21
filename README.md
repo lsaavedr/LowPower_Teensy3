@@ -1,9 +1,8 @@
-LowPower_Teensy3 Library
+LowPower_Teensy3 Library - Edge
 ========================
-This is the latest stable beta release so all the arduino examples should compile with
-Teensydunio 1.18. For the latest and greatest checkout the "Bleeding Edge" branch. 
-This branch will be updated when the "Bleeding Edge" branch is sufficiently vetted.
-Just remember this is beta release so some functionality might not work as expected.
+ This is the latest code that should get branched if you want too contribute. Only the latest Teensyduino release will be used. Older versions of Teensyduino may or may not compile and work.
+ 
+<h4>Currently used Teensyduino Version: 1.18</h4> 
 
 <h3>ChangeLog beta v1.2:</h3>
 1.  Using Bitband to set peripheral clocks<br>
@@ -13,10 +12,10 @@ Just remember this is beta release so some functionality might not work as expec
 
 <h3>ChangeLog beta v1.1:</h3>
 1.  Added all digital wakeup capable pins for DeepSleep and Hibernate function<br>
-2.  User can now use callback function for DeepSleep and Hibernate<br>
+2.  User can now use a callback function for DeepSleep and Hibernate<br>
 3.  Added Sleep function, now any interrupt can wake the processor<br>
 4.  Improved code performance<br>
-5.  New example for Sleep function<br>
+5.  New examples for Sleep function<br>
 
 <h3>ChangeLog Stable v1.0:</h3>
 1.  Fixed where VLPR was not being retained because of LPWUI bit not being set right<br>
@@ -25,7 +24,7 @@ Just remember this is beta release so some functionality might not work as expec
 4.  Disabled USB Regulator Standby mode during Low Power<br>
 5.  Cleaned up library code.<br>
 
-<h3>ChangeLog beta v0.1:</h3>
+<h3>ChangeLog Beta2:</h3>
 1.  Added struct to store sleep configurations<br>
 2.  Added RTC Alarm wake<br>
 3.  Added TSI wake<br>
@@ -34,8 +33,3 @@ Just remember this is beta release so some functionality might not work as expec
 6.  Cleaned up the library and example codes<br>
 7.  New examples added<br>
 8.  Defined GPIO wake pin names<br>
-
-If you are not using Teensyduino 1.14 or greater then there is one edit you need to make
-to the mk20dx128.c core file: Add -> "PMC_REGSC |= 0x08;" just under "SCB_VTOR = 0;" in 
-the ResetHandler function. This allows the mcu to release hold of the I/O when waking 
-from sleep.
