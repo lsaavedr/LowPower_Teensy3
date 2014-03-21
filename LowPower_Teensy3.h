@@ -33,37 +33,40 @@
 #include "utility/mk20dx128_ext.h"
 #include "utility/t3core2lp.h"
 #include "utility/module.h"
+#include "utility/llwu.h"
 
 /* Define LLS & VLLS Wakeup Pin */
-#define PIN_2          0x1000
-#define PIN_4          0x10
-#define PIN_6          0x4000
-#define PIN_7          0x2000
-#define PIN_9          0x80
-#define PIN_10         0x100
-#define PIN_11         0x200
-#define PIN_13         0x400
-#define PIN_16         0x20
-#define PIN_21         0x8000
-#define PIN_22         0x40
-#define PIN_26         0x01
-#define PIN_30         0x800
-#define PIN_33         0x02
+#define PIN_2           LLWU_PIN_2
+#define PIN_4           LLWU_PIN_4
+#define PIN_6           LLWU_PIN_6
+#define PIN_7           LLWU_PIN_7
+#define PIN_9           LLWU_PIN_9
+#define PIN_10          LLWU_PIN_10
+#define PIN_11          LLWU_PIN_11
+#define PIN_13          LLWU_PIN_13
+#define PIN_16          LLWU_PIN_16
+#define PIN_21          LLWU_PIN_21
+#define PIN_22          LLWU_PIN_22
+#define PIN_26          LLWU_PIN_26
+#define PIN_30          LLWU_PIN_30
+#define PIN_33          LLWU_PIN_33
 
 /* Define Pin Interrupt Type */
-#define PIN_DISABLED    0x00
-#define PIN_RISING      0x01
-#define PIN_FALLING     0x02
-#define PIN_ANY         0x03
+#define PIN_DISABLED    LLWU_PIN_DIS
+#define PIN_RISING      LLWU_PIN_RIGIN
+#define PIN_FALLING     LLWU_PIN_FALLING
+#define PIN_ANY         LLWU_PIN_ANY
 
-/* Define Module Wakeup Source */
-#define GPIO_WAKE       0x00
-#define LPTMR_WAKE      0x10000
-#define RTCA_WAKE       0x200000
-#define RTCS_WAKE       0x400000
-#define CMP0_WAKE       0x20000
-#define CMP1_WAKE       0x40000
-#define TSI_WAKE        0x100000
+/* Module wakeup sources */
+/* GPIO_WAKE is a made up flag (not used by LLWU), used here
+   to make the software interface more uniform. */
+#define GPIO_WAKE       0x80000000UL
+#define LPTMR_WAKE      LLWU_LPTMR_MOD
+#define RTCA_WAKE       LLWU_RTCA_MOD
+#define RTCS_WAKE       LLWU_RTCS_MOD
+#define CMP0_WAKE       LLWU_CMP0_MOD
+#define CMP1_WAKE       LLWU_CMP1_MOD
+#define TSI_WAKE        LLWU_TSI_MOD
 
 /* Hardware Serial Baud VLPR Mode */
 #define TWO_MHZ     2000000
@@ -97,21 +100,22 @@ typedef struct sleep_block_struct {
 } sleep_block_t;
 
 class TEENSY3_LP {
+public:
+    typedef void (*ISR)();
+    typedef enum {
+            sleep_DeepSleep,
+            sleep_Hibernate
+    } sleep_type_t;
+
 private:
-    /* Handler Functions */
-    inline void gpioHandle(uint32_t pin, uint8_t pinType) __attribute__((always_inline, unused)) ;
-    inline void lptmrHandle(uint32_t timeout) __attribute__((always_inline, unused)) ;
-    inline void rtcHandle(unsigned long sec) __attribute__((always_inline, unused)) ;
-    inline void cmpHandle(void) __attribute__((always_inline, unused)) ;
-    inline void tsiHandle(uint8_t var, uint16_t threshold) __attribute__((always_inline, unused)) ;
-    inline bool sleepHandle(const char* caller, uint32_t wakeType, uint32_t time_pin, uint16_t threshold) __attribute__((always_inline, unused)) ;
-    //void sleepHandle(volatile struct configSleep* config);
+    /* Handle a specific sleep command */
+    bool sleepHandle(sleep_type_t type, sleep_block_t *configuration);
+
     /* TSI Initialize  */
     void tsiIntialize(void);
     /* private class access to wakeup ISR  */
     friend void wakeup_isr(void);
     /* handle call to user callback  */
-    typedef void (*ISR)();
     static ISR CALLBACK;
     /* default callback ISR  */
     static void defaultCallback() { yield(); };
@@ -126,6 +130,7 @@ private:
     static volatile uint32_t _cpu;
     static volatile uint32_t _bus;
     static volatile uint32_t _mem;
+
 public:
     // Constructor
     TEENSY3_LP(void);
