@@ -1,7 +1,7 @@
-LowPower_Teensy3 Library - Edge
-========================
- This is the latest code that should get branched if you want too contribute. Only the latest Teensyduino release will be used. Older versions of Teensyduino may or may not compile and work.
- 
+#LowPower_Teensy3 Library - Edge
+
+>This is the latest code that should get branched if you want too contribute. Only the latest Teensyduino release will be used. Older versions of Teensyduino may or may not compile and work.
+
 <h4>Currently used Teensyduino Version: 1.18</h4> 
 
 <h3>ChangeLog beta v1.3:</h3>
@@ -40,9 +40,19 @@ LowPower_Teensy3 Library - Edge
 
 <h1>General Usage</h1>
 <h3>Functions:</h3>
-```c
+```c 
 void CPU(uint32_t freq);
-```
+
+# Allows for dynamic changing of the CPU, BUS and MEM speed to lower avarege power consumption. 
+# There are 5 speeds that the user can choose from: 2 MHz, 4 MHz, 8 MHz, 16 MHz, F_CPU MHz. 
+# These #defines have been added for the user convenience.
+1. TWO_MHZ
+2. FOUR_MHZ
+3. EIGHT_MHZ
+4. SIXTEEN_MHZ
+``` 
+
+_______________________________________________________________________________________________________________________
 ```c
 void Idle();
 ```
