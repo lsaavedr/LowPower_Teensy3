@@ -71,7 +71,7 @@ void DeepSleep(sleep_block_t* configuration);
 # Lowest current consumption sleep mode without a reset. Only certian digital 
 # Pins or Periphereals can wake the cpu from this sleep mode. You will notice 
 # that there are three functions, the two top functions are basic usage where 
-#one is just c++ overloaded function. The last one is uses a configuration 
+# second one is just overloaded function. The last one is uses a configuration 
 # structure so many wake sources can be configured along with many individual 
 # configurations.
 ```
@@ -81,15 +81,27 @@ void Hibernate(uint32_t wakeType, uint32_t time_pin, uint16_t threshold = 0, ISR
 void Hibernate(uint32_t wakeType, uint32_t time_pin, ISR myCallback);
 
 void Hibernate(sleep_block_t* configuration);
+# Lowest current consumption sleep mode with a reset. Only certian digital 
+# Pins or Periphereals can wake the cpu from this sleep mode. You will notice 
+# that there are three functions, the two top functions are basic usage where 
+# second one is just overloaded function. The last one is uses a configuration 
+# structure so many wake sources can be configured along with many individual 
+# configurations.
 ```
 ```c
 void PrintSRS(Stream *port);
+# Use this to print what caused the reset of the Teensy. Useful in dubugging.
 ```
 ```c
 static uint32_t micros();
+# 'Port' of the Teensy Core 'micros()' function for use at CPU speeds less than 24MHz.
 ```
 ```c
 static inline void delay(uint32_t msec);
+# 'Port' of the Teensy Core 'delay('time')' function for use lowering the current
+# consumption by sleeping for small bit of time while waiting for this delay to 
+# timeout. Also use this if you use the 'CPU()' function since recalibrates the 
+# delay for whatever cpu speed you are at.
 ```
 ```c
 static void delayMicroseconds(uint32_t usec);
