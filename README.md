@@ -4,6 +4,10 @@ LowPower_Teensy3 Library - Edge
  
 <h4>Currently used Teensyduino Version: 1.18</h4> 
 
+<h3>ChangeLog beta v1.3:</h3>
+1.  Added Idle function for lowering current during user waiting loops<br>
+2.  Now Low Power "delay" and "delayMicroseconds" sleeps with minimal impact on precision.<br>
+
 <h3>ChangeLog beta v1.2:</h3>
 1.  Using Bitband to set peripheral clocks<br>
 2.  Added support for IntervalTimer, delay, delayMicroseconds for dynamic CPU scaling<br>
