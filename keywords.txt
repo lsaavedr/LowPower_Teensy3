@@ -21,6 +21,7 @@ PrintSRS	KEYWORD2
 CPU	KEYWORD2
 Wait	KEYWORD2
 Sleep	KEYWORD2
+Idle	KEYWORD2
 DeepSleep	KEYWORD2
 Hibernate	KEYWORD2
 #######################################
