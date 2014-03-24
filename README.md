@@ -37,7 +37,7 @@ LowPower_Teensy3 Library - Edge
 6.  Cleaned up the library and example codes<br>
 7.  New examples added<br>
 8.  Defined GPIO wake pin names<br>
-<br><br>
+<br></br>
 General Usage
 ============
 <h3>Functions:</h3>
