@@ -42,22 +42,23 @@
 <h3>Functions:</h3>
 ```c 
 void CPU(uint32_t freq);
-
-# Allows for dynamic changing of the CPU, BUS and MEM speed to lower avarege power consumption. 
+# Allows for dynamic changing of the CPU, BUS and MEM speed to lower avarege power consumption.
 # There are 5 speeds that the user can choose from: 2 MHz, 4 MHz, 8 MHz, 16 MHz, F_CPU MHz. 
-# These #defines have been added for the user convenience.
+# These #defines have been added for the user convenience for "freq" parm, else the use the complete frequency.
 1. TWO_MHZ
 2. FOUR_MHZ
 3. EIGHT_MHZ
 4. SIXTEEN_MHZ
 ``` 
-
-_______________________________________________________________________________________________________________________
 ```c
 void Idle();
+# Use this function in any waiting loops such as waiting for Serial data, this will lower the current consumption
+# slightly while having a little impact on performance. This can be used at any CPU speed.
 ```
 ```c
 void Sleep();
+# Most versitle low power mode, any system interrupt will exit this sleep mode. Interrupts must be setup before hand
+# such as attachInterrupt().
 ```
 ```c
 uint32_t DeepSleep(uint32_t wakeType, uint32_t time_pin, uint16_t threshold = 0, ISR myCallback = defaultCallback);
@@ -65,6 +66,10 @@ uint32_t DeepSleep(uint32_t wakeType, uint32_t time_pin, uint16_t threshold = 0,
 uint32_t DeepSleep(uint32_t wakeType, uint32_t time_pin, ISR myCallback);
 
 void DeepSleep(sleep_block_t* configuration);
+# Lowest current consumption sleep mode without a reset. Only certian digital Pins or Periphereals can wake the cpu 
+# from this sleep mode. You will notice that there are three functions, the two top functions are basic usage where 
+# one is just c++ overloaded function. The last one is uses a configuration structure so many wake sources can be  
+# configured along with many individual configurations.
 ```
 ```c
 void Hibernate(uint32_t wakeType, uint32_t time_pin, uint16_t threshold = 0, ISR myCallback = defaultCallback);
