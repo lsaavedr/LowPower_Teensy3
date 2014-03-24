@@ -353,14 +353,13 @@ void disable_lpwui(void) {
  *          to optionally set the sleep on exit bit.
  *******************************************************************************/
 void stop(void) {
-    // disable systick timer
-    SYST_CSR &= ~SYST_CSR_TICKINT;
-	// Set the SLEEPDEEP bit to enable deep sleep mode (STOP)
-	SCB_SCR |= SCB_SCR_SLEEPDEEP_MASK;
-	// WFI instruction will start entry into STOP mode
-	asm volatile("WFI");
-    // renable systick timer
-    SYST_CSR |= SYST_CSR_TICKINT;
+    SYST_CSR &= ~SYST_CSR_TICKINT;      // disable systick timer interrupt
+	SCB_SCR |= SCB_SCR_SLEEPDEEP_MASK;  // Set the SLEEPDEEP bit to enable deep sleep mode (STOP)
+    asm volatile("dsb");                //No instruction in program order after this instruction executes until this instruction completes.
+	asm volatile("WFI");                // WFI instruction will start entry into STOP mode
+    asm volatile("isb");                //instructions following the ISB are fetched from cache or memory, instructions following the ISB are fetched from cache or memory
+	SCB_SCR &= ~SCB_SCR_SLEEPDEEP_MASK; // Clear the SLEEPDEEP bit
+    SYST_CSR |= SYST_CSR_TICKINT;       // renable systick timer interrupt
 }
 
 /*******************************************************************************
@@ -369,13 +368,10 @@ void stop(void) {
  *******************************************************************************/
 
 void wait(void) {
-    // disable systick timer
-    SYST_CSR &= ~SYST_CSR_TICKINT;
-	// Clear the SLEEPDEEP bit to make sure we go into WAIT (sleep)
-    // mode instead of deep sleep.
-	SCB_SCR &= ~SCB_SCR_SLEEPDEEP_MASK;
-	// WFI instruction will start entry into WAIT mode
-	asm volatile("WFI");
-    // renable systick timer
-    SYST_CSR |= SYST_CSR_TICKINT;
+    SYST_CSR &= ~SYST_CSR_TICKINT;      // disable systick timer interrupt
+	SCB_SCR &= ~SCB_SCR_SLEEPDEEP_MASK; // Clear the SLEEPDEEP bit to make sure we go into WAIT (sleep) mode instead of deep sleep.
+    asm volatile("dsb");                // No instruction in program order after this instruction executes until this instruction completes
+	asm volatile("WFI");                // WFI instruction will start entry into WAIT mode
+    asm volatile("isb");                //instructions following the ISB are fetched from cache or memory, instructions following the ISB are fetched from cache or memory
+    SYST_CSR |= SYST_CSR_TICKINT;       // renable systick timer interrupt
 }
