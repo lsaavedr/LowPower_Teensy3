@@ -43,6 +43,38 @@ LowPower_Teensy3 Library - Edge
 ```c
 void CPU(uint32_t freq);
 ```
+```c
+void Idle();
+```
+```c
+void Sleep();
+```
+```c
+uint32_t DeepSleep(uint32_t wakeType, uint32_t time_pin, uint16_t threshold = 0, ISR myCallback = defaultCallback);
+
+uint32_t DeepSleep(uint32_t wakeType, uint32_t time_pin, ISR myCallback);
+
+void DeepSleep(sleep_block_t* configuration);
+```
+```c
+void Hibernate(uint32_t wakeType, uint32_t time_pin, uint16_t threshold = 0, ISR myCallback = defaultCallback);
+
+void Hibernate(uint32_t wakeType, uint32_t time_pin, ISR myCallback);
+
+void Hibernate(sleep_block_t* configuration);
+```
+```c
+void PrintSRS(Stream *port);
+```
+```c
+static uint32_t micros();
+```
+```c
+static inline void delay(uint32_t msec);
+```
+```c
+static void delayMicroseconds(uint32_t usec);
+```
 <h4>Examples:</h4>
 TODO...
 <h4>Pitfalls and Problems:</h4>
