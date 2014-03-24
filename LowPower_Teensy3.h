@@ -80,6 +80,10 @@
 class TEENSY3_LP;
 
 typedef struct sleep_block_struct {
+    /* Structure wake source */
+    volatile uint32_t wake_source;
+    /* Structure RTC Config */
+    unsigned long rtc_alarm;
     /* Module Wake Type */
     uint32_t modules;
     /* Structure GPIO Config */
@@ -87,16 +91,12 @@ typedef struct sleep_block_struct {
     uint16_t gpio_mode;
     /* Structure LPTMR Config */
     uint16_t lptmr_timeout;
-    /* Structure RTC Config */
-    unsigned long rtc_alarm;
     /* Structure TSI Config */
     uint16_t tsi_threshold;
     uint8_t tsi_pin;
-    /* Structure wake source */
-    volatile uint32_t wake_source;
     /* pointer to callback function */
     void (*callback)();
-    sleep_block_struct() : modules(0), gpio_pin(0), gpio_mode(0), lptmr_timeout(0), rtc_alarm(0), tsi_threshold(0), tsi_pin(0), wake_source(0), callback(NULL) {};
+    sleep_block_struct() : wake_source(0), rtc_alarm(0), modules(0), gpio_pin(0), gpio_mode(0), lptmr_timeout(0), tsi_threshold(0), tsi_pin(0), callback(NULL) {};
 } sleep_block_t;
 
 class TEENSY3_LP {
@@ -109,7 +109,7 @@ public:
 
 private:
     /* Handle a specific sleep command */
-    bool sleepHandle(sleep_type_t type, sleep_block_t *configuration);
+    inline bool sleepHandle(sleep_type_t type, sleep_block_t *configuration) __attribute__((always_inline, unused));
 
     /* TSI Initialize  */
     void tsiIntialize(void);
@@ -134,11 +134,17 @@ private:
 public:
     // Constructor
     TEENSY3_LP(void);
+    
+    ~TEENSY3_LP(void) {
+        NVIC_DISABLE_IRQ(IRQ_LLWU); // disable wakeup isr
+    }
     //---------------------------------------------------------------------------------------
     /* Sleep Functions */
     static volatile uint32_t wakeSource;// hold llwu wake up source
     //----------------------------------------CPU--------------------------------------------
     int CPU(uint32_t freq);
+    //----------------------------------------idle--------------------------------------------
+    void idle();
     //---------------------------------------Sleep-------------------------------------------
     void Sleep();
     //--------------------------------------DeepSleep----------------------------------------
@@ -155,10 +161,9 @@ public:
     
     static uint32_t micros() { return micros_lp(_cpu); }
     
-    static void delay(uint32_t msec) { delay_lp(msec, _cpu); }
+    static inline void delay(uint32_t msec) { delay_lp(msec, _cpu); }
     
     static void delayMicroseconds(uint32_t usec) { delayMicroseconds_lp(usec, _cpu); }
-    
 };
 
 /**** !!!!!Must make interval timer private members protected for this to work!!!! *****/
