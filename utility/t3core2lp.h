@@ -24,30 +24,33 @@ extern "C" {
     
     static inline void delayMicroseconds_lp(uint32_t, uint32_t) __attribute__((always_inline, unused));
     static inline void delayMicroseconds_lp(uint32_t usec, uint32_t f_cpu) {
-        
         if (usec == 0) return;
         uint32_t n;
         if (f_cpu == 96000000) {
-            n = usec << 5;
-        } else if (f_cpu == 48000000) {
-            n = usec << 4;
-        } else if (f_cpu == 24000000) {
-            n = usec << 3;
-        } else if (f_cpu == 16000000) {
-            float x = 5.33333333333333;
-            arm_mult_f32((float*)&usec, &x, (float*)&n, 1);
-        } else if (f_cpu == 8000000) {
-            float x = 2.66666666666667;
-            arm_mult_f32((float*)&usec, &x, (float*)&n, 1);
-        } else if (f_cpu == 4000000) {
-            float x = 1.33333333333333;
-            arm_mult_f32((float*)&usec, &x, (float*)&n, 1);
-        } else if (f_cpu == 2000000) {
-            float x = 0.66666666666667;
-            arm_mult_f32((float*)&usec, &x, (float*)&n, 1);
+            n = (usec << 4)-6;
+        }
+        else if (f_cpu == 48000000) {
+            n = (usec << 3)-4;
+        }
+        else if (f_cpu == 24000000) {
+            n = (usec << 2)-3;
+        }
+        else if (f_cpu == 16000000) {
+            n = usec*2.66666666666667;
+        }
+        else if (f_cpu == 8000000) {
+             n = usec*1.33333333333333;
+        }
+        else if (f_cpu == 4000000) {
+            n = usec*0.66666666666667;
+        }
+        else if (f_cpu == 2000000) {
+            n = usec*0.33333333333333;
         }
         asm volatile(
                      "L_%=_delayMicroseconds_lp:"       "\n\t"
+                     "sev"                              "\n\t"
+                     "wfe"                              "\n\t"
                      "subs   %0, #1"                    "\n\t"
                      "bne    L_%=_delayMicroseconds_lp"	"\n"
                      : "+r" (n) :
