@@ -60,7 +60,9 @@ void Idle();
 ```c
 void Sleep();
 # Most versitle low power mode, any system interrupt will exit this sleep mode. 
-# Interrupts must be setup before hand such as attachInterrupt().
+# Interrupts must be setup before hand such as attachInterrupt(). Since this 
+# sleep mode disables the systick and the cpu is running at 2MHz anything that 
+# uses timing must be recalibrated for the lower frequency.
 ```
 ```c
 uint32_t DeepSleep(uint32_t wakeType, uint32_t time_pin, uint16_t threshold = 0, ISR myCallback = defaultCallback);
@@ -90,18 +92,18 @@ void Hibernate(sleep_block_t* configuration);
 ```
 ```c
 void PrintSRS(Stream *port);
-# Use this to print what caused the reset of the Teensy. Useful in dubugging.
+# Use this to print what caused the reset of the Teensy. Useful in debugging.
 ```
 ```c
 static uint32_t micros();
-# 'Port' of the Teensy Core 'micros()' function for use at CPU speeds less than 24MHz.
+# Port of the Teensy Core 'micros()' function for use at CPU speeds less than 24MHz.
 ```
 ```c
 static inline void delay(uint32_t msec);
-# 'Port' of the Teensy Core 'delay('time')' function for use lowering the current
-# consumption by sleeping for small bit of time while waiting for this delay to 
-# timeout. Also use this if you use the 'CPU()' function since recalibrates the 
-# delay for whatever cpu speed you are at.
+# Port of the Teensy Core delay('timeout') function for lowering the current
+# consumption by sleeping for small bit of time while waiting for the delay to 
+# timeout. Also use this if you use the CPU('freq') function since it recalibrates 
+# the delay for whatever cpu speed you are at.
 ```
 ```c
 static void delayMicroseconds(uint32_t usec);
