@@ -185,7 +185,7 @@ static void delayMicroseconds(uint32_t usec);
 
 # Parameter "usec" is delay in microseconds
 ```
-<h4>Examples:</h4>
+<h3>Examples:</h3>
 TODO...
-<h4>Pitfalls and Problems:</h4>
+<h3>Pitfalls and Problems:</h3>
 TODO...
