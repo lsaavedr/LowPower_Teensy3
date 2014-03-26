@@ -47,7 +47,7 @@ void CPU(uint32_t freq);
 # power consumption. There are 5 speeds that the user can choose from: 2 MHz, 
 # 4 MHz, 8 MHz, 16 MHz, F_CPU MHz. 
 
-# Parameter "freq" can be any of the 5 predifined values above.
+# Parameter "uint32_t  freq" can be any of the 5 predifined values above.
 
 # These #defines have been added for the user convenience for "freq" parm, else 
 # use the complete frequency.
@@ -216,7 +216,7 @@ static inline void delay(uint32_t msec);
 # timeout. Also use this if you use the CPU('freq') function since it recalibrates 
 # the delay for whatever cpu speed you are at.
 
-# Parameter "msec" is delay in milliseconds
+# Parameter "uint32_t msec" is delay in milliseconds
 ```
 ```c
 static void delayMicroseconds(uint32_t usec);
@@ -226,9 +226,113 @@ static void delayMicroseconds(uint32_t usec);
 # to timeout. Also use this if you use the CPU('freq') function since it recalibrates 
 # the delay for whatever cpu speed you are at.
 
-# Parameter "usec" is delay in microseconds
+# Parameter "uint32_t usec" is delay in microseconds
 ```
 <h3>Examples:</h3>
-TODO...
+Here is a basic walk through to use this library in a Arduino sketch. 
+
+First you must include the the library: `#include <LowPower_Teensy3.h>`
+
+Then create a instance of this class: `TEENSY3_LP LP = TEENSY3_LP();`
+
+Now that we have defined the constructor as `LP` we will use this in front of any low power 
+function: `LP.DeepSleep(RTCA_WAKE, 5);`
+
+**example sketch: using the "CPU" function**<br>
+This just shows the basic usage of the library's `CPU` function, it just sets the Teensy to run
+at 2MHz for 5000 milliseconds and then run the cpu at F_CPU for 5000 miiliseconds. Notice the
+use of the `LP.delay(5000);`. Use this port of the core `delay` function since it will reconfigure
+the `delay` function to use the new dynamically entered cpu speed, in this case 2MHz. Also this delay
+will sleep for very small amount of time waiting for the delay to timeout. You can choose from cpu 
+speeds listed obove in the function description.
+```c
+#include <LowPower_Teensy3.h>
+
+TEENSY3_LP LP = TEENSY3_LP();
+
+void setup() {
+
+}
+
+void loop() {
+    LP.CPU(TWO_MHZ);
+    LP.delay(5000);
+    LP.CPU(F_CPU);
+    LP.delay(5000); 
+}
+```
+
+**example sketch: using the "Idle" function:**<br>
+The `Idle` function will sleep for a few clock cycles so this makes it great canidate for use in 
+"waiting" loops. Even though the it will only sleep for a very short period of time it can save
+some power by a cumulative effect. This example uses the `Idle` function when no USB Serial data
+is availible.
+```c
+#include <LowPower_Teensy3.h>
+
+TEENSY3_LP LP = TEENSY3_LP();
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  char incomingByte;
+
+  if (Serial.available() > 0) {
+    incomingByte = Serial.read();
+    Serial.print(incomingByte);
+  }
+  LP.Idle();
+}
+```
+
+**example sketch: using "Sleep" function:**<br>
+The `Sleep` function will sleep the mcu until an interrupt is generated. The interrupt can come from
+any interrupt that the user wants which makes this very versitle. This sketch uses the `attachInterrupt'
+routine to setup the interrupt that will wake the processor. This sleep mode will disable the systick
+inerrupt and put the processor cpu speed at 2MHz so any Timer type interrupts will have to be reconfigured 
+for this slower processor speed.
+```c
+#include <LowPower_Teensy3.h>
+
+TEENSY3_LP LP = TEENSY3_LP();
+
+void callbackhandler() {
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(100);
+  digitalWrite(LED_BUILTIN, LOW);
+}
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(0, INPUT_PULLUP);
+  attachInterrupt(0, callbackhandler, RISING);
+}
+
+void loop() {
+  LP.Sleep();
+}
+```
+
+**example sketch: using "DeepSleep" function:**<br>
+The `DeepSleep` function puts the processor into lowest current consumtion sleep mode. Only certian
+wakeup events are used that are defined above in the function description. This sketch sets up the 
+Teensy to sleep for 5 seconds then wake using the built-in RTC. An optional callback handler can be 
+added by the user to restore things after waking up is desired -> `LP.DeepSleep(RTCA_WAKE, 5, callback);'.
+```c
+#include <LowPower_Teensy3.h>
+
+TEENSY3_LP LP = TEENSY3_LP();
+
+void setup() {
+
+}
+
+void loop() {
+  LP.DeepSleep(RTCA_WAKE, 5);
+}
+```
 <h3>Pitfalls and Problems:</h3>
 TODO...
