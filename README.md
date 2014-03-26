@@ -42,10 +42,15 @@
 <h3>Functions:</h3>
 ```c 
 void CPU(uint32_t freq);
+
 # Allows for dynamic changing of the CPU, BUS and MEM speed to lower avarege 
 # power consumption. There are 5 speeds that the user can choose from: 2 MHz, 
-# 4 MHz, 8 MHz, 16 MHz, F_CPU MHz. These #defines have been added for the user 
-# convenience for "freq" parm, else the use the complete frequency.
+# 4 MHz, 8 MHz, 16 MHz, F_CPU MHz. 
+
+# Parameter "freq" can be any of the 4 predifined values above.
+
+# These #defines have been added for the user convenience for "freq" parm, else 
+# the use the complete frequency.
 1. TWO_MHZ
 2. FOUR_MHZ
 3. EIGHT_MHZ
@@ -53,12 +58,14 @@ void CPU(uint32_t freq);
 ``` 
 ```c
 void Idle();
+
 # Use this function in any waiting loops such as waiting for Serial data, this 
 # will lower the current consumption slightly while having a little impact on 
 # performance. This can be used at any CPU speed.
 ```
 ```c
 void Sleep();
+
 # Most versitle low power mode, any system interrupt will exit this sleep mode. 
 # Interrupts must be setup before hand such as attachInterrupt(). Since this 
 # sleep mode disables the systick and the cpu is running at 2MHz anything that 
@@ -70,12 +77,35 @@ uint32_t DeepSleep(uint32_t wakeType, uint32_t time_pin, uint16_t threshold = 0,
 uint32_t DeepSleep(uint32_t wakeType, uint32_t time_pin, ISR myCallback);
 
 void DeepSleep(sleep_block_t* configuration);
+
 # Lowest current consumption sleep mode without a reset. Only certian digital 
 # Pins or Periphereals can wake the cpu from this sleep mode. You will notice 
 # that there are three functions, the two top functions are basic usage where 
 # second one is just overloaded function. The last one is uses a configuration 
 # structure so many wake sources can be configured along with many individual 
 # configurations.
+
+# These #defines have been added for the user convenience for "wakeType":
+1.  GPIO_WAKE - wakeup through selected pin
+2.  LPTMR_WAKE - wakeup through Low Power Timer
+3.  RTCA_WAKE - wakeup through Real Time Clock in seconds
+4.  TSI_WAKE - wakeup through selected Touch Sense pin
+
+# These #defines have been added for the user convenience for GPIO pins:
+1.  PIN_2
+2.  PIN_4
+3.  PIN_6
+4.  PIN_7
+5.  PIN_9
+6.  PIN_10
+7.  PIN_11
+8.  PIN_13
+9.  PIN_16
+10. PIN_21
+11. PIN_22
+12. PIN_26
+13. PIN_30
+14. PIN_33
 ```
 ```c
 void Hibernate(uint32_t wakeType, uint32_t time_pin, uint16_t threshold = 0, ISR myCallback = defaultCallback);
@@ -83,30 +113,67 @@ void Hibernate(uint32_t wakeType, uint32_t time_pin, uint16_t threshold = 0, ISR
 void Hibernate(uint32_t wakeType, uint32_t time_pin, ISR myCallback);
 
 void Hibernate(sleep_block_t* configuration);
+
 # Lowest current consumption sleep mode with a reset. Only certian digital 
 # Pins or Periphereals can wake the cpu from this sleep mode. You will notice 
 # that there are three functions, the two top functions are basic usage where 
 # second one is just overloaded function. The last one is uses a configuration 
 # structure so many wake sources can be configured along with many individual 
-# configurations.
+# configurations. 
+
+# These #defines have been added for the user convenience for "wakeType":
+1.  GPIO_WAKE - wakeup through selected pin
+2.  LPTMR_WAKE - wakeup through Low Power Timer
+3.  RTCA_WAKE - wakeup through Real Time Clock in seconds
+4.  TSI_WAKE - wakeup through selected Touch Sense pin
+
+# These #defines have been added for the user convenience for GPIO pins:
+1.  PIN_2
+2.  PIN_4
+3.  PIN_6
+4.  PIN_7
+5.  PIN_9
+6.  PIN_10
+7.  PIN_11
+8.  PIN_13
+9.  PIN_16
+10. PIN_21
+11. PIN_22
+12. PIN_26
+13. PIN_30
+14. PIN_33
 ```
 ```c
 void PrintSRS(Stream *port);
+
 # Use this to print what caused the reset of the Teensy. Useful in debugging.
+
+# Parameter "port" can be any Hardware Serial or USB serial.
 ```
 ```c
 static uint32_t micros();
+
 # Port of the Teensy Core 'micros()' function for use at CPU speeds less than 24MHz.
 ```
 ```c
 static inline void delay(uint32_t msec);
+
 # Port of the Teensy Core delay('timeout') function for lowering the current
 # consumption by sleeping for small bit of time while waiting for the delay to 
 # timeout. Also use this if you use the CPU('freq') function since it recalibrates 
 # the delay for whatever cpu speed you are at.
+
+# Parameter msec is delay in milliseconds
 ```
 ```c
 static void delayMicroseconds(uint32_t usec);
+
+# Port of the Teensy Core delayMicroseconds('timeout') function for lowering the 
+# current consumption by sleeping for small bit of time while waiting for the delay 
+# to timeout. Also use this if you use the CPU('freq') function since it recalibrates 
+# the delay for whatever cpu speed you are at.
+
+# Parameter usec is delay in microseconds
 ```
 <h4>Examples:</h4>
 TODO...
