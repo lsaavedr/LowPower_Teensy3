@@ -144,7 +144,7 @@ void Hibernate(sleep_block_t* configuration);
 # Lowest current consumption sleep mode with a reset. Only certian digital 
 # Pins or Periphereals can wake the cpu from this sleep mode. You will notice 
 # that there are three functions, the two top functions are basic usage where 
-# second one is just overloaded function. The last one uses a configuration 
+# the second one is just an overloaded function. The last one uses a configuration 
 # structure so many wake sources can be configured along with many individual 
 # configurations. 
 
@@ -152,6 +152,27 @@ void Hibernate(sleep_block_t* configuration);
 # Parameter "time_pin" - Time or Pin number for "wakeType"
 # Parameter "threshold" - TSI wakeup threshold
 # Parameter "myCallback" - optional user callback function
+
+# Paramter "sleep_block_t* configuration" - see below
+typedef struct sleep_block_struct {
+    /* Structure wake source */
+    volatile uint32_t wake_source;      # stores what module or pin wakeup source
+    /* Structure RTC Config */          
+    unsigned long rtc_alarm;            # RTC wakeup in seconds
+    /* Module Wake Type */
+    uint32_t modules;                   # can be RTC, LPTMR, GPIO or TSI  
+    /* Structure GPIO Config */
+    uint16_t gpio_pin;                  # pin that will be used to wake
+    uint16_t gpio_mode;                 # not used yet
+    /* Structure LPTMR Config */
+    uint16_t lptmr_timeout;             # low power timer in msec
+    /* Structure TSI Config */
+    uint16_t tsi_threshold;             # touch sense threshold value
+    uint8_t tsi_pin;                    # touch sense pin
+    /* pointer to callback function */
+    void (*callback)();                 # user callback function
+    sleep_block_struct() : wake_source(0), rtc_alarm(0), modules(0), gpio_pin(0), gpio_mode(0), lptmr_timeout(0), tsi_threshold(0), tsi_pin(0), callback(NULL) {};
+} sleep_block_t;
 
 # These #defines have been added for the user convenience for "wakeType":
 1.  GPIO_WAKE - wakeup through selected pin
