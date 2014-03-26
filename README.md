@@ -55,7 +55,7 @@ void CPU(uint32_t freq);
 2.  FOUR_MHZ
 3.  EIGHT_MHZ
 4.  SIXTEEN_MHZ
-5.  F_CPU
+5.  F_CPU - defined in core
 ``` 
 ```c
 void Idle();
@@ -86,29 +86,29 @@ void DeepSleep(sleep_block_t* configuration);
 # structure so many wake sources can be configured along with many individual 
 # configurations.
 
-# Parameter "uint32_t wakeType" - Pin or peripheal that will wake the mcu
+# Parameter "uint32_t wakeType" - Pin or Peripheal that will wake the mcu
 # Parameter "uint32_t time_pin" - Time or Pin number for "wakeType"
 # Parameter "uint16_t threshold" - TSI wakeup threshold
 # Parameter "ISR myCallback" - optional user callback function
 
-# Paramter "sleep_block_t* configuration" - below
+# Paramter "sleep_block_t* configuration" - see below
 typedef struct sleep_block_struct {
     /* Structure wake source */
-    volatile uint32_t wake_source;
-    /* Structure RTC Config */
-    unsigned long rtc_alarm;
+    volatile uint32_t wake_source;      # stores what module or pin wakeup source
+    /* Structure RTC Config */          
+    unsigned long rtc_alarm;            # RTC wakeup in seconds
     /* Module Wake Type */
-    uint32_t modules;
+    uint32_t modules;                   # can be RTC, LPTMR, GPIO or TSI  
     /* Structure GPIO Config */
-    uint16_t gpio_pin;
-    uint16_t gpio_mode;
+    uint16_t gpio_pin;                  # pin that will be used to wake
+    uint16_t gpio_mode;                 # not used yet
     /* Structure LPTMR Config */
-    uint16_t lptmr_timeout;
+    uint16_t lptmr_timeout;             # low power timer in msec
     /* Structure TSI Config */
-    uint16_t tsi_threshold;
-    uint8_t tsi_pin;
+    uint16_t tsi_threshold;             # touch sense threshold value
+    uint8_t tsi_pin;                    # touch sense pin
     /* pointer to callback function */
-    void (*callback)();
+    void (*callback)();                 # user callback function
     sleep_block_struct() : wake_source(0), rtc_alarm(0), modules(0), gpio_pin(0), gpio_mode(0), lptmr_timeout(0), tsi_threshold(0), tsi_pin(0), callback(NULL) {};
 } sleep_block_t;
 
