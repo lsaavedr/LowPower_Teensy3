@@ -81,9 +81,14 @@ void DeepSleep(sleep_block_t* configuration);
 # Lowest current consumption sleep mode without a reset. Only certian digital 
 # Pins or Periphereals can wake the cpu from this sleep mode. You will notice 
 # that there are three functions, the two top functions are basic usage where 
-# second one is just overloaded function. The last one is uses a configuration 
+# second one is just overloaded function. The last one uses a configuration 
 # structure so many wake sources can be configured along with many individual 
 # configurations.
+
+# Parameter "wakeType" - Pin or peripheal that will wake the mcu
+# Parameter "time_pin" - Time or Pin number for "wakeType"
+# Parameter "threshold" - TSI wakeup threshold
+# Parameter "myCallback" - optional user callback function
 
 # These #defines have been added for the user convenience for "wakeType":
 1.  GPIO_WAKE - wakeup through selected pin
@@ -117,9 +122,14 @@ void Hibernate(sleep_block_t* configuration);
 # Lowest current consumption sleep mode with a reset. Only certian digital 
 # Pins or Periphereals can wake the cpu from this sleep mode. You will notice 
 # that there are three functions, the two top functions are basic usage where 
-# second one is just overloaded function. The last one is uses a configuration 
+# second one is just overloaded function. The last one uses a configuration 
 # structure so many wake sources can be configured along with many individual 
 # configurations. 
+
+# Parameter "wakeType" - Pin or peripheal that will wake the mcu
+# Parameter "time_pin" - Time or Pin number for "wakeType"
+# Parameter "threshold" - TSI wakeup threshold
+# Parameter "myCallback" - optional user callback function
 
 # These #defines have been added for the user convenience for "wakeType":
 1.  GPIO_WAKE - wakeup through selected pin
@@ -163,7 +173,7 @@ static inline void delay(uint32_t msec);
 # timeout. Also use this if you use the CPU('freq') function since it recalibrates 
 # the delay for whatever cpu speed you are at.
 
-# Parameter msec is delay in milliseconds
+# Parameter "msec" is delay in milliseconds
 ```
 ```c
 static void delayMicroseconds(uint32_t usec);
@@ -173,7 +183,7 @@ static void delayMicroseconds(uint32_t usec);
 # to timeout. Also use this if you use the CPU('freq') function since it recalibrates 
 # the delay for whatever cpu speed you are at.
 
-# Parameter usec is delay in microseconds
+# Parameter "usec" is delay in microseconds
 ```
 <h4>Examples:</h4>
 TODO...
