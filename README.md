@@ -320,7 +320,7 @@ void loop() {
 The `DeepSleep` function puts the processor into lowest current consumtion sleep mode. Only certian
 wakeup events are used that are defined above in the function description. This sketch sets up the 
 Teensy to sleep for 5 seconds then wake using the built-in RTC. An optional callback handler can be 
-added by the user to restore things after waking up is desired -> `LP.DeepSleep(RTCA_WAKE, 5, callback);'.
+added by the user to restore things after waking up is desired -> `LP.DeepSleep(RTCA_WAKE, 5, callback);`.
 ```c
 #include <LowPower_Teensy3.h>
 
@@ -332,6 +332,43 @@ void setup() {
 
 void loop() {
   LP.DeepSleep(RTCA_WAKE, 5);
+  blink();
+}
+
+void blink() {
+  digitalWrite(LED_BUILTIN, HIGH);
+  LP.delay(100);
+  digitalWrite(LED_BUILTIN, LOW);
+  LP.delay(100)
+}
+```
+
+**example sketch: using "Hibernate" function:**<br>
+The `Hibernate` function puts the processor into lowest current consumtion sleep mode but differs
+from `DeepSleep` by it wakes up through a reset event. This means that code below the `Hibernate` 
+function will not be called. Only certian wakeup events are used that are defined above in the 
+function description. This sketch sets up the Teensy to sleep only to be awaken by the selected 
+digital pin. An optional callback handler can be added by the user to restore things after wakup 
+is called -> `LP.Hibernate(GPIO_WAKE, PIN_22, callback);`.
+```c
+#include <LowPower_Teensy3.h>
+
+TEENSY3_LP LP = TEENSY3_LP();
+
+void setup() {
+  pinMode(22, INPUT_PULLUP);
+  blink();
+}
+
+void loop() {
+  LP.Hibernate(GPIO_WAKE, PIN_22);
+}
+
+void blink() {
+  digitalWrite(LED_BUILTIN, HIGH);
+  LP.delay(100);
+  digitalWrite(LED_BUILTIN, LOW);
+  LP.delay(100)
 }
 ```
 <h3>Pitfalls and Problems:</h3>
