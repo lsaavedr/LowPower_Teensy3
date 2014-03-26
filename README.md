@@ -47,14 +47,15 @@ void CPU(uint32_t freq);
 # power consumption. There are 5 speeds that the user can choose from: 2 MHz, 
 # 4 MHz, 8 MHz, 16 MHz, F_CPU MHz. 
 
-# Parameter "freq" can be any of the 4 predifined values above.
+# Parameter "freq" can be any of the 5 predifined values above.
 
 # These #defines have been added for the user convenience for "freq" parm, else 
-# the use the complete frequency.
-1. TWO_MHZ
-2. FOUR_MHZ
-3. EIGHT_MHZ
-4. SIXTEEN_MHZ
+# use the complete frequency.
+1.  TWO_MHZ
+2.  FOUR_MHZ
+3.  EIGHT_MHZ
+4.  SIXTEEN_MHZ
+5.  F_CPU
 ``` 
 ```c
 void Idle();
@@ -81,14 +82,35 @@ void DeepSleep(sleep_block_t* configuration);
 # Lowest current consumption sleep mode without a reset. Only certian digital 
 # Pins or Periphereals can wake the cpu from this sleep mode. You will notice 
 # that there are three functions, the two top functions are basic usage where 
-# second one is just overloaded function. The last one uses a configuration 
+# the second one is just an overloaded function. The last one uses a configuration 
 # structure so many wake sources can be configured along with many individual 
 # configurations.
 
-# Parameter "wakeType" - Pin or peripheal that will wake the mcu
-# Parameter "time_pin" - Time or Pin number for "wakeType"
-# Parameter "threshold" - TSI wakeup threshold
-# Parameter "myCallback" - optional user callback function
+# Parameter "uint32_t wakeType" - Pin or peripheal that will wake the mcu
+# Parameter "uint32_t time_pin" - Time or Pin number for "wakeType"
+# Parameter "uint16_t threshold" - TSI wakeup threshold
+# Parameter "ISR myCallback" - optional user callback function
+
+# Paramter "sleep_block_t* configuration" - below
+typedef struct sleep_block_struct {
+    /* Structure wake source */
+    volatile uint32_t wake_source;
+    /* Structure RTC Config */
+    unsigned long rtc_alarm;
+    /* Module Wake Type */
+    uint32_t modules;
+    /* Structure GPIO Config */
+    uint16_t gpio_pin;
+    uint16_t gpio_mode;
+    /* Structure LPTMR Config */
+    uint16_t lptmr_timeout;
+    /* Structure TSI Config */
+    uint16_t tsi_threshold;
+    uint8_t tsi_pin;
+    /* pointer to callback function */
+    void (*callback)();
+    sleep_block_struct() : wake_source(0), rtc_alarm(0), modules(0), gpio_pin(0), gpio_mode(0), lptmr_timeout(0), tsi_threshold(0), tsi_pin(0), callback(NULL) {};
+} sleep_block_t;
 
 # These #defines have been added for the user convenience for "wakeType":
 1.  GPIO_WAKE - wakeup through selected pin
