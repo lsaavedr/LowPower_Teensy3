@@ -32,9 +32,9 @@
 #define BLPE_BUS    4000000
 #define BLPE_MEM    1000000
 
+volatile uint8_t  TEENSY3_LP::lowLeakageSource;// hold lowleakage mode for wakeup isr
 volatile uint32_t TEENSY3_LP::wakeSource;// hold llwu wake up source for wakeup isr
 volatile uint32_t TEENSY3_LP::stopflag;// hold module wake up sources for wakeup isr
-volatile uint8_t TEENSY3_LP::lowLeakageSource;// hold lowleakage mode for wakeup isr
 volatile uint32_t TEENSY3_LP::_cpu;
 volatile uint32_t TEENSY3_LP::_bus;
 volatile uint32_t TEENSY3_LP::_mem;
@@ -62,7 +62,6 @@ TEENSY3_LP::TEENSY3_LP() {
     _cpu = F_CPU;
     _bus = F_BUS;
     _mem = F_MEM;
-    //f_cpu = &_cpu;
     // initialize Low Power Timer
     lptmr_init();
 }
@@ -155,9 +154,9 @@ void wakeup_isr(void) {
 
     // clear wakeup module and stop them
     if ((TEENSY3_LP::stopflag & LPTMR_WAKE) && (TEENSY3_LP::lowLeakageSource == LLS))lptmr_stop();
-    if ((TEENSY3_LP::stopflag & RTCA_WAKE) && (TEENSY3_LP::lowLeakageSource == LLS)) rtc_stop();
-    if ((TEENSY3_LP::stopflag & TSI_WAKE) && (TEENSY3_LP::lowLeakageSource == LLS)) tsi_stop();
-    if ((TEENSY3_LP::stopflag & CMP0_WAKE) && (TEENSY3_LP::lowLeakageSource == LLS)) cmp_stop();
+    if ((TEENSY3_LP::stopflag & RTCA_WAKE)  && (TEENSY3_LP::lowLeakageSource == LLS)) rtc_stop();
+    if ((TEENSY3_LP::stopflag & TSI_WAKE)   && (TEENSY3_LP::lowLeakageSource == LLS)) tsi_stop();
+    if ((TEENSY3_LP::stopflag & CMP0_WAKE)  && (TEENSY3_LP::lowLeakageSource == LLS)) cmp_stop();
     
     TEENSY3_LP *p;
     
@@ -363,19 +362,7 @@ bool TEENSY3_LP::sleepHandle(sleep_type_t type, sleep_block_t *configuration)
 {
     int gpio_pin = 0;
 
-    //if (configuration->callback == NULL) {
-    	//CALLBACK = defaultCallback;
-    //}
-    //else {
     CALLBACK = configuration->callback;
-    //}
-
-    /*if (type == sleep_DeepSleep)
-     
-    else if (type == sleep_Hibernate)
-     
-    else
-        return false;*/
 
     stopflag = configuration->modules;
 
