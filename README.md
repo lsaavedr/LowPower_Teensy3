@@ -1,6 +1,6 @@
 #LowPower_Teensy3 Library - Edge
 
->This is the latest code that should get branched if you want too contribute. Only the latest Teensyduino release will be used. Older versions of Teensyduino may or may not compile and work.
+>This is the latest code that should get branched if you want too contribute. Only the latest Teensyduino release will be used. Older versions of Teensyduino may or may not compile and work. Function definitions and example are below.
 
 <h4>Currently used Teensyduino Version: 1.18</h4> 
 
@@ -43,13 +43,13 @@
 ```c 
 void CPU(uint32_t freq);
 
-# Allows for dynamic changing of the CPU, BUS and MEM speed to lower avarege 
+# Allows for dynamic changing of the CPU, BUS and MEM speed to lower average
 # power consumption. There are 5 speeds that the user can choose from: 2 MHz, 
 # 4 MHz, 8 MHz, 16 MHz, F_CPU MHz. 
 
-# Parameter "uint32_t  freq" can be any of the 5 predifined values above.
+# Parameter "uint32_t  freq" can be any of the 5 predefined values above.
 
-# These #defines have been added for the user convenience for "freq" parm, else 
+# These #defines have been added for the user convenience for "freq" param, else
 # use the complete frequency.
 1.  TWO_MHZ
 2.  FOUR_MHZ
@@ -67,10 +67,10 @@ void Idle();
 ```c
 void Sleep();
 
-# Most versitle low power mode, any system interrupt will exit this sleep mode. 
+# Most versatile low power mode, any system interrupt will exit this sleep mode.
 # Interrupts must be setup before hand such as attachInterrupt(). Since this 
 # sleep mode disables the systick and the cpu is running at 2MHz anything that 
-# uses timing must be recalibrated for the lower frequency.
+# uses timing must be calibrated for the lower frequency.
 ```
 ```c
 uint32_t DeepSleep(uint32_t wakeType, uint32_t time_pin, uint16_t threshold = 0, ISR myCallback = defaultCallback);
@@ -79,19 +79,19 @@ uint32_t DeepSleep(uint32_t wakeType, uint32_t time_pin, ISR myCallback);
 
 void DeepSleep(sleep_block_t* configuration);
 
-# Lowest current consumption sleep mode without a reset. Only certian digital 
-# Pins or Periphereals can wake the cpu from this sleep mode. You will notice 
+# Lowest current consumption sleep mode without a reset. Only certain digital
+# Pins or Peripherals can wake the cpu from this sleep mode. You will notice
 # that there are three functions, the two top functions are basic usage where 
 # the second one is just an overloaded function. The last one uses a configuration 
 # structure so many wake sources can be configured along with many individual 
 # configurations.
 
-# Parameter "uint32_t wakeType" - Pin or Peripheal that will wake the mcu
+# Parameter "uint32_t wakeType" - Pin or Peripheral that will wake the mcu
 # Parameter "uint32_t time_pin" - Time or Pin number for "wakeType"
 # Parameter "uint16_t threshold" - TSI wakeup threshold
 # Parameter "ISR myCallback" - optional user callback function
 
-# Paramter "sleep_block_t* configuration" - see below
+# Parameter "sleep_block_t* configuration" - see below
 typedef struct sleep_block_struct {
     /* Structure wake source */
     volatile uint32_t wake_source;      # stores what module or pin wakeup source
@@ -141,19 +141,19 @@ void Hibernate(uint32_t wakeType, uint32_t time_pin, ISR myCallback);
 
 void Hibernate(sleep_block_t* configuration);
 
-# Lowest current consumption sleep mode with a reset. Only certian digital 
-# Pins or Periphereals can wake the cpu from this sleep mode. You will notice 
+# Lowest current consumption sleep mode with a reset. Only certain digital
+# Pins or Peripherals can wake the cpu from this sleep mode. You will notice
 # that there are three functions, the two top functions are basic usage where 
 # the second one is just an overloaded function. The last one uses a configuration 
 # structure so many wake sources can be configured along with many individual 
 # configurations. 
 
-# Parameter "wakeType" - Pin or peripheal that will wake the mcu
+# Parameter "wakeType" - Pin or peripheral that will wake the mcu
 # Parameter "time_pin" - Time or Pin number for "wakeType"
 # Parameter "threshold" - TSI wakeup threshold
 # Parameter "myCallback" - optional user callback function
 
-# Paramter "sleep_block_t* configuration" - see below
+# Parameter "sleep_block_t* configuration" - see below
 typedef struct sleep_block_struct {
     /* Structure wake source */
     volatile uint32_t wake_source;      # stores what module or pin wakeup source
@@ -213,7 +213,7 @@ static inline void delay(uint32_t msec);
 
 # Port of the Teensy Core delay('timeout') function for lowering the current
 # consumption by sleeping for small bit of time while waiting for the delay to 
-# timeout. Also use this if you use the CPU('freq') function since it recalibrates 
+# timeout. Also use this if you use the CPU('freq') function since it recalibrates
 # the delay for whatever cpu speed you are at.
 
 # Parameter "uint32_t msec" is delay in milliseconds
@@ -223,7 +223,7 @@ static void delayMicroseconds(uint32_t usec);
 
 # Port of the Teensy Core delayMicroseconds('timeout') function for lowering the 
 # current consumption by sleeping for small bit of time while waiting for the delay 
-# to timeout. Also use this if you use the CPU('freq') function since it recalibrates 
+# to timeout. Also use this if you use the CPU('freq') function since it recalibrates
 # the delay for whatever cpu speed you are at.
 
 # Parameter "uint32_t usec" is delay in microseconds
@@ -240,11 +240,11 @@ function: `LP.DeepSleep(RTCA_WAKE, 5);`
 
 **example sketch: using the "CPU" function**<br>
 This just shows the basic usage of the library's `CPU` function, it just sets the Teensy to run
-at 2MHz for 5000 milliseconds and then run the cpu at F_CPU for 5000 miiliseconds. Notice the
+at 2MHz for 5000 milliseconds and then run the cpu at F_CPU for 5000 milliseconds. Notice the
 use of the `LP.delay(5000);`. Use this port of the core `delay` function since it will reconfigure
 the `delay` function to use the new dynamically entered cpu speed, in this case 2MHz. Also this delay
 will sleep for very small amount of time waiting for the delay to timeout. You can choose from cpu 
-speeds listed obove in the function description.
+speeds listed above in the function description.
 ```c
 #include <LowPower_Teensy3.h>
 
@@ -263,10 +263,10 @@ void loop() {
 ```
 
 **example sketch: using the "Idle" function:**<br>
-The `Idle` function will sleep for a few clock cycles so this makes it great canidate for use in 
+The `Idle` function will sleep for a few clock cycles so this makes it great candidate for use in
 "waiting" loops. Even though the it will only sleep for a very short period of time it can save
 some power by a cumulative effect. This example uses the `Idle` function when no USB Serial data
-is availible.
+is available.
 ```c
 #include <LowPower_Teensy3.h>
 
@@ -289,9 +289,9 @@ void loop() {
 
 **example sketch: using "Sleep" function:**<br>
 The `Sleep` function will sleep the mcu until an interrupt is generated. The interrupt can come from
-any interrupt that the user wants which makes this very versitle. This sketch uses the `attachInterrupt'
+any interrupt that the user wants which makes this very versatile. This sketch uses the `attachInterrupt'
 routine to setup the interrupt that will wake the processor. This sleep mode will disable the systick
-inerrupt and put the processor cpu speed at 2MHz so any Timer type interrupts will have to be reconfigured 
+interrupt and put the processor cpu speed at 2MHz so any Timer type interrupts will have to be reconfigured
 for this slower processor speed.
 ```c
 #include <LowPower_Teensy3.h>
@@ -317,7 +317,7 @@ void loop() {
 ```
 
 **example sketch: using "DeepSleep" function:**<br>
-The `DeepSleep` function puts the processor into lowest current consumtion sleep mode. Only certian
+The `DeepSleep` function puts the processor into lowest current consumption sleep mode. Only certain
 wakeup events are used that are defined above in the function description. This sketch sets up the 
 Teensy to sleep for 5 seconds then wake using the built-in RTC. An optional callback handler can be 
 added by the user to restore things after waking up is desired -> `LP.DeepSleep(RTCA_WAKE, 5, callback);`.
@@ -344,11 +344,11 @@ void blink() {
 ```
 
 **example sketch: using "Hibernate" function:**<br>
-The `Hibernate` function puts the processor into lowest current consumtion sleep mode but differs
+The `Hibernate` function puts the processor into lowest current consumption sleep mode but differs
 from `DeepSleep` by it wakes up through a reset event. This means that code below the `Hibernate` 
-function will not be called. Only certian wakeup events are used that are defined above in the 
+function will not be called. Only certain wakeup events are used that are defined above in the
 function description. This sketch sets up the Teensy to sleep only to be awaken by the selected 
-digital pin. An optional callback handler can be added by the user to restore things after wakup 
+digital pin. An optional callback handler can be added by the user to restore things after wakeup
 is called -> `LP.Hibernate(GPIO_WAKE, PIN_22, callback);`.
 ```c
 #include <LowPower_Teensy3.h>
