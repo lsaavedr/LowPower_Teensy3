@@ -96,7 +96,9 @@ typedef struct sleep_block_struct {
     uint8_t tsi_pin;
     /* pointer to callback function */
     void (*callback)();
-    sleep_block_struct() : wake_source(0), rtc_alarm(0), modules(0), gpio_pin(0), gpio_mode(0), lptmr_timeout(0), tsi_threshold(0), tsi_pin(0), callback(NULL) {};
+    sleep_block_struct() : wake_source(0), rtc_alarm(0), modules(0),
+                           gpio_pin(0), gpio_mode(0), lptmr_timeout(0),
+                           tsi_threshold(0), tsi_pin(0), callback(NULL) {};
 } sleep_block_t;
 
 class TEENSY3_LP {
@@ -110,7 +112,6 @@ public:
 private:
     /* Handle a specific sleep command */
     inline bool sleepHandle(sleep_type_t type, sleep_block_t *configuration) __attribute__((always_inline, unused));
-
     /* TSI Initialize  */
     void tsiIntialize(void);
     /* private class access to wakeup ISR  */
@@ -135,13 +136,12 @@ public:
     // Constructor
     TEENSY3_LP(void);
     
-    ~TEENSY3_LP(void) {
-        NVIC_DISABLE_IRQ(IRQ_LLWU); // disable wakeup isr
-    }
+    ~TEENSY3_LP(void) { NVIC_DISABLE_IRQ(IRQ_LLWU); }// disable wakeup isr
     //---------------------------------------------------------------------------------------
     /* Sleep Functions */
     static volatile uint32_t wakeSource;// hold llwu wake up source
     //----------------------------------------CPU--------------------------------------------
+    const uint32_t *cpuSpeed = (uint32_t*)&_cpu;
     int CPU(uint32_t freq);
     //----------------------------------------idle--------------------------------------------
     void Idle();
@@ -158,16 +158,13 @@ public:
     //---------------------------------------PrintSRS----------------------------------------
     void PrintSRS(Stream *port);
     //-----------------------------------------Core------------------------------------------
-    
     static uint32_t micros() { return micros_lp(_cpu); }
-    
     static inline void delay(uint32_t msec) { delay_lp(msec, _cpu); }
-    
     static void delayMicroseconds(uint32_t usec) { delayMicroseconds_lp(usec, _cpu); }
 };
 
 /**** !!!!!Must make interval timer private members protected for this to work!!!! *****/
-/*class IntervalTimer_LP : public IntervalTimer {
+class IntervalTimer_LP : public IntervalTimer {
 private:
 public:
     bool begin(ISR newISR, unsigned int newPeriod) {
@@ -175,15 +172,13 @@ public:
         uint32_t newValue = (TEENSY3_LP::_cpu / 1000000) * newPeriod - 1;
         return beginCycles(newISR, newValue);
     }
-};*/
+};
 
 
 class HardwareSerial_LP : public HardwareSerial {
 private:
 public:
-    void begin(uint32_t baud) {
-        serial_begin(LP_BAUD2DIV(baud, TEENSY3_LP::_cpu));
-    }
+    void begin(uint32_t baud) { serial_begin(LP_BAUD2DIV(baud, TEENSY3_LP::_cpu)); }
     void begin(uint32_t baud, uint32_t format) {
         serial_begin(LP_BAUD2DIV(baud, TEENSY3_LP::_cpu));
         serial_format(format);
