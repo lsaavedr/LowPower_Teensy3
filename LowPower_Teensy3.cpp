@@ -33,7 +33,7 @@
 #define BLPE_MEM    1000000
 
 volatile uint8_t  TEENSY3_LP::lowLeakageSource;// hold lowleakage mode for wakeup isr
-volatile uint32_t TEENSY3_LP::wakeSource;// hold llwu wake up source for wakeup isr
+volatile DMAMEM uint32_t TEENSY3_LP::wakeSource;// hold llwu wake up source for wakeup isr
 volatile uint32_t TEENSY3_LP::stopflag;// hold module wake up sources for wakeup isr
 volatile uint32_t TEENSY3_LP::_cpu;
 volatile uint32_t TEENSY3_LP::_bus;
@@ -57,7 +57,7 @@ TEENSY3_LP::TEENSY3_LP() {
     // clear usb regulator standby bit in VLPR
     SIM_SOPT1 &= ~SIM_SOPT1_USBVSTBY_MASK;
     // clear llwu flags
-    wakeSource = llwu_clear_flags();
+    //wakeSource = llwu_clear_flags();
     // initialize
     _cpu = F_CPU;
     _bus = F_BUS;
@@ -148,7 +148,9 @@ void wakeup_isr(void) {
     
     uint32_t llwuFlag;
     
+    __disable_irq();
     llwuFlag = llwu_clear_flags();// clear llwu flags after wakeup a/ store wakeup source
+    __enable_irq();
     
     pbe_pee();// mcu is in PBE from LLS wakeup, transition back to PEE (if exiting from normal RUN mode)
 
@@ -194,6 +196,8 @@ int TEENSY3_LP::CPU(uint32_t cpu) {
         _cpu = F_CPU;
         _bus = F_BUS;
         _mem = F_MEM;
+        systick_millis_count = 0;
+        SYST_CVR = 0;
         return F_CPU;
     }
     else if (cpu == TWO_MHZ) {
@@ -208,8 +212,8 @@ int TEENSY3_LP::CPU(uint32_t cpu) {
             mcg_div(0x00, 0x00, 0x01, 1999);
             // now safe to enter vlpr
             enter_vlpr(0);
-            //systick_millis_count = 0;
-            //SYST_CVR = 0;
+            systick_millis_count = 0;
+            SYST_CVR = 0;
         }
         return TWO_MHZ;
     }
@@ -225,8 +229,8 @@ int TEENSY3_LP::CPU(uint32_t cpu) {
             mcg_div(0x03, 0x03, 0x0F, 3999);
             // now safe to enter vlpr
             enter_vlpr(0);
-            //systick_millis_count = 0;
-            //SYST_CVR = 0;
+            systick_millis_count = 0;
+            SYST_CVR = 0;
         }
         return FOUR_MHZ;
     }
@@ -240,8 +244,8 @@ int TEENSY3_LP::CPU(uint32_t cpu) {
             pee_blpe();
             // config divisors: 8 MHz core, 8 MHz bus, 8 MHz flash
             mcg_div(0x01, 0x01, 0x01, 7999);
-            //systick_millis_count = 0;
-            //SYST_CVR = 0;
+            systick_millis_count = 0;
+            SYST_CVR = 0;
         }
         return EIGHT_MHZ;
     }
@@ -255,8 +259,8 @@ int TEENSY3_LP::CPU(uint32_t cpu) {
             pee_blpe();
             // config divisors: 16 MHz core, 16 MHz bus, 16 MHz flash
             mcg_div(0x00, 0x00, 0x00, 15999);
-            //systick_millis_count = 0;
-            //SYST_CVR = 0;
+            systick_millis_count = 0;
+            SYST_CVR = 0;
         }
         return SIXTEEN_MHZ;
     }
@@ -413,32 +417,60 @@ bool TEENSY3_LP::sleepHandle(sleep_type_t type, sleep_block_t *configuration)
 //----------------------------------------------------------------------------------------------------------
 void TEENSY3_LP::PrintSRS(Stream *port) {
     port->println("------------------------------------------");
-    if (RCM_SRS1 & RCM_SRS1_SACKERR_MASK) port->println("[RCM_SRS0] - Stop Mode Acknowledge Error Reset");
-    if (RCM_SRS1 & RCM_SRS1_MDM_AP_MASK) port->println("[RCM_SRS0] - MDM-AP Reset");
-    if (RCM_SRS1 & RCM_SRS1_SW_MASK) port->println("[RCM_SRS0] - Software Reset");
-    if (RCM_SRS1 & RCM_SRS1_LOCKUP_MASK) port->println("[RCM_SRS0] - Core Lockup Event Reset");
-    if (RCM_SRS0 & RCM_SRS0_POR_MASK) port->println("[RCM_SRS0] - Power-on Reset");
-    if (RCM_SRS0 & RCM_SRS0_PIN_MASK) port->println("[RCM_SRS0] - External Pin Reset");
-    if (RCM_SRS0 & RCM_SRS0_WDOG_MASK) port->println("[RCM_SRS0] - Watchdog(COP) Reset");
-    if (RCM_SRS0 & RCM_SRS0_LOC_MASK) port->println("[RCM_SRS0] - Loss of External Clock Reset");
-    if (RCM_SRS0 & RCM_SRS0_LOL_MASK) port->println("[RCM_SRS0] - Loss of Lock in PLL Reset");
-    if (RCM_SRS0 & RCM_SRS0_LVD_MASK) port->println("[RCM_SRS0] - Low-voltage Detect Reset");
+    if (RCM_SRS1 & RCM_SRS1_SACKERR_MASK)   port->println("[RCM_SRS0]\t- Stop Mode Acknowledge Error Reset");
+    if (RCM_SRS1 & RCM_SRS1_MDM_AP_MASK)    port->println("[RCM_SRS0]\t- MDM-AP Reset");
+    if (RCM_SRS1 & RCM_SRS1_SW_MASK)        port->println("[RCM_SRS0]\t- Software Reset");
+    if (RCM_SRS1 & RCM_SRS1_LOCKUP_MASK)    port->println("[RCM_SRS0]\t- Core Lockup Event Reset");
+    if (RCM_SRS0 & RCM_SRS0_POR_MASK)       port->println("[RCM_SRS0]\t- Power-on Reset");
+    if (RCM_SRS0 & RCM_SRS0_PIN_MASK)       port->println("[RCM_SRS0]\t- External Pin Reset");
+    if (RCM_SRS0 & RCM_SRS0_WDOG_MASK)      port->println("[RCM_SRS0]\t- Watchdog(COP) Reset");
+    if (RCM_SRS0 & RCM_SRS0_LOC_MASK)       port->println("[RCM_SRS0]\t- Loss of External Clock Reset");
+    if (RCM_SRS0 & RCM_SRS0_LOL_MASK)       port->println("[RCM_SRS0]\t- Loss of Lock in PLL Reset");
+    if (RCM_SRS0 & RCM_SRS0_LVD_MASK)       port->println("[RCM_SRS0]\t- Low-voltage Detect Reset");
     if (RCM_SRS0 & RCM_SRS0_WAKEUP_MASK) {
-        port->println("[RCM_SRS0] Wakeup bit set from low power mode ");
-        if ((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 3) port->println("[SMC_PMCTRL] - LLS exit ") ;
-        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 0)) port->println("[SMC_PMCTRL] - VLLS0 exit ") ;
-        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 1)) port->println("[SMC_PMCTRL] - VLLS1 exit ") ;
-        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 2)) port->println("[SMC_PMCTRL] - VLLS2 exit") ;
-        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 3)) port->println("[SMC_PMCTRL] - VLLS3 exit ") ;
+        port->println("[RCM_SRS0]\t- Wakeup bit set from low power mode ");
+        if ((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 3) port->println("[SMC_PMCTRL]\t- LLS exit ") ;
+        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 0)) port->println("[SMC_PMCTRL]\t- VLLS0 exit ") ;
+        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 1)) port->println("[SMC_PMCTRL]\t- VLLS1 exit ") ;
+        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 2)) port->println("[SMC_PMCTRL]\t- VLLS2 exit") ;
+        if (((SMC_PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC_VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 3)) port->println("[SMC_PMCTRL]\t- VLLS3 exit ") ;
     }
-    if (SMC_PMSTAT == 0x01) port->println("[SMC_PMSTAT] - Current Power Mode RUN") ;
-    if (SMC_PMSTAT == 0x02) port->println("[SMC_PMSTAT] - Current Power Mode STOP") ;
-    if (SMC_PMSTAT == 0x04) port->println("[SMC_PMSTAT] - Current Power Mode VLPR") ;
-    if (SMC_PMSTAT == 0x08) port->println("[SMC_PMSTAT] - Current Power Mode VLPW") ;
-    if (SMC_PMSTAT == 0x10) port->println("[SMC_PMSTAT] - Current Power Mode VLPS") ;
-    if (SMC_PMSTAT == 0x20) port->println("[SMC_PMSTAT] - Current Power Mode LLS") ;
-    if (SMC_PMSTAT == 0x40) port->println("[SMC_PMSTAT] - Current Power Mode VLLS") ;
+    if (SMC_PMSTAT == 0x01) port->println("[SMC_PMSTAT]\t- Current Power Mode RUN") ;
+    if (SMC_PMSTAT == 0x02) port->println("[SMC_PMSTAT]\t- Current Power Mode STOP") ;
+    if (SMC_PMSTAT == 0x04) port->println("[SMC_PMSTAT]\t- Current Power Mode VLPR") ;
+    if (SMC_PMSTAT == 0x08) port->println("[SMC_PMSTAT]\t- Current Power Mode VLPW") ;
+    if (SMC_PMSTAT == 0x10) port->println("[SMC_PMSTAT]\t- Current Power Mode VLPS") ;
+    if (SMC_PMSTAT == 0x20) port->println("[SMC_PMSTAT]\t- Current Power Mode LLS") ;
+    if (SMC_PMSTAT == 0x40) port->println("[SMC_PMSTAT]\t- Current Power Mode VLLS") ;
+    
+    if (wakeSource == PIN_2)        port->println("[LLWU_SOURCE]\t- GPIO pin 2");
+    if (wakeSource == PIN_4)        port->println("[LLWU_SOURCE]\t- GPIO pin 4");
+    if (wakeSource == PIN_6)        port->println("[LLWU_SOURCE]\t- GPIO pin 6");
+    if (wakeSource == PIN_7)        port->println("[LLWU_SOURCE]\t- GPIO pin 7");
+    if (wakeSource == PIN_9)        port->println("[LLWU_SOURCE]\t- GPIO pin 9");
+    if (wakeSource == PIN_10)       port->println("[LLWU_SOURCE]\t- GPIO pin 10");
+    if (wakeSource == PIN_11)       port->println("[LLWU_SOURCE]\t- GPIO pin 11");
+    if (wakeSource == PIN_13)       port->println("[LLWU_SOURCE]\t- GPIO pin 13");
+    if (wakeSource == PIN_16)       port->println("[LLWU_SOURCE]\t- GPIO pin 16");
+    if (wakeSource == PIN_21)       port->println("[LLWU_SOURCE]\t- GPIO pin 21");
+    if (wakeSource == PIN_22)       port->println("[LLWU_SOURCE]\t- GPIO pin 22");
+    if (wakeSource == PIN_26)       port->println("[LLWU_SOURCE]\t- GPIO pin 26");
+    if (wakeSource == PIN_30)       port->println("[LLWU_SOURCE]\t- GPIO pin 30");
+    if (wakeSource == PIN_33)       port->println("[LLWU_SOURCE]\t- GPIO pin 33");
+    if (wakeSource == LPTMR_WAKE)   port->println("[LLWU_SOURCE]\t- LPTMR");
+    if (wakeSource == TSI_WAKE)     port->println("[LLWU_SOURCE]\t- TSI");
+    if (wakeSource == RTCA_WAKE)    port->println("[LLWU_SOURCE]\t- RTCA");
     port->println("------------------------------------------");
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+    void startup_early_hook() {
+        WDOG_STCTRLH = WDOG_STCTRLH_ALLOWUPDATE;
+        if (PMC_REGSC & PMC_REGSC_ACKISO) TEENSY3_LP::wakeSource = (LLWU_F1 | LLWU_F2<<8 | LLWU_F3<<16);
+    }
+#ifdef __cplusplus
+}
+#endif
 
