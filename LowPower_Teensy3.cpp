@@ -20,8 +20,8 @@
 #include "utility/bitband.h"
 
 /* Define Low Leakage Source */
-#define LLS             0x01
-#define VLLS            0x02
+#define LLS         0x01
+#define VLLS        0x02
 
 /* CPU Freq in VLPR mode */
 #define BLPI_CPU    2000000
@@ -155,7 +155,7 @@ void wakeup_isr(void) {
     pbe_pee();// mcu is in PBE from LLS wakeup, transition back to PEE (if exiting from normal RUN mode)
 
     // clear wakeup module and stop them
-    if ((TEENSY3_LP::stopflag & LPTMR_WAKE) && (TEENSY3_LP::lowLeakageSource == LLS))lptmr_stop();
+    if ((TEENSY3_LP::stopflag & LPTMR_WAKE) && (TEENSY3_LP::lowLeakageSource == LLS)) lptmr_stop();
     if ((TEENSY3_LP::stopflag & RTCA_WAKE)  && (TEENSY3_LP::lowLeakageSource == LLS)) rtc_stop();
     if ((TEENSY3_LP::stopflag & TSI_WAKE)   && (TEENSY3_LP::lowLeakageSource == LLS)) tsi_stop();
     if ((TEENSY3_LP::stopflag & CMP0_WAKE)  && (TEENSY3_LP::lowLeakageSource == LLS)) cmp_stop();
@@ -443,20 +443,20 @@ void TEENSY3_LP::PrintSRS(Stream *port) {
     if (SMC_PMSTAT == 0x20) port->println("[SMC_PMSTAT]\t- Current Power Mode LLS") ;
     if (SMC_PMSTAT == 0x40) port->println("[SMC_PMSTAT]\t- Current Power Mode VLLS") ;
     
-    if (wakeSource == PIN_2)        port->println("[LLWU_SOURCE]\t- GPIO pin 2");
-    if (wakeSource == PIN_4)        port->println("[LLWU_SOURCE]\t- GPIO pin 4");
-    if (wakeSource == PIN_6)        port->println("[LLWU_SOURCE]\t- GPIO pin 6");
-    if (wakeSource == PIN_7)        port->println("[LLWU_SOURCE]\t- GPIO pin 7");
-    if (wakeSource == PIN_9)        port->println("[LLWU_SOURCE]\t- GPIO pin 9");
-    if (wakeSource == PIN_10)       port->println("[LLWU_SOURCE]\t- GPIO pin 10");
-    if (wakeSource == PIN_11)       port->println("[LLWU_SOURCE]\t- GPIO pin 11");
-    if (wakeSource == PIN_13)       port->println("[LLWU_SOURCE]\t- GPIO pin 13");
-    if (wakeSource == PIN_16)       port->println("[LLWU_SOURCE]\t- GPIO pin 16");
-    if (wakeSource == PIN_21)       port->println("[LLWU_SOURCE]\t- GPIO pin 21");
-    if (wakeSource == PIN_22)       port->println("[LLWU_SOURCE]\t- GPIO pin 22");
-    if (wakeSource == PIN_26)       port->println("[LLWU_SOURCE]\t- GPIO pin 26");
-    if (wakeSource == PIN_30)       port->println("[LLWU_SOURCE]\t- GPIO pin 30");
-    if (wakeSource == PIN_33)       port->println("[LLWU_SOURCE]\t- GPIO pin 33");
+    if (wakeSource == PIN_2)        port->println("[LLWU_SOURCE]\t- Digital pin 2");
+    if (wakeSource == PIN_4)        port->println("[LLWU_SOURCE]\t- Digital pin 4");
+    if (wakeSource == PIN_6)        port->println("[LLWU_SOURCE]\t- Digital pin 6");
+    if (wakeSource == PIN_7)        port->println("[LLWU_SOURCE]\t- Digital pin 7");
+    if (wakeSource == PIN_9)        port->println("[LLWU_SOURCE]\t- Digital pin 9");
+    if (wakeSource == PIN_10)       port->println("[LLWU_SOURCE]\t- Digital pin 10");
+    if (wakeSource == PIN_11)       port->println("[LLWU_SOURCE]\t- Digital pin 11");
+    if (wakeSource == PIN_13)       port->println("[LLWU_SOURCE]\t- Digital pin 13");
+    if (wakeSource == PIN_16)       port->println("[LLWU_SOURCE]\t- Digital pin 16");
+    if (wakeSource == PIN_21)       port->println("[LLWU_SOURCE]\t- Digital pin 21");
+    if (wakeSource == PIN_22)       port->println("[LLWU_SOURCE]\t- Digital pin 22");
+    if (wakeSource == PIN_26)       port->println("[LLWU_SOURCE]\t- Digital pin 26");
+    if (wakeSource == PIN_30)       port->println("[LLWU_SOURCE]\t- Digital pin 30");
+    if (wakeSource == PIN_33)       port->println("[LLWU_SOURCE]\t- Digital pin 33");
     if (wakeSource == LPTMR_WAKE)   port->println("[LLWU_SOURCE]\t- LPTMR");
     if (wakeSource == TSI_WAKE)     port->println("[LLWU_SOURCE]\t- TSI");
     if (wakeSource == RTCA_WAKE)    port->println("[LLWU_SOURCE]\t- RTCA");
