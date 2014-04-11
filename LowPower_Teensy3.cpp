@@ -58,12 +58,19 @@ TEENSY3_LP::TEENSY3_LP() {
     SIM_SOPT1 &= ~SIM_SOPT1_USBVSTBY_MASK;
     // clear llwu flags
     //wakeSource = llwu_clear_flags();
-    // initialize
+    // initialize current cpu, bus and mem speeds variable
     _cpu = F_CPU;
     _bus = F_BUS;
     _mem = F_MEM;
     // initialize Low Power Timer
     lptmr_init();
+    // set pins to MINI54 to TSI input
+    PORTA_PCR0 = PORT_PCR_MUX(0);
+    PORTA_PCR1 = PORT_PCR_MUX(0);
+    PORTA_PCR2 = PORT_PCR_MUX(0);
+    PORTA_PCR3 = PORT_PCR_MUX(0);
+    PORTB_PCR2 = PORT_PCR_MUX(0);
+    PORTB_PCR3 = PORT_PCR_MUX(0);
 }
 /****************************** Func *******************************
  * Routines to enable different sleep modes on the teensy3.
