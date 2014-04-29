@@ -64,13 +64,6 @@ TEENSY3_LP::TEENSY3_LP() {
     _mem = F_MEM;
     // initialize Low Power Timer
     lptmr_init();
-    // set pins to MINI54 to TSI input
-    PORTA_PCR0 = PORT_PCR_MUX(0);
-    PORTA_PCR1 = PORT_PCR_MUX(0);
-    PORTA_PCR2 = PORT_PCR_MUX(0);
-    PORTA_PCR3 = PORT_PCR_MUX(0);
-    PORTB_PCR2 = PORT_PCR_MUX(0);
-    PORTB_PCR3 = PORT_PCR_MUX(0);
 }
 /****************************** Func *******************************
  * Routines to enable different sleep modes on the teensy3.
@@ -473,6 +466,7 @@ void TEENSY3_LP::PrintSRS(Stream *port) {
 #ifdef __cplusplus
 extern "C" {
 #endif
+    void startup_early_hook() __attribute__ ((weak));
     void startup_early_hook() {
         WDOG_STCTRLH = WDOG_STCTRLH_ALLOWUPDATE;
         if (PMC_REGSC & PMC_REGSC_ACKISO) TEENSY3_LP::wakeSource = (LLWU_F1 | LLWU_F2<<8 | LLWU_F3<<16);
