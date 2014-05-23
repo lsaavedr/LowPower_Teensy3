@@ -9,6 +9,14 @@
 #include "Arduino.h"
 #include <arm_math.h>
 
+#define delayMicros_lp(n)  asm volatile("L_%=_delayMicroseconds_lp:"           "\n\t"\
+                                        "sev"                                  "\n\t"\
+                                        "wfe"                                  "\n\t"\
+                                        "subs   %0, #1"                        "\n\t"\
+                                        "bne    L_%=_delayMicroseconds_lp"	    "\n" \
+                                        : "+r" (n) :                                 \
+                                        );
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,37 +30,53 @@ extern "C" {
         return ret;
     }
     
-    static inline void delayMicroseconds_lp(uint32_t, uint32_t) __attribute__((always_inline, unused));
-    static inline void delayMicroseconds_lp(uint32_t usec, uint32_t f_cpu) {
-        
+    static inline void delayMicroseconds96(uint32_t) __attribute__((always_inline, unused));
+    static inline void delayMicroseconds96(uint32_t usec) {
+        uint32_t n = (usec << 4);
         if (usec == 0) return;
-        uint32_t n;
-        if (f_cpu == 96000000) {
-            n = usec << 5;
-        } else if (f_cpu == 48000000) {
-            n = usec << 4;
-        } else if (f_cpu == 24000000) {
-            n = usec << 3;
-        } else if (f_cpu == 16000000) {
-            float x = 5.33333333333333;
-            arm_mult_f32((float*)&usec, &x, (float*)&n, 1);
-        } else if (f_cpu == 8000000) {
-            float x = 2.66666666666667;
-            arm_mult_f32((float*)&usec, &x, (float*)&n, 1);
-        } else if (f_cpu == 4000000) {
-            float x = 1.33333333333333;
-            arm_mult_f32((float*)&usec, &x, (float*)&n, 1);
-        } else if (f_cpu == 2000000) {
-            float x = 0.66666666666667;
-            arm_mult_f32((float*)&usec, &x, (float*)&n, 1);
-        }
-        asm volatile(
-                     "L_%=_delayMicroseconds_lp:"       "\n\t"
-                     "subs   %0, #1"                    "\n\t"
-                     "bne    L_%=_delayMicroseconds_lp"	"\n"
-                     : "+r" (n) :
-                     );
-        
+        delayMicros_lp(n);
+    }
+    
+    static inline void delayMicroseconds48(uint32_t) __attribute__((always_inline, unused));
+    static inline void delayMicroseconds48(uint32_t usec) {
+        uint32_t n = (usec << 3);
+        if (usec == 0) return;
+        delayMicros_lp(n);
+    }
+    
+    static inline void delayMicroseconds24(uint32_t) __attribute__((always_inline, unused));
+    static inline void delayMicroseconds24(uint32_t usec) {
+        uint32_t n = (usec << 2);
+        if (usec == 0) return;
+        delayMicros_lp(n);
+    }
+    
+    static inline void delayMicroseconds16(uint32_t) __attribute__((always_inline, unused));
+    static inline void delayMicroseconds16(uint32_t usec) {
+        uint32_t n = (usec * 2.66666666666667f);
+        if (usec == 0) return;
+        delayMicros_lp(n);
+    }
+    
+    static inline void delayMicroseconds8(uint32_t) __attribute__((always_inline, unused));
+    static inline void delayMicroseconds8(uint32_t usec) {
+        uint32_t n = (usec * 1.33333333333333f);
+        if (usec == 0) return;
+        delayMicros_lp(n);
+    }
+    
+    static inline void delayMicroseconds4(uint32_t) __attribute__((always_inline, unused));
+    static inline void delayMicroseconds4(uint32_t usec) {
+        uint32_t n = (usec * 0.66666666666667f);
+        if (usec == 0) return;
+        delayMicros_lp(n);
+    }
+    
+    static inline void delayMicroseconds2(uint32_t) __attribute__((always_inline, unused));
+    static inline void delayMicroseconds2(uint32_t usec) {
+        uint32_t n = (usec * 0.33333333333333f);
+        if (usec <= 2) return;
+        delayMicros_lp(n);
     }
 #ifdef __cplusplus
 }

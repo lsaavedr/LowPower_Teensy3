@@ -36,6 +36,7 @@ void intervalTimerCallback() {
 }
 
 void setup() {
+    pinMode(LED_BUILTIN, OUTPUT);
     /*****************************************************
      * Start off at 2MHz so the IntervalTimer_LP class 
      * BUS clock configuration is initialized at the same
@@ -46,7 +47,6 @@ void setup() {
      * Start serial port using 2MHz CPU speed.
      *****************************************************/
     Uart_lp.begin(115200);
-    pinMode(LED_BUILTIN, OUTPUT);
     Uart_lp.print("Sleep Advanced \n");
     Uart_lp.flush();
     /*****************************************************

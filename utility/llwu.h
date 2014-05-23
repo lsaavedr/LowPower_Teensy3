@@ -52,7 +52,7 @@ extern "C" {
     
     void llwu_configure_filter(unsigned int wu_pin_num, unsigned char filter_en, unsigned char rise_fall );
     
-    uint32_t volatile llwu_clear_flags(void);
+    uint32_t llwu_clear_flags(void);
 #ifdef __cplusplus
 }
 #endif
