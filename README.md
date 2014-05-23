@@ -1,4 +1,4 @@
-#LowPower_Teensy3 Library - Edge
+#LowPower_Teensy3 Library
 
 >This is the latest code that should get branched if you want too contribute. Only the latest Teensyduino release will be used. Older versions of Teensyduino may or may not compile and work. Function definitions and example are below.
 
