@@ -7,6 +7,7 @@
 #define __MODULE_H__
 #include "mk20dx128.h"
 #include "mk20dx128_ext.h"
+#include <usb_dev.h>
 /********************************************************************/
 #ifdef __cplusplus
 extern "C" {

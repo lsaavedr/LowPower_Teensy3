@@ -284,6 +284,7 @@ void usbEnable() {
         USB0_USBCTRL &= ~USB_USBCTRL_SUSP;// suspended State
         USB0_CTL |= USB_CTL_USBENSOFEN;// enable USB
         while ((USB0_CTL & USB_CTL_USBENSOFEN) != 0x01) ;
+        //USB0_USBTRC0 |= 0x40; // undocumented bit
     }
 }
 

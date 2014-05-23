@@ -174,7 +174,6 @@ void enter_lls (void) {
     // Set the LPLLSM field to 0b011 for LLS mode
     SMC_PMCTRL = SMC_PMCTRL_STOPM(0x3) ;
     (void) SMC_PMCTRL;
-
     // Now execute the stop instruction to go into LLS
     stop();
 }
@@ -196,11 +195,13 @@ void enter_lls (void) {
  *          in VLPR mode before entering VLLSx.
  *******************************************************************************/
 void enter_vlls3(void) {
+    //LLS low power mode
+    // Set the LPLLSM field to 0b011 for LLS mode
+    SMC_PMCTRL = SMC_PMCTRL_STOPM(0x3) ;
     // Set the VLLSM field to 0b100 for VLLS3 mode - Need to retain
     // state of LPWUI bit 8
     SMC_PMCTRL = (SMC_PMCTRL & (SMC_PMCTRL_RUNM_MASK | SMC_PMCTRL_LPWUI_MASK)) |
     SMC_PMCTRL_STOPM(0x4) ; // retain LPWUI
-    
     SMC_VLLSCTRL =  SMC_VLLSCTRL_VLLSM(3);// set VLLSM = 0b11
     (void) SMC_VLLSCTRL;
     // Now execute the stop instruction to go into VLLS3
@@ -355,8 +356,8 @@ void disable_lpwui(void) {
 void stop(void) {
     SYST_CSR &= ~SYST_CSR_TICKINT;      // disable systick timer interrupt
 	SCB_SCR |= SCB_SCR_SLEEPDEEP_MASK;  // Set the SLEEPDEEP bit to enable deep sleep mode (STOP)
-    asm volatile("dsb");                //No instruction in program order after this instruction executes until this instruction completes.
-	asm volatile("WFI");                // WFI instruction will start entry into STOP mode
+    asm volatile("dsb");                //No instruction in program order after this instruction executes until all instructions complete.
+	asm volatile("wfi");                // WFI instruction will start entry into STOP mode
     asm volatile("isb");                //instructions following the ISB are fetched from cache or memory, instructions following the ISB are fetched from cache or memory
 	SCB_SCR &= ~SCB_SCR_SLEEPDEEP_MASK; // Clear the SLEEPDEEP bit
     SYST_CSR |= SYST_CSR_TICKINT;       // renable systick timer interrupt
@@ -366,12 +367,11 @@ void stop(void) {
  * Configures the ARM system control register for WAIT (sleep) mode
  * and then executes the WFI instruction to enter the mode.
  *******************************************************************************/
-
 void wait(void) {
     SYST_CSR &= ~SYST_CSR_TICKINT;      // disable systick timer interrupt
 	SCB_SCR &= ~SCB_SCR_SLEEPDEEP_MASK; // Clear the SLEEPDEEP bit to make sure we go into WAIT (sleep) mode instead of deep sleep.
     asm volatile("dsb");                // No instruction in program order after this instruction executes until this instruction completes
-	asm volatile("WFI");                // WFI instruction will start entry into WAIT mode
+	asm volatile("wfi");                // WFI instruction will start entry into WAIT mode
     asm volatile("isb");                //instructions following the ISB are fetched from cache or memory, instructions following the ISB are fetched from cache or memory
     SYST_CSR |= SYST_CSR_TICKINT;       // renable systick timer interrupt
 }

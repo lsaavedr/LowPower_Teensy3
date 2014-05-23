@@ -69,10 +69,10 @@
 #define TSI_WAKE        LLWU_TSI_MOD
 
 /* Hardware Serial Baud VLPR Mode */
-#define TWO_MHZ     2000000
-#define FOUR_MHZ    4000000
-#define EIGHT_MHZ   8000000
-#define SIXTEEN_MHZ 16000000
+#define TWO_MHZ         2000000
+#define FOUR_MHZ        4000000
+#define EIGHT_MHZ       8000000
+#define SIXTEEN_MHZ     16000000
 
 #define LP_BAUD2DIV(baud, cpu) (((cpu * 2) + ((baud) >> 1)) / (baud))
 #define LP_BAUD2DIV3(baud, bus) (((bus * 2) + ((baud) >> 1)) / (baud))
@@ -108,8 +108,9 @@ public:
             sleep_DeepSleep,
             sleep_Hibernate
     } sleep_type_t;
-
+    
 private:
+    
     /* Handle a specific sleep command */
     inline bool sleepHandle(sleep_type_t type, sleep_block_t *configuration) __attribute__((always_inline, unused));
     /* TSI Initialize  */
@@ -122,16 +123,17 @@ private:
     static void defaultCallback() { yield(); };
     
     static volatile uint32_t stopflag;// hold module wake up sources for wakeup isr
-    static volatile uint8_t lowLeakageSource;// hold lowleakage mode for wakeup isr
+    static DMAMEM volatile uint8_t lowLeakageSource;// hold lowleakage mode for wakeup isr
     
     friend class HardwareSerial_LP;
     friend class HardwareSerial2_LP;
     friend class HardwareSerial3_LP;
     friend class IntervalTimer_LP;
+    
     static volatile uint32_t _cpu;
     static volatile uint32_t _bus;
     static volatile uint32_t _mem;
-
+    
 public:
     // Constructor
     TEENSY3_LP(void);
@@ -141,7 +143,6 @@ public:
     /* Sleep Functions */
     static volatile uint32_t wakeSource;// hold llwu wake up source
     //----------------------------------------CPU--------------------------------------------
-    const uint32_t *cpuSpeed = (uint32_t*)&_cpu;
     int CPU(uint32_t freq);
     //----------------------------------------idle--------------------------------------------
     void Idle();
@@ -158,9 +159,37 @@ public:
     //---------------------------------------PrintSRS----------------------------------------
     void PrintSRS(Stream *port);
     //-----------------------------------------Core------------------------------------------
-    static uint32_t micros() { return micros_lp(_cpu); }
-    static inline void delay(uint32_t msec) { delay_lp(msec, _cpu); }
-    static void delayMicroseconds(uint32_t usec) { delayMicroseconds_lp(usec, _cpu); }
+    //const volatile uint32_t *currentCPU = (&_cpu);
+    
+    static inline uint32_t micros(uint32_t cpu) __attribute__((always_inline, unused)) { return micros_lp(cpu); }
+    static inline void delay(uint32_t msec, uint32_t cpu) { delay_lp(msec, cpu); }
+    
+    static inline void delayMicroseconds(uint32_t usec) __attribute__((always_inline, unused))
+    { delayMicroseconds(usec, _cpu); }
+    static inline void delayMicroseconds(uint32_t usec, const uint32_t cpu) __attribute__((always_inline, unused)) {
+        if  (cpu == 96000000) {
+            delayMicroseconds96(usec);
+        }
+        else if (cpu == 48000000) {
+            delayMicroseconds48(usec);
+        }
+        else if (cpu == 24000000) {
+            delayMicroseconds24(usec);
+        }
+        else if (cpu == 16000000) {
+            delayMicroseconds16(usec);
+        }
+        else if (cpu == 8000000) {
+            delayMicroseconds8(usec);
+        }
+        else if (cpu == 4000000) {
+            delayMicroseconds4(usec);
+        }
+        else if (cpu == 2000000) {
+            delayMicroseconds2(usec);
+        }
+    }
+
 };
 
 /**** !!!!!Must make interval timer private members protected for this to work!!!! *****/
