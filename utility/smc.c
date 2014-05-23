@@ -358,7 +358,7 @@ void stop(void) {
 	// Set the SLEEPDEEP bit to enable deep sleep mode (STOP)
 	SCB_SCR |= SCB_SCR_SLEEPDEEP_MASK;
 	// WFI instruction will start entry into STOP mode
-	asm volatile("WFI");
+	//asm volatile("WFI");
     // renable systick timer
     SYST_CSR |= SYST_CSR_TICKINT;
 }
@@ -375,7 +375,7 @@ void wait(void) {
     // mode instead of deep sleep.
 	SCB_SCR &= ~SCB_SCR_SLEEPDEEP_MASK;
 	// WFI instruction will start entry into WAIT mode
-	asm volatile("WFI");
+	//asm volatile("WFI");
     // renable systick timer
     SYST_CSR |= SYST_CSR_TICKINT;
 }
