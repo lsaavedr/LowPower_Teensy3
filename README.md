@@ -5,8 +5,13 @@
 <h4>Currently used Teensyduino Version: 1.18</h4> 
 
 <h3>ChangeLog beta v1.4:</h3>
+<<<<<<< HEAD
 1.  Low Power delayMicroseconds now has a CPU argument, now more precise through different CPU speeds<br>
 2.  Low Power delay now has a CPU argument, now more precise through different CPU speeds<br>
+=======
+1.  Low Power delayMicroseconds now has a CPU argument, now more precise with different CPU speeds<br>
+2.  Low Power delay now has a CPU argument, now more precise with different CPU speeds<br>
+>>>>>>> Bleeding-Edge
 
 <h3>ChangeLog beta v1.3:</h3>
 1.  Added Idle function for lowering current during user waiting loops<br>
@@ -51,7 +56,7 @@ void CPU(uint32_t freq);
 # power consumption. There are 5 speeds that the user can choose from: 2 MHz, 
 # 4 MHz, 8 MHz, 16 MHz, F_CPU MHz. 
 
-# Parameter "uint32_t  freq" can be any of the 5 predefined values above.
+# Agrument "uint32_t  freq" can be any of the 5 predefined values above.
 
 # These #defines have been added for the user convenience for "freq" param, else
 # use the complete frequency.
@@ -90,12 +95,12 @@ void DeepSleep(sleep_block_t* configuration);
 # structure so many wake sources can be configured along with many individual 
 # configurations.
 
-# Parameter "uint32_t wakeType" - Pin or Peripheral that will wake the mcu
-# Parameter "uint32_t time_pin" - Time or Pin number for "wakeType"
-# Parameter "uint16_t threshold" - TSI wakeup threshold
-# Parameter "ISR myCallback" - optional user callback function
+# Agrument "uint32_t wakeType" - Pin or Peripheral that will wake the mcu
+# Agrument "uint32_t time_pin" - Time or Pin number for "wakeType"
+# Agrument "uint16_t threshold" - TSI wakeup threshold
+# Agrument "ISR myCallback" - optional user callback function
 
-# Parameter "sleep_block_t* configuration" - see below
+# Agrument "sleep_block_t* configuration" - see below
 typedef struct sleep_block_struct {
     /* Structure wake source */
     volatile uint32_t wake_source;      # stores what module or pin wakeup source
@@ -152,12 +157,12 @@ void Hibernate(sleep_block_t* configuration);
 # structure so many wake sources can be configured along with many individual 
 # configurations. 
 
-# Parameter "wakeType" - Pin or peripheral that will wake the mcu
-# Parameter "time_pin" - Time or Pin number for "wakeType"
-# Parameter "threshold" - TSI wakeup threshold
-# Parameter "myCallback" - optional user callback function
+# Agrument "wakeType" - Pin or peripheral that will wake the mcu
+# Agrument "time_pin" - Time or Pin number for "wakeType"
+# Agrument "threshold" - TSI wakeup threshold
+# Agrument "myCallback" - optional user callback function
 
-# Parameter "sleep_block_t* configuration" - see below
+# Agrument "sleep_block_t* configuration" - see below
 typedef struct sleep_block_struct {
     /* Structure wake source */
     volatile uint32_t wake_source;      # stores what module or pin wakeup source
@@ -205,7 +210,7 @@ void PrintSRS(Stream *port);
 
 # Use this to print what caused the reset of the Teensy. Useful in debugging.
 
-# Parameter "port" can be any Hardware Serial or USB serial.
+# Agrument "port" can be any Hardware Serial or USB serial.
 ```
 ```c
 static uint32_t micros();
@@ -221,8 +226,13 @@ static inline void delay(uint32_t msec, uint32_t cpu);
 # the delay for whatever cpu speed you are at. The 'cpu' argument is the current
 # cpu speed.
 
+<<<<<<< HEAD
 # Parameter "uint32_t msec" is delay in milliseconds
 # Parameter "uint32_t cpu" is current cpu speed.
+=======
+# Agrument "uint32_t msec" is delay in milliseconds
+# Agrument "uint32_t cpu" is current cpu speed.
+>>>>>>> Bleeding-Edge
 ```
 ```c
 void delayMicroseconds(uint32_t usec);
@@ -236,8 +246,13 @@ void delayMicroseconds(uint32_t usec, const uint32_t cpu);
 # current cpu speed. This makes for better precision in timming using dynamic CPU 
 # scaling.
 
+<<<<<<< HEAD
 # Parameter "uint32_t usec" is delay in microseconds
 # Parameter "const uint32_t cpu" is current cpu speed.
+=======
+# Agrument "uint32_t usec" is delay in microseconds
+# Agrument "const uint32_t cpu" is current cpu speed.
+>>>>>>> Bleeding-Edge
 ```
 <h3>Examples:</h3>
 Here is a basic walk through to use this library in a Arduino sketch. 
