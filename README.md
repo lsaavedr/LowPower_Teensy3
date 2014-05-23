@@ -32,7 +32,7 @@
 4.  Disabled USB Regulator Standby mode during Low Power<br>
 5.  Cleaned up library code.<br>
 
-<h3>ChangeLog Beta2:</h3>
+<h3>ChangeLog First Commit:</h3>
 1.  Added struct to store sleep configurations<br>
 2.  Added RTC Alarm wake<br>
 3.  Added TSI wake<br>
