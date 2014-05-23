@@ -384,29 +384,3 @@ void blink() {
 ```
 <h3>Pitfalls and Problems:</h3>
 TODO...
-ken by the selected
-digital pin. An optional callback handler can be added by the user to restore things after wakeup
-is called -> `LP.Hibernate(GPIO_WAKE, PIN_22, callback);`.
-```c
-#include <LowPower_Teensy3.h>
-
-TEENSY3_LP LP = TEENSY3_LP();
-
-void setup() {
-  pinMode(22, INPUT_PULLUP);
-  blink();
-}
-
-void loop() {
-  LP.Hibernate(GPIO_WAKE, PIN_22);
-}
-
-void blink() {
-  digitalWrite(LED_BUILTIN, HIGH);
-  LP.delay(100, F_CPU);
-  digitalWrite(LED_BUILTIN, LOW);
-  LP.delay(100, F_CPU)
-}
-```
-<h3>Pitfalls and Problems:</h3>
-TODO...
