@@ -228,7 +228,7 @@ static inline void delay(uint32_t msec, uint32_t cpu);
 void delayMicroseconds(uint32_t usec);
 void delayMicroseconds(uint32_t usec, const uint32_t cpu);
 
-# Port of the Teensy Core delayMicroseconds('timeout') function and 
+# Port of the Teensy Core delayMicroseconds('timeout') function and
 # delayMicroseconds('timeout', 'CPU') for lowering the current consumption by 
 # sleeping for small bit of time while waiting for the delay to timeout. Also 
 # use this if you use the CPU('freq') function since it recalibrates the delay 
@@ -252,10 +252,10 @@ function: `LP.DeepSleep(RTCA_WAKE, 5);`
 **example sketch: using the "CPU" function**<br>
 This just shows the basic usage of the library's `CPU` function, it just sets the Teensy to run
 at 2MHz for 5000 milliseconds and then run the cpu at F_CPU for 5000 milliseconds. Notice the
-use of the `LP.delay(5000);`. Use this port of the core `delay` function since it will reconfigure
-the `delay` function to use the new dynamically entered cpu speed, in this case 2MHz. Also this delay
-will sleep for very small amount of time waiting for the delay to timeout. You can choose from cpu 
-speeds listed above in the function description.
+use of the `LP.delay(5000, MHZ);' and `LP.delay(5000, F_CPU);'. Use this port of the core `delay` 
+function since it will reconfigure the `delay` function to use the new dynamically entered cpu 
+speed, in this case 2MHz. Also this delay will sleep for very small amount of time waiting for 
+the delay to timeout. You can choose from cpu speeds listed above in the function description.
 ```c
 #include <LowPower_Teensy3.h>
 
