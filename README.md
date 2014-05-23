@@ -4,6 +4,10 @@
 
 <h4>Currently used Teensyduino Version: 1.18</h4> 
 
+<h3>ChangeLog beta v1.4:</h3>
+1.  Low Power delayMicroseconds now has a CPU argument, now more precise through different CPU speeds<br>
+2.  Low Power delay now has a CPU argument, now more precise through different CPU speeds<br>
+
 <h3>ChangeLog beta v1.3:</h3>
 1.  Added Idle function for lowering current during user waiting loops<br>
 2.  Now Low Power "delay" and "delayMicroseconds" sleeps with minimal impact on precision.<br>
@@ -209,24 +213,31 @@ static uint32_t micros();
 # Port of the Teensy Core 'micros()' function for use at CPU speeds less than 24MHz.
 ```
 ```c
-static inline void delay(uint32_t msec);
+static inline void delay(uint32_t msec, uint32_t cpu);
 
 # Port of the Teensy Core delay('timeout') function for lowering the current
 # consumption by sleeping for small bit of time while waiting for the delay to 
 # timeout. Also use this if you use the CPU('freq') function since it recalibrates
-# the delay for whatever cpu speed you are at.
+# the delay for whatever cpu speed you are at. The 'cpu' argument is the current
+# cpu speed.
 
 # Parameter "uint32_t msec" is delay in milliseconds
+# Parameter "uint32_t cpu" is current cpu speed.
 ```
 ```c
-static void delayMicroseconds(uint32_t usec);
+void delayMicroseconds(uint32_t usec);
+void delayMicroseconds(uint32_t usec, const uint32_t cpu);
 
-# Port of the Teensy Core delayMicroseconds('timeout') function for lowering the 
-# current consumption by sleeping for small bit of time while waiting for the delay 
-# to timeout. Also use this if you use the CPU('freq') function since it recalibrates
-# the delay for whatever cpu speed you are at.
+# Port of the Teensy Core delayMicroseconds('timeout') function and 
+# delayMicroseconds('timeout', 'CPU') for lowering the current consumption by 
+# sleeping for small bit of time while waiting for the delay to timeout. Also 
+# use this if you use the CPU('freq') function since it recalibrates the delay 
+# for whatever cpu speed you are at. Now the user has the option enter in a their 
+# current cpu speed. This makes for better precision in timming using dynamic CPU 
+# scaling.
 
 # Parameter "uint32_t usec" is delay in microseconds
+# Parameter "const uint32_t cpu" is current cpu speed.
 ```
 <h3>Examples:</h3>
 Here is a basic walk through to use this library in a Arduino sketch. 
@@ -256,9 +267,9 @@ void setup() {
 
 void loop() {
     LP.CPU(TWO_MHZ);
-    LP.delay(5000);
+    LP.delay(5000, TWO_MHZ);
     LP.CPU(F_CPU);
-    LP.delay(5000); 
+    LP.delay(5000, F_CPU); 
 }
 ```
 
@@ -337,9 +348,9 @@ void loop() {
 
 void blink() {
   digitalWrite(LED_BUILTIN, HIGH);
-  LP.delay(100);
+  LP.delay(100, F_CPU);
   digitalWrite(LED_BUILTIN, LOW);
-  LP.delay(100)
+  LP.delay(100, F_CPU)
 }
 ```
 
@@ -366,9 +377,9 @@ void loop() {
 
 void blink() {
   digitalWrite(LED_BUILTIN, HIGH);
-  LP.delay(100);
+  LP.delay(100, F_CPU);
   digitalWrite(LED_BUILTIN, LOW);
-  LP.delay(100)
+  LP.delay(100, F_CPU)
 }
 ```
 <h3>Pitfalls and Problems:</h3>
