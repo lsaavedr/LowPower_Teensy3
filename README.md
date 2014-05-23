@@ -5,13 +5,8 @@
 <h4>Currently used Teensyduino Version: 1.18</h4> 
 
 <h3>ChangeLog beta v1.4:</h3>
-<<<<<<< HEAD
-1.  Low Power delayMicroseconds now has a CPU argument, now more precise through different CPU speeds<br>
-2.  Low Power delay now has a CPU argument, now more precise through different CPU speeds<br>
-=======
 1.  Low Power delayMicroseconds now has a CPU argument, now more precise with different CPU speeds<br>
 2.  Low Power delay now has a CPU argument, now more precise with different CPU speeds<br>
->>>>>>> Bleeding-Edge
 
 <h3>ChangeLog beta v1.3:</h3>
 1.  Added Idle function for lowering current during user waiting loops<br>
@@ -226,13 +221,8 @@ static inline void delay(uint32_t msec, uint32_t cpu);
 # the delay for whatever cpu speed you are at. The 'cpu' argument is the current
 # cpu speed.
 
-<<<<<<< HEAD
-# Parameter "uint32_t msec" is delay in milliseconds
-# Parameter "uint32_t cpu" is current cpu speed.
-=======
 # Agrument "uint32_t msec" is delay in milliseconds
 # Agrument "uint32_t cpu" is current cpu speed.
->>>>>>> Bleeding-Edge
 ```
 ```c
 void delayMicroseconds(uint32_t usec);
@@ -246,13 +236,8 @@ void delayMicroseconds(uint32_t usec, const uint32_t cpu);
 # current cpu speed. This makes for better precision in timming using dynamic CPU 
 # scaling.
 
-<<<<<<< HEAD
-# Parameter "uint32_t usec" is delay in microseconds
-# Parameter "const uint32_t cpu" is current cpu speed.
-=======
 # Agrument "uint32_t usec" is delay in microseconds
 # Agrument "const uint32_t cpu" is current cpu speed.
->>>>>>> Bleeding-Edge
 ```
 <h3>Examples:</h3>
 Here is a basic walk through to use this library in a Arduino sketch. 
@@ -374,6 +359,32 @@ The `Hibernate` function puts the processor into lowest current consumption slee
 from `DeepSleep` by it wakes up through a reset event. This means that code below the `Hibernate` 
 function will not be called. Only certain wakeup events are used that are defined above in the
 function description. This sketch sets up the Teensy to sleep only to be awaken by the selected 
+digital pin. An optional callback handler can be added by the user to restore things after wakeup
+is called -> `LP.Hibernate(GPIO_WAKE, PIN_22, callback);`.
+```c
+#include <LowPower_Teensy3.h>
+
+TEENSY3_LP LP = TEENSY3_LP();
+
+void setup() {
+  pinMode(22, INPUT_PULLUP);
+  blink();
+}
+
+void loop() {
+  LP.Hibernate(GPIO_WAKE, PIN_22);
+}
+
+void blink() {
+  digitalWrite(LED_BUILTIN, HIGH);
+  LP.delay(100, F_CPU);
+  digitalWrite(LED_BUILTIN, LOW);
+  LP.delay(100, F_CPU)
+}
+```
+<h3>Pitfalls and Problems:</h3>
+TODO...
+ken by the selected
 digital pin. An optional callback handler can be added by the user to restore things after wakeup
 is called -> `LP.Hibernate(GPIO_WAKE, PIN_22, callback);`.
 ```c
