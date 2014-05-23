@@ -4,6 +4,10 @@
 
 <h4>Currently used Teensyduino Version: 1.18</h4> 
 
+<h3>ChangeLog beta v1.4:</h3>
+1.  Low Power delayMicroseconds now has a CPU argument, now more precise with different CPU speeds<br>
+2.  Low Power delay now has a CPU argument, now more precise with different CPU speeds<br>
+
 <h3>ChangeLog beta v1.3:</h3>
 1.  Added Idle function for lowering current during user waiting loops<br>
 2.  Now Low Power "delay" and "delayMicroseconds" sleeps with minimal impact on precision.<br>
@@ -47,7 +51,7 @@ void CPU(uint32_t freq);
 # power consumption. There are 5 speeds that the user can choose from: 2 MHz, 
 # 4 MHz, 8 MHz, 16 MHz, F_CPU MHz. 
 
-# Parameter "uint32_t  freq" can be any of the 5 predefined values above.
+# Agrument "uint32_t  freq" can be any of the 5 predefined values above.
 
 # These #defines have been added for the user convenience for "freq" param, else
 # use the complete frequency.
@@ -86,12 +90,12 @@ void DeepSleep(sleep_block_t* configuration);
 # structure so many wake sources can be configured along with many individual 
 # configurations.
 
-# Parameter "uint32_t wakeType" - Pin or Peripheral that will wake the mcu
-# Parameter "uint32_t time_pin" - Time or Pin number for "wakeType"
-# Parameter "uint16_t threshold" - TSI wakeup threshold
-# Parameter "ISR myCallback" - optional user callback function
+# Agrument "uint32_t wakeType" - Pin or Peripheral that will wake the mcu
+# Agrument "uint32_t time_pin" - Time or Pin number for "wakeType"
+# Agrument "uint16_t threshold" - TSI wakeup threshold
+# Agrument "ISR myCallback" - optional user callback function
 
-# Parameter "sleep_block_t* configuration" - see below
+# Agrument "sleep_block_t* configuration" - see below
 typedef struct sleep_block_struct {
     /* Structure wake source */
     volatile uint32_t wake_source;      # stores what module or pin wakeup source
@@ -148,12 +152,12 @@ void Hibernate(sleep_block_t* configuration);
 # structure so many wake sources can be configured along with many individual 
 # configurations. 
 
-# Parameter "wakeType" - Pin or peripheral that will wake the mcu
-# Parameter "time_pin" - Time or Pin number for "wakeType"
-# Parameter "threshold" - TSI wakeup threshold
-# Parameter "myCallback" - optional user callback function
+# Agrument "wakeType" - Pin or peripheral that will wake the mcu
+# Agrument "time_pin" - Time or Pin number for "wakeType"
+# Agrument "threshold" - TSI wakeup threshold
+# Agrument "myCallback" - optional user callback function
 
-# Parameter "sleep_block_t* configuration" - see below
+# Agrument "sleep_block_t* configuration" - see below
 typedef struct sleep_block_struct {
     /* Structure wake source */
     volatile uint32_t wake_source;      # stores what module or pin wakeup source
@@ -201,7 +205,7 @@ void PrintSRS(Stream *port);
 
 # Use this to print what caused the reset of the Teensy. Useful in debugging.
 
-# Parameter "port" can be any Hardware Serial or USB serial.
+# Agrument "port" can be any Hardware Serial or USB serial.
 ```
 ```c
 static uint32_t micros();
@@ -209,24 +213,31 @@ static uint32_t micros();
 # Port of the Teensy Core 'micros()' function for use at CPU speeds less than 24MHz.
 ```
 ```c
-static inline void delay(uint32_t msec);
+static inline void delay(uint32_t msec, uint32_t cpu);
 
 # Port of the Teensy Core delay('timeout') function for lowering the current
 # consumption by sleeping for small bit of time while waiting for the delay to 
 # timeout. Also use this if you use the CPU('freq') function since it recalibrates
-# the delay for whatever cpu speed you are at.
+# the delay for whatever cpu speed you are at. The 'cpu' argument is the current
+# cpu speed.
 
-# Parameter "uint32_t msec" is delay in milliseconds
+# Agrument "uint32_t msec" is delay in milliseconds
+# Agrument "uint32_t cpu" is current cpu speed.
 ```
 ```c
-static void delayMicroseconds(uint32_t usec);
+void delayMicroseconds(uint32_t usec);
+void delayMicroseconds(uint32_t usec, const uint32_t cpu);
 
-# Port of the Teensy Core delayMicroseconds('timeout') function for lowering the 
-# current consumption by sleeping for small bit of time while waiting for the delay 
-# to timeout. Also use this if you use the CPU('freq') function since it recalibrates
-# the delay for whatever cpu speed you are at.
+# Port of the Teensy Core delayMicroseconds('timeout') function and 
+# delayMicroseconds('timeout', 'CPU') for lowering the current consumption by 
+# sleeping for small bit of time while waiting for the delay to timeout. Also 
+# use this if you use the CPU('freq') function since it recalibrates the delay 
+# for whatever cpu speed you are at. Now the user has the option enter in a their 
+# current cpu speed. This makes for better precision in timming using dynamic CPU 
+# scaling.
 
-# Parameter "uint32_t usec" is delay in microseconds
+# Agrument "uint32_t usec" is delay in microseconds
+# Agrument "const uint32_t cpu" is current cpu speed.
 ```
 <h3>Examples:</h3>
 Here is a basic walk through to use this library in a Arduino sketch. 
@@ -256,9 +267,9 @@ void setup() {
 
 void loop() {
     LP.CPU(TWO_MHZ);
-    LP.delay(5000);
+    LP.delay(5000, TWO_MHZ);
     LP.CPU(F_CPU);
-    LP.delay(5000); 
+    LP.delay(5000, F_CPU); 
 }
 ```
 
@@ -337,9 +348,9 @@ void loop() {
 
 void blink() {
   digitalWrite(LED_BUILTIN, HIGH);
-  LP.delay(100);
+  LP.delay(100, F_CPU);
   digitalWrite(LED_BUILTIN, LOW);
-  LP.delay(100)
+  LP.delay(100, F_CPU)
 }
 ```
 
@@ -366,9 +377,9 @@ void loop() {
 
 void blink() {
   digitalWrite(LED_BUILTIN, HIGH);
-  LP.delay(100);
+  LP.delay(100, F_CPU);
   digitalWrite(LED_BUILTIN, LOW);
-  LP.delay(100)
+  LP.delay(100, F_CPU)
 }
 ```
 <h3>Pitfalls and Problems:</h3>
