@@ -250,12 +250,7 @@ Now that we have defined the constructor as `LP` we will use this in front of an
 function: `LP.DeepSleep(RTCA_WAKE, 5);`
 
 **example sketch: using the "CPU" function**<br>
-This just shows the basic usage of the library's `CPU` function, it just sets the Teensy to run
-at 2MHz for 5000 milliseconds and then run the cpu at F_CPU for 5000 milliseconds. Notice the
-use of the `LP.delay(5000, MHZ);` and `LP.delay(5000, F_CPU);`. Use this port of the core `delay` 
-function since it will reconfigure the `delay` function to use the new dynamically entered cpu 
-speed, in this case 2MHz. Also this delay will sleep for very small amount of time waiting for 
-the delay to timeout. You can choose from cpu speeds listed above in the function description.
+This just shows the basic usage of the library's `CPU` function, it just sets the Teensy to run at 2MHz for 5000 milliseconds and then run the cpu at F_CPU for 5000 milliseconds. Notice the use of the `LP.delay(5000, MHZ);` and `LP.delay(5000, F_CPU);`. Use this port of the core `delay` function since it will reconfigure the `delay` function to use the new dynamically entered cpu speed, in this case 2MHz. Also this delay will sleep for very small amount of time waiting for the delay to timeout. You can choose from cpu speeds listed above in the function description.
 ```c
 #include <LowPower_Teensy3.h>
 
