@@ -27,12 +27,12 @@ void delay_lp(uint32_t msec, uint32_t f_cpu) {
 		while (1) {
 			if ((micros_lp(f_cpu) - start) >= 1000) {
 				msec--;
-                				if (msec == 0) return;
+                if (msec == 0) return;
 				start += 1000;
 			}
             /*********************************************
              *  asm "sev" sends event to "Wait-for-Event"
-             *  asm "wfe" to wake up as fats as possible
+             *  asm "wfe" to wake up as fast as possible
              *  but in doing so results in power savings.
              *********************************************/
             asm volatile ("sev");
