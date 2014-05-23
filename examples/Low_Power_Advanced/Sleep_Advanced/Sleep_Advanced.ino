@@ -31,7 +31,7 @@ IntervalTimer_LP timer_lp;
 
 void intervalTimerCallback() {
     digitalWrite(LED_BUILTIN, HIGH);
-    delay(100);
+    LP.delay(100, TWO_MHZ);
     digitalWrite(LED_BUILTIN, LOW);
 }
 
