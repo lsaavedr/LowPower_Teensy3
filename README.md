@@ -1,8 +1,8 @@
-#LowPower_Teensy3 Library
+#LowPower_Teensy3 Library --Edge--
 
 >This is the latest code that should get branched if you want too contribute. Only the latest Teensyduino release will be used. Older versions of Teensyduino may or may not compile and work. Function definitions and examples are below.
 
-<h4>Currently used Teensyduino Version: 1.18</h4> 
+<h4>Currently used Teensyduino Version: 1.18 - Working on Teensyduino version 1.19</h4> 
 
 <h3>ChangeLog beta v1.4:</h3>
 1.  Low Power delayMicroseconds now has a CPU argument, now more precise with different CPU speeds<br>
