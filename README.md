@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #LowPower_Teensy3 Library
 
 >Only the latest Teensyduino release will be used. Older versions of Teensyduino may or may not compile and work. Function definitions and examples are below.
