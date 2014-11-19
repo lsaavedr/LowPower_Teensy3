@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 #LowPower_Teensy3 Library
 
 >Only the latest Teensyduino release will be used. Older versions of Teensyduino may or may not compile and work. Function definitions and examples are below.
 
 <h4>Currently used Teensyduino Version: 1.20</h4> 
+=======
+#LowPower_Teensy3 Library --Edge--
+
+> Please take a look at my new Low Power library "Snooze", this library will no longer be supported.
+
+<h4>Currently used Teensyduino Version: 1.18 - Working on Teensyduino version 1.19</h4> 
+>>>>>>> Bleeding-Edge
 
 <h3>ChangeLog beta v1.4:</h3>
 1.  Low Power delayMicroseconds now has a CPU argument, now more precise with different CPU speeds<br>
