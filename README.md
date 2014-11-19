@@ -1,6 +1,6 @@
 #LowPower_Teensy3 Library --Edge--
 
->This is the latest code that should get branched if you want too contribute. Only the latest Teensyduino release will be used. Older versions of Teensyduino may or may not compile and work. Function definitions and examples are below.
+> Please take a look at my new Low Power library "Snooze", this library will no longer be supported.
 
 <h4>Currently used Teensyduino Version: 1.18 - Working on Teensyduino version 1.19</h4> 
 
