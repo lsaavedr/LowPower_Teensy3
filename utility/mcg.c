@@ -38,7 +38,11 @@ void blpe_pee(void) {
     while (!(MCG_S & MCG_S_LOCK0)) ;
     // configure the clock dividers back again before switching to the PLL to
     // ensure the system clock speeds are in spec.
-#if F_CPU == 96000000
+
+#if F_CPU == 120000000
+	// config divisors: 120 MHz core, 60 MHz bus, 24 MHz flash, USB = 128 * 2 / 5
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) |	 SIM_CLKDIV1_OUTDIV4(4);
+#elif F_CPU == 96000000
     // config divisors: 96 MHz core, 48 MHz bus, 24 MHz flash
     SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) |  SIM_CLKDIV1_OUTDIV4(3);
 #elif F_CPU == 48000000
@@ -48,7 +52,7 @@ void blpe_pee(void) {
     // config divisors: 24 MHz core, 24 MHz bus, 24 MHz flash
     SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV2(3) |  SIM_CLKDIV1_OUTDIV4(3);
 #else
-#error "Error, F_CPU must be 96000000, 48000000, or 24000000"
+#error "Error, F_CPU must be 120000000, 96000000, 48000000, or 24000000"
 #endif
     // now in PEE
     MCG_C1 = MCG_C1_CLKS(0);
@@ -108,7 +112,11 @@ void blpi_pee(void) {
     while (!(MCG_S & MCG_S_LOCK0)){}
     // configure the clock dividers back again before switching to the PLL to
     // ensure the system clock speeds are in spec.
-#if F_CPU == 96000000
+    
+#if F_CPU == 120000000
+	// config divisors: 120 MHz core, 60 MHz bus, 24 MHz flash, USB = 128 * 2 / 5
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) |	 SIM_CLKDIV1_OUTDIV4(4);
+#elif F_CPU == 96000000    
     // config divisors: 96 MHz core, 48 MHz bus, 24 MHz flash
     SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) |  SIM_CLKDIV1_OUTDIV4(3);
 #elif F_CPU == 48000000
@@ -118,7 +126,7 @@ void blpi_pee(void) {
     // config divisors: 24 MHz core, 24 MHz bus, 24 MHz flash
     SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV2(3) |  SIM_CLKDIV1_OUTDIV4(3);
 #else
-#error "Error, F_CPU must be 96000000, 48000000, or 24000000"
+#error "Error, F_CPU must be 120000000, 96000000, 48000000, or 24000000"
 #endif
     // switch to PLL as clock source, FLL input = 16 MHz / 512
     MCG_C1 = MCG_C1_CLKS(0) | MCG_C1_FRDIV(4);
