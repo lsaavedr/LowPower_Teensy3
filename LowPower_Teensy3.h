@@ -161,7 +161,7 @@ public:
     //-----------------------------------------Core------------------------------------------
     //const volatile uint32_t *currentCPU = (&_cpu);
     
-    static inline uint32_t micros(uint32_t cpu) __attribute__((always_inline, unused)) { return micros_lp(cpu); }
+    static inline uint32_t micros(uint32_t cpu = _cpu) __attribute__((always_inline, unused)) { return micros_lp(cpu); }
     static inline void delay(uint32_t msec, uint32_t cpu) { delay_lp(msec, cpu); }
     
     static inline void delayMicroseconds(uint32_t usec) __attribute__((always_inline, unused))
@@ -193,7 +193,7 @@ public:
 };
 
 /**** !!!!!Must make interval timer private members protected for this to work!!!! *****/
-/*class IntervalTimer_LP : public IntervalTimer {
+class IntervalTimer_LP : public IntervalTimer {
 private:
 public:
     bool begin(ISR newISR, unsigned int newPeriod) {
@@ -201,7 +201,7 @@ public:
         uint32_t newValue = (TEENSY3_LP::_cpu / 1000000) * newPeriod - 1;
         return beginCycles(newISR, newValue);
     }
-};*/
+};
 
 
 class HardwareSerial_LP : public HardwareSerial {
