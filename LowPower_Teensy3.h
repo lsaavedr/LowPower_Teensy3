@@ -162,32 +162,21 @@ public:
     //const volatile uint32_t *currentCPU = (&_cpu);
     
     static inline uint32_t micros(uint32_t cpu = _cpu) __attribute__((always_inline, unused)) { return micros_lp(cpu); }
-    static inline void delay(uint32_t msec, uint32_t cpu) { delay_lp(msec, cpu); }
+    static inline uint32_t millis(uint32_t cpu = _cpu) __attribute__((always_inline, unused)) { return micros_lp(cpu)/1000; }
     
-    static inline void delayMicroseconds(uint32_t usec) __attribute__((always_inline, unused))
-    { delayMicroseconds(usec, _cpu); }
+    
+    static inline void delay(uint32_t msec, uint32_t cpu) { delay_lp(msec, cpu); }
+    static inline void delayMicroseconds(uint32_t usec) __attribute__((always_inline, unused)) { delayMicroseconds(usec, _cpu); }
     static inline void delayMicroseconds(uint32_t usec, const uint32_t cpu) __attribute__((always_inline, unused)) {
-        if  (cpu == 96000000) {
-            delayMicroseconds96(usec);
-        }
-        else if (cpu == 48000000) {
-            delayMicroseconds48(usec);
-        }
-        else if (cpu == 24000000) {
-            delayMicroseconds24(usec);
-        }
-        else if (cpu == 16000000) {
-            delayMicroseconds16(usec);
-        }
-        else if (cpu == 8000000) {
-            delayMicroseconds8(usec);
-        }
-        else if (cpu == 4000000) {
-            delayMicroseconds4(usec);
-        }
-        else if (cpu == 2000000) {
-            delayMicroseconds2(usec);
-        }
+        
+        if      (cpu == 96000000) delayMicroseconds96(usec);
+        else if (cpu == 48000000) delayMicroseconds48(usec);
+        else if (cpu == 24000000) delayMicroseconds24(usec);
+        else if (cpu == 16000000) delayMicroseconds16(usec);
+        else if (cpu ==  8000000) delayMicroseconds8(usec);
+        else if (cpu ==  4000000) delayMicroseconds4(usec);
+        else if (cpu ==  2000000) delayMicroseconds2(usec);
+        
     }
 
 };
