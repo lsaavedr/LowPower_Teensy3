@@ -130,11 +130,12 @@ private:
     friend class HardwareSerial3_LP;
     friend class IntervalTimer_LP;
     
+public:
+    
     static volatile uint32_t _cpu;
     static volatile uint32_t _bus;
     static volatile uint32_t _mem;
     
-public:
     // Constructor
     TEENSY3_LP(void);
     
