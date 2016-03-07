@@ -170,7 +170,8 @@ public:
     static inline void delayMicroseconds(uint32_t usec) __attribute__((always_inline, unused)) { delayMicroseconds(usec, _cpu); }
     static inline void delayMicroseconds(uint32_t usec, const uint32_t cpu) __attribute__((always_inline, unused)) {
         
-        if      (cpu == 96000000) delayMicroseconds96(usec);
+        if      (cpu == 120000000) delayMicroseconds120(usec);
+        else if (cpu == 96000000) delayMicroseconds96(usec);
         else if (cpu == 48000000) delayMicroseconds48(usec);
         else if (cpu == 24000000) delayMicroseconds24(usec);
         else if (cpu == 16000000) delayMicroseconds16(usec);
@@ -183,7 +184,7 @@ public:
 };
 
 /**** !!!!!Must make interval timer private members protected for this to work!!!! *****/
-class IntervalTimer_LP : public IntervalTimer {
+/*class IntervalTimer_LP : public IntervalTimer {
 private:
 public:
     bool begin(ISR newISR, unsigned int newPeriod) {
@@ -191,7 +192,7 @@ public:
         uint32_t newValue = (TEENSY3_LP::_cpu / 1000000) * newPeriod - 1;
         return beginCycles(newISR, newValue);
     }
-};
+};*/
 
 
 class HardwareSerial_LP : public HardwareSerial {

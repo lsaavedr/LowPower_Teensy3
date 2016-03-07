@@ -80,7 +80,7 @@ TEENSY3_LP::TEENSY3_LP() {
  * Arguments: NONE
  *
  **void CPU(uint32_t cpu) -
- *      dynamically configures the core cpu(2, 4, 8, 16, 24, 48, 96 MHZ),
+ *      dynamically configures the core cpu(2, 4, 8, 16, 24, 48, 96, 120 MHZ),
  *      bus and flash clocks and also configures the SysTick for the
  *      selected freq.
  * Arguments:  cpu -> TWO_MHZ, FOUR_MHZ, EIGHT_MHZ, SIXTEEN_MHZ, F_CPU

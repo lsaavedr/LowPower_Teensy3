@@ -30,6 +30,13 @@ extern "C" {
         return ret;
     }
     
+    static inline void delayMicroseconds120(uint32_t) __attribute__((always_inline, unused));
+    static inline void delayMicroseconds120(uint32_t usec) {
+        uint32_t n = (usec * 20);
+        if (usec == 0) return;
+        delayMicros_lp(n);
+    }
+    
     static inline void delayMicroseconds96(uint32_t) __attribute__((always_inline, unused));
     static inline void delayMicroseconds96(uint32_t usec) {
         uint32_t n = (usec << 4);
