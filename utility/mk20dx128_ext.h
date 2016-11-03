@@ -391,57 +391,57 @@ define I2S_RCR2_DIV_MASK                        0xFFu
  */
 
 /* PE1 Bit Fields */
-#define LLWU_PE1_WUPE0_MASK                      0x3u
-#define LLWU_PE1_WUPE0_SHIFT                     0
-#define LLWU_PE1_WUPE0(x)                        ((uint8_t)(((uint8_t)(x))<<LLWU_PE1_WUPE0_SHIFT))
-#define LLWU_PE1_WUPE1_MASK                      0xCu
-#define LLWU_PE1_WUPE1_SHIFT                     2
-#define LLWU_PE1_WUPE1(x)                        ((uint8_t)(((uint8_t)(x))<<LLWU_PE1_WUPE1_SHIFT))
-#define LLWU_PE1_WUPE2_MASK                      0x30u
-#define LLWU_PE1_WUPE2_SHIFT                     4
-#define LLWU_PE1_WUPE2(x)                        ((uint8_t)(((uint8_t)(x))<<LLWU_PE1_WUPE2_SHIFT))
-#define LLWU_PE1_WUPE3_MASK                      0xC0u
-#define LLWU_PE1_WUPE3_SHIFT                     6
-#define LLWU_PE1_WUPE3(x)                        ((uint8_t)(((uint8_t)(x))<<LLWU_PE1_WUPE3_SHIFT))
+//#define LLWU_PE1_WUPE0_MASK                      0x3u
+//#define LLWU_PE1_WUPE0_SHIFT                     0
+//#define LLWU_PE1_WUPE0(x)                        ((uint8_t)(((uint8_t)(x))<<LLWU_PE1_WUPE0_SHIFT))
+//#define LLWU_PE1_WUPE1_MASK                      0xCu
+//#define LLWU_PE1_WUPE1_SHIFT                     2
+//#define LLWU_PE1_WUPE1(x)                        ((uint8_t)(((uint8_t)(x))<<LLWU_PE1_WUPE1_SHIFT))
+//#define LLWU_PE1_WUPE2_MASK                      0x30u
+//#define LLWU_PE1_WUPE2_SHIFT                     4
+//#define LLWU_PE1_WUPE2(x)                        ((uint8_t)(((uint8_t)(x))<<LLWU_PE1_WUPE2_SHIFT))
+//#define LLWU_PE1_WUPE3_MASK                      0xC0u
+//#define LLWU_PE1_WUPE3_SHIFT                     6
+//#define LLWU_PE1_WUPE3(x)                        ((uint8_t)(((uint8_t)(x))<<LLWU_PE1_WUPE3_SHIFT))
 /* PE2 Bit Fields */
-#define LLWU_PE2_WUPE4_MASK                      0x3u
-#define LLWU_PE2_WUPE4_SHIFT                     0
-#define LLWU_PE2_WUPE4(x)                        ((uint8_t)(((uint8_t)(x))<<LLWU_PE2_WUPE4_SHIFT))
-#define LLWU_PE2_WUPE5_MASK                      0xCu
-#define LLWU_PE2_WUPE5_SHIFT                     2
-#define LLWU_PE2_WUPE5(x)                        ((uint8_t)(((uint8_t)(x))<<LLWU_PE2_WUPE5_SHIFT))
-#define LLWU_PE2_WUPE6_MASK                      0x30u
-#define LLWU_PE2_WUPE6_SHIFT                     4
-#define LLWU_PE2_WUPE6(x)                        ((uint8_t)(((uint8_t)(x))<<LLWU_PE2_WUPE6_SHIFT))
-#define LLWU_PE2_WUPE7_MASK                      0xC0u
-#define LLWU_PE2_WUPE7_SHIFT                     6
-#define LLWU_PE2_WUPE7(x)                        ((uint8_t)(((uint8_t)(x))<<LLWU_PE2_WUPE7_SHIFT))
+//#define LLWU_PE2_WUPE4_MASK                      0x3u
+//#define LLWU_PE2_WUPE4_SHIFT                     0
+//#define LLWU_PE2_WUPE4(x)                        ((uint8_t)(((uint8_t)(x))<<LLWU_PE2_WUPE4_SHIFT))
+//#define LLWU_PE2_WUPE5_MASK                      0xCu
+//#define LLWU_PE2_WUPE5_SHIFT                     2
+//#define LLWU_PE2_WUPE5(x)                        ((uint8_t)(((uint8_t)(x))<<LLWU_PE2_WUPE5_SHIFT))
+//#define LLWU_PE2_WUPE6_MASK                      0x30u
+//#define LLWU_PE2_WUPE6_SHIFT                     4
+//#define LLWU_PE2_WUPE6(x)                        ((uint8_t)(((uint8_t)(x))<<LLWU_PE2_WUPE6_SHIFT))
+//#define LLWU_PE2_WUPE7_MASK                      0xC0u
+//#define LLWU_PE2_WUPE7_SHIFT                     6
+//#define LLWU_PE2_WUPE7(x)                        ((uint8_t)(((uint8_t)(x))<<LLWU_PE2_WUPE7_SHIFT))
 /* PE3 Bit Fields */
-#define LLWU_PE3_WUPE8_MASK                      0x3u
-#define LLWU_PE3_WUPE8_SHIFT                     0
-#define LLWU_PE3_WUPE8(x)                        ((uint8_t)(((uint8_t)(x))<<LLWU_PE3_WUPE8_SHIFT))
-#define LLWU_PE3_WUPE9_MASK                      0xCu
-#define LLWU_PE3_WUPE9_SHIFT                     2
-#define LLWU_PE3_WUPE9(x)                        ((uint8_t)(((uint8_t)(x))<<LLWU_PE3_WUPE9_SHIFT))
-#define LLWU_PE3_WUPE10_MASK                     0x30u
-#define LLWU_PE3_WUPE10_SHIFT                    4
-#define LLWU_PE3_WUPE10(x)                       ((uint8_t)(((uint8_t)(x))<<LLWU_PE3_WUPE10_SHIFT))
-#define LLWU_PE3_WUPE11_MASK                     0xC0u
-#define LLWU_PE3_WUPE11_SHIFT                    6
-#define LLWU_PE3_WUPE11(x)                       ((uint8_t)(((uint8_t)(x))<<LLWU_PE3_WUPE11_SHIFT))
+//#define LLWU_PE3_WUPE8_MASK                      0x3u
+//#define LLWU_PE3_WUPE8_SHIFT                     0
+//#define LLWU_PE3_WUPE8(x)                        ((uint8_t)(((uint8_t)(x))<<LLWU_PE3_WUPE8_SHIFT))
+//#define LLWU_PE3_WUPE9_MASK                      0xCu
+//#define LLWU_PE3_WUPE9_SHIFT                     2
+//#define LLWU_PE3_WUPE9(x)                        ((uint8_t)(((uint8_t)(x))<<LLWU_PE3_WUPE9_SHIFT))
+//#define LLWU_PE3_WUPE10_MASK                     0x30u
+//#define LLWU_PE3_WUPE10_SHIFT                    4
+//#define LLWU_PE3_WUPE10(x)                       ((uint8_t)(((uint8_t)(x))<<LLWU_PE3_WUPE10_SHIFT))
+//#define LLWU_PE3_WUPE11_MASK                     0xC0u
+//#define LLWU_PE3_WUPE11_SHIFT                    6
+//#define LLWU_PE3_WUPE11(x)                       ((uint8_t)(((uint8_t)(x))<<LLWU_PE3_WUPE11_SHIFT))
 /* PE4 Bit Fields */
-#define LLWU_PE4_WUPE12_MASK                     0x3u
-#define LLWU_PE4_WUPE12_SHIFT                    0
-#define LLWU_PE4_WUPE12(x)                       ((uint8_t)(((uint8_t)(x))<<LLWU_PE4_WUPE12_SHIFT))
-#define LLWU_PE4_WUPE13_MASK                     0xCu
-#define LLWU_PE4_WUPE13_SHIFT                    2
-#define LLWU_PE4_WUPE13(x)                       ((uint8_t)(((uint8_t)(x))<<LLWU_PE4_WUPE13_SHIFT))
-#define LLWU_PE4_WUPE14_MASK                     0x30u
-#define LLWU_PE4_WUPE14_SHIFT                    4
-#define LLWU_PE4_WUPE14(x)                       ((uint8_t)(((uint8_t)(x))<<LLWU_PE4_WUPE14_SHIFT))
-#define LLWU_PE4_WUPE15_MASK                     0xC0u
-#define LLWU_PE4_WUPE15_SHIFT                    6
-#define LLWU_PE4_WUPE15(x)                       ((uint8_t)(((uint8_t)(x))<<LLWU_PE4_WUPE15_SHIFT))
+//#define LLWU_PE4_WUPE12_MASK                     0x3u
+//#define LLWU_PE4_WUPE12_SHIFT                    0
+//#define LLWU_PE4_WUPE12(x)                       ((uint8_t)(((uint8_t)(x))<<LLWU_PE4_WUPE12_SHIFT))
+//#define LLWU_PE4_WUPE13_MASK                     0xCu
+//#define LLWU_PE4_WUPE13_SHIFT                    2
+//#define LLWU_PE4_WUPE13(x)                       ((uint8_t)(((uint8_t)(x))<<LLWU_PE4_WUPE13_SHIFT))
+//#define LLWU_PE4_WUPE14_MASK                     0x30u
+//#define LLWU_PE4_WUPE14_SHIFT                    4
+//#define LLWU_PE4_WUPE14(x)                       ((uint8_t)(((uint8_t)(x))<<LLWU_PE4_WUPE14_SHIFT))
+//#define LLWU_PE4_WUPE15_MASK                     0xC0u
+//#define LLWU_PE4_WUPE15_SHIFT                    6
+//#define LLWU_PE4_WUPE15(x)                       ((uint8_t)(((uint8_t)(x))<<LLWU_PE4_WUPE15_SHIFT))
 /* ME Bit Fields */
 #define LLWU_ME_WUME0_MASK                       0x1u
 #define LLWU_ME_WUME0_SHIFT                      0
@@ -548,7 +548,6 @@ define I2S_RCR2_DIV_MASK                        0xFFu
 #define LPTMR_CSR_TPP_SHIFT                      3
 #define LPTMR_CSR_TPS_MASK                       0x30u
 #define LPTMR_CSR_TPS_SHIFT                      4
-#define LPTMR_CSR_TPS(x)                         (((uint32_t)(((uint32_t)(x))<<LPTMR_CSR_TPS_SHIFT))&LPTMR_CSR_TPS_MASK)
 #define LPTMR_CSR_TIE_MASK                       0x40u
 #define LPTMR_CSR_TIE_SHIFT                      6
 #define LPTMR_CSR_TCF_MASK                       0x80u
@@ -556,12 +555,10 @@ define I2S_RCR2_DIV_MASK                        0xFFu
 /* PSR Bit Fields */
 #define LPTMR_PSR_PCS_MASK                       0x3u
 #define LPTMR_PSR_PCS_SHIFT                      0
-#define LPTMR_PSR_PCS(x)                         (((uint32_t)(((uint32_t)(x))<<LPTMR_PSR_PCS_SHIFT))&LPTMR_PSR_PCS_MASK)
 #define LPTMR_PSR_PBYP_MASK                      0x4u
 #define LPTMR_PSR_PBYP_SHIFT                     2
 #define LPTMR_PSR_PRESCALE_MASK                  0x78u
 #define LPTMR_PSR_PRESCALE_SHIFT                 3
-#define LPTMR_PSR_PRESCALE(x)                    (((uint32_t)(((uint32_t)(x))<<LPTMR_PSR_PRESCALE_SHIFT))&LPTMR_PSR_PRESCALE_MASK)
 /* CMR Bit Fields */
 #define LPTMR_CMR_COMPARE_MASK                   0xFFFFu
 #define LPTMR_CMR_COMPARE_SHIFT                  0
@@ -851,7 +848,6 @@ define I2S_RCR2_DIV_MASK                        0xFFu
 #define SIM_SOPT1_RAMSIZE(x)                     (((uint32_t)(((uint32_t)(x))<<SIM_SOPT1_RAMSIZE_SHIFT))&SIM_SOPT1_RAMSIZE_MASK)
 #define SIM_SOPT1_OSC32KSEL_MASK                 0xC0000u
 #define SIM_SOPT1_OSC32KSEL_SHIFT                18
-#define SIM_SOPT1_OSC32KSEL(x)                   (((uint32_t)(((uint32_t)(x))<<SIM_SOPT1_OSC32KSEL_SHIFT))&SIM_SOPT1_OSC32KSEL_MASK)
 #define SIM_SOPT1_USBVSTBY_MASK                  0x20000000u
 #define SIM_SOPT1_USBVSTBY_SHIFT                 29
 #define SIM_SOPT1_USBSSTBY_MASK                  0x40000000u
@@ -1218,7 +1214,6 @@ define I2S_RCR2_DIV_MASK                        0xFFu
 /* SC Bit Fields */
 #define VREF_SC_MODE_LV_MASK                     0x3u
 #define VREF_SC_MODE_LV_SHIFT                    0
-#define VREF_SC_MODE_LV(x)                       (((uint8_t)(((uint8_t)(x))<<VREF_SC_MODE_LV_SHIFT))&VREF_SC_MODE_LV_MASK)
 #define VREF_SC_VREFST_MASK                      0x4u
 #define VREF_SC_VREFST_SHIFT                     2
 #define VREF_SC_REGEN_MASK                       0x40u
